@@ -1,0 +1,12 @@
+{
+  "name": "objecture",
+  "version": "1.0.0",
+  "description": "Early Bird Gets The Wormhole",
+  "license": "ISC",
+  "author": "Thomas Patrick Welborn",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
