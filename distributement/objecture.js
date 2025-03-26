@@ -3851,7 +3851,7 @@ function Methods($content) {
 
 const { typedObjectLiteral, typeOf } = index;
 
-class Content extends EventTarget {
+class Content extends Core {
   #_properties
   #options
   #schema

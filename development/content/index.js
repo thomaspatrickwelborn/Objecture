@@ -1,11 +1,11 @@
-import { Coutil } from 'core-plex'
+import { Core, Coutil } from 'core-plex'
 const { typedObjectLiteral, typeOf } = Coutil
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ContentEvent from './events/content/index.js'
 import Methods from './methods/index.js'
 
-export default class Content extends EventTarget {
+export default class Content extends Core {
   #_properties
   #options
   #schema
