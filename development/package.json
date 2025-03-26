@@ -1,0 +1,23 @@
+{
+  "name": "objecture-development",
+  "license": "ISC",
+  "author": "Thomas Patrick Welborn",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx pm2 start ecosystem.config.cjs",
+    "restart": "npx pm2 restart ecosystem.config.cjs",
+    "stop": "npx pm2 stop ecosystem.config.cjs",
+    "delete": "npx pm2 delete ecosystem.config.cjs",
+    "distribute": "rollup --config ./rollup.config.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.34.8"
+  },
+  "dependencies": {
+    "outmatch": "^1.0.0"
+  }
+}
