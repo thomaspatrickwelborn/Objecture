@@ -12,12 +12,12 @@
     "distribute": "rollup --config ./rollup.config.js"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup": "^4.34.8"
+    "rollup": "^4.34.6"
   },
   "dependencies": {
-    "outmatch": "^1.0.0"
+    "core-plex": "^1.7.5"
   }
 }

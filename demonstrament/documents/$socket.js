@@ -3,7 +3,7 @@ export default {
   active: true,
   name: 'Index',
   protocol: "wss:",
-  port: 3346,
+  port: 3348,
   host: "demonstrament.objecture",
   path: '/',
   source: 'documents',
