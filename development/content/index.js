@@ -16,7 +16,9 @@ export default class Content extends Core {
   #path
   #_handler
   constructor($properties = {}, $schema = null, $options = {}) {
-    super()
+    super({
+      accessors: [($target, $property) => $target.get($property)]
+    })
     this.#properties = $properties
     this.#options = Options($options)
     this.schema = $schema

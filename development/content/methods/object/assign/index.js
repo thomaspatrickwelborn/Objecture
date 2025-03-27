@@ -103,7 +103,9 @@ export default function assign($content, $options, ...$sources) {
         if(events['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':')
           assignSourcePropertyKeyChange.anter = target[$sourceKey]
-          $content.dispatchEvent(
+          $content
+          .reenableEvents({ enable: true })
+          .dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
               value: sourceValue,
@@ -116,7 +118,9 @@ export default function assign($content, $options, ...$sources) {
         }
         if(events['assignSourceProperty']) {
           assignSourcePropertyChange.anter = target[$sourceKey]
-          $content.dispatchEvent(
+          $content
+          .reenableEvents({ enable: true })
+          .dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
               value: sourceValue,
@@ -133,7 +137,9 @@ export default function assign($content, $options, ...$sources) {
     // Content Event: Assign Source
     if(events && events['assignSource']) {
       assignSourceChange.anter = $content
-      $content.dispatchEvent(
+      $content
+      .reenableEvents({ enable: true })
+      .dispatchEvent(
         new ContentEvent('assignSource', {
           path,
           change: assignSourceChange,
@@ -147,7 +153,10 @@ export default function assign($content, $options, ...$sources) {
   // Content Event: Assign
   if(events && events['assign']) {
     assignChange.anter = $content
-    $content.dispatchEvent(
+
+    $content
+    .reenableEvents({ enable: true })
+    .dispatchEvent(
       new ContentEvent('assign', { 
         path,
         change: assignChange,

@@ -1167,8 +1167,13 @@ class Core extends EventTarget {
       [settings.propertyDefinitions.reenableEvents]: {
         enumerable: false, writable: false, 
         value: function reenableEvents() {
-          $target[settings.propertyDefinitions.disableEvents](arguments[0]);
-          $target[settings.propertyDefinitions.enableEvents](arguments[0]);
+          const reenableEvents = $target[settings.propertyDefinitions.getEvents](arguments[0]);
+          for(const $reenableEvent of reenableEvents) {
+            $reenableEvent.enable = false;
+          }
+          for(const $reenableEvent of reenableEvents) {
+            $reenableEvent.enable = true;
+          }
           return $target
         },
       },
@@ -2246,7 +2251,9 @@ function assign($content, $options, ...$sources) {
         if(events['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':');
           assignSourcePropertyKeyChange.anter = target[$sourceKey];
-          $content.dispatchEvent(
+          $content
+          .reenableEvents({ enable: true })
+          .dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
               value: sourceValue,
@@ -2259,7 +2266,9 @@ function assign($content, $options, ...$sources) {
         }
         if(events['assignSourceProperty']) {
           assignSourcePropertyChange.anter = target[$sourceKey];
-          $content.dispatchEvent(
+          $content
+          .reenableEvents({ enable: true })
+          .dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
               value: sourceValue,
@@ -2276,7 +2285,9 @@ function assign($content, $options, ...$sources) {
     // Content Event: Assign Source
     if(events && events['assignSource']) {
       assignSourceChange.anter = $content;
-      $content.dispatchEvent(
+      $content
+      .reenableEvents({ enable: true })
+      .dispatchEvent(
         new ContentEvent('assignSource', {
           path,
           change: assignSourceChange,
@@ -2290,7 +2301,10 @@ function assign($content, $options, ...$sources) {
   // Content Event: Assign
   if(events && events['assign']) {
     assignChange.anter = $content;
-    $content.dispatchEvent(
+
+    $content
+    .reenableEvents({ enable: true })
+    .dispatchEvent(
       new ContentEvent('assign', { 
         path,
         change: assignChange,
@@ -3900,7 +3914,9 @@ class Content extends Core {
   #path
   #_handler
   constructor($properties = {}, $schema = null, $options = {}) {
-    super();
+    super({
+      accessors: [($target, $property) => $target.get($property)]
+    });
     this.#properties = $properties;
     this.#options = Options($options);
     this.schema = $schema;
