@@ -165,6 +165,10 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
+var index$2 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
 function recursiveFreeze($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -234,6 +238,7 @@ var index = /*#__PURE__*/Object.freeze({
   recursiveAssign: recursiveAssign$8,
   recursiveAssignConcat: recursiveAssignConcat,
   recursiveFreeze: recursiveFreeze,
+  regularExpressions: index$2,
   typeOf: typeOf$4,
   typedObjectLiteral: typedObjectLiteral$7,
   variables: index$1
@@ -3992,5 +3997,5 @@ class Content extends Core {
   }
 }
 
-export { Content, Schema };
+export { Content, Schema, Validation, Validator, Verification };
 //# sourceMappingURL=objecture.js.map
