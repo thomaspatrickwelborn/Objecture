@@ -36,7 +36,7 @@ export default function assign($content, $options, ...$sources) {
             type = 'nonvalidProperty'
             propertyType = ['nonvalidProperty', $sourceKey].join(':')
           }
-          $content.reenableEvents({ enable: true })
+          // $content.enableEvents({ enable: true })
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
           }
@@ -45,7 +45,6 @@ export default function assign($content, $options, ...$sources) {
       }
       // Source Prop: Object Type
       let sourceValue
-      let assignment
       if($sourceValue && typeof $sourceValue === 'object') {
         if($sourceValue instanceof Content) {
           sourceValue = $sourceValue.valueOf()
@@ -70,13 +69,13 @@ export default function assign($content, $options, ...$sources) {
             })
           )
           sourceValue.assign($sourceValue)
-          assignment = { [$sourceKey]: sourceValue }
         }
         // Source Tree: true
         else {
           // Assignment: Existing Content Instance
           if(target[$sourceKey] instanceof Content) {
-            target[$sourceKey].assign($sourceValue)
+            sourceValue = target[$sourceKey]
+            sourceValue.assign($sourceValue)
           }
           // Assignment: New Content Instance
           else {
@@ -88,14 +87,12 @@ export default function assign($content, $options, ...$sources) {
             )
             sourceValue.assign($sourceValue)
           }
-          assignment = { [$sourceKey]: sourceValue }
         }
         // Assignment
       }
       // Source Prop: Primitive Type
-      else {
-        assignment = { [$sourceKey]: $sourceValue }
-      }
+      else { sourceValue = $sourceValue }
+      const assignment = { [$sourceKey]: sourceValue }
       Object.assign(target, assignment)
       Object.assign(assignedSource, assignment)
       $content.reenableEvents({ enable: true })

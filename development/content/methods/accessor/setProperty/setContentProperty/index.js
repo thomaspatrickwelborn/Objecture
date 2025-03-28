@@ -44,7 +44,7 @@ export default function setContentProperty($content, $options, $path, $value) {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       propertyValue.set(subpaths.join('.'), $value, $options)
-      $content.reenableEvents({ enable: true })
+      // $content.enableEvents({ enable: true })
       return propertyValue
     }
     // Validation

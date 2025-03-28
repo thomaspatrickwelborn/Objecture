@@ -3,7 +3,7 @@ export default function pop($content, $options) {
   const { events } = $options
   const { target, path } = $content
   const popElement = Array.prototype.pop.call(target)
-  $content.reenableEvents({ enable: true })
+  // $content.enableEvents({ enable: true })
   const popElementIndex = target.length - 1
   // Array Pop Event
   if(events && events['pop']) {

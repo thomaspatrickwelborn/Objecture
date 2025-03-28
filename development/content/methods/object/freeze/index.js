@@ -13,7 +13,7 @@ export default function freeze($content, $options) {
       }
       else { Object.freeze($propertyValue) }
       if(events && events['freeze']) {
-        $content.reenableEvents({ enable: true })
+        // $content.enableEvents({ enable: true })
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',

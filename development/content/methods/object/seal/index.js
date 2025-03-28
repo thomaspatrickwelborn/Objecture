@@ -12,7 +12,7 @@ export default function seal($content, $options) {
         $propertyValue.seal()
       }
       else { Object.seal($propertyValue) }
-      $content.reenableEvents({ enable: true })
+      // $content.enableEvents({ enable: true })
       if(events && events['seal']) {
         $content.dispatchEvent(
           new ContentEvent(

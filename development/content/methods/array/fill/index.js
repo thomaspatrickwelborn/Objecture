@@ -59,7 +59,7 @@ export default function fill($content, $options) {
     Array.prototype.fill.call(
       target, value, fillIndex, fillIndex + 1
     )
-    $content.reenableEvents({ enable: true })
+    // $content.enableEvents({ enable: true })
     // Array Fill Index Event
     if(events) {
       const contentEventPath = (path)

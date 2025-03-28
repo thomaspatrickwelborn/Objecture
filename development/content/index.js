@@ -22,14 +22,20 @@ export default class Content extends Core {
         else { return $target.get($property) }
       }],
     })
+    if($options.addEvents) {
+      this.addEvents($options.addEvents)
+      delete $options.addEvents
+    }
+    if($options.enableEvents) {
+      const typeofEnableEvents = typeof $options.enableEvents
+      if(typeofEnableEvents === 'boolean') { this.enableEvents() }
+      else if(typeofEnableEvents === 'object') { this.enableEvents($options.enableEvents) }
+    }
     this.#properties = $properties
-    this.#options = Options($options)
     this.schema = $schema
+    this.#options = Options($options)
     Methods(this)
-    this.addEvents($options.addEvents || {})
-    this.enableEvents($options.enableEvents || false)
-    const { assignmentMethod } = this.options
-    this[assignmentMethod](this.#properties)
+    this[this.options.assignmentMethod](this.#properties)
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {

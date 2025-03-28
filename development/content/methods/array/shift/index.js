@@ -3,7 +3,7 @@ export default function shift($content, $options) {
   const { events } = $options
   const { target, path } = $content
   const shiftElement = Array.prototype.shift.call(target)
-  $content.reenableEvents({ enable: true })
+  // $content.enableEvents({ enable: true })
   const shiftElementIndex = 0
   // Array Shift Event
   if(events && events['shift']) {

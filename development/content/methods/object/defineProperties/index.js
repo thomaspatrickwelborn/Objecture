@@ -18,7 +18,7 @@ export default function defineProperties($content, $options, $propertyDescriptor
     // Property Descriptor Value Is Direct Instance Of Array/object/Map
     $content.defineProperty($propertyKey, $propertyDescriptor, impandPropertyDescriptors)
   }
-  $content.reenableEvents({ enable: true })
+  // $content.enableEvents({ enable: true })
   // Define Properties Event
   if(events && events['defineProperties']) {
     // Define Properties Validator Event

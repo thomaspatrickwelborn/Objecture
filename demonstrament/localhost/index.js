@@ -8,45 +8,92 @@ const object = new Content({
   ]
 }, null, {
   addEvents: {
+    // -----
     // 'assign': eventLog,
-    // 'propertyA.propertyB.propertyC assign': eventLog,
-    'propertyE.[0-9] assign': eventLog,
+    // 'assignSource': eventLog,
+    // 'assignSourceProperty': eventLog,
+    // -----
+    // 'propertyA.propertyB.propertyC assignSourceProperty': eventLog,
+    ':scope assignSourceProperty': eventLog,
+    '** assignSourceProperty': eventLog,
+    // 'propertyA.propertyB assignSourceProperty': eventLog,
+    // 'propertyA assignSourceProperty': eventLog,
+    // 'assignSourceProperty': eventLog,
+    // 'propertyA.propertyB.propertyC assignSource': eventLog,
+    // 'propertyA.propertyB.propertyC assignSourceProperty': eventLog,
+    // 'propertyE.[0-9] assign': eventLog,
   },
   enableEvents: true,
   assignmentMethod: 'assign',
 });
-console.log(object.toString());
-// object.addEvents({
-//   // 'assign': eventLog,
-//   // 'propertyA.propertyB.propertyC assign': eventLog,
-//   'propertyE.[0-9] assign': eventLog,
-// })
 // .enableEvents()
-// console.log(object.toString({ space: 2, replacer: null }))
-// console.log(object.getEvents({ enable: true}))
-// object.addEvents({
-//   'assign': eventLog,
-//   'propertyA.propertyB.propertyC assign': eventLog,
-//   'propertyE.[0-9] assign': eventLog,
-// }).enableEvents()
-// object.addEventListener('assign', eventLog)
-object.assign({
-  propertyA: { propertyB: { propertyC: { propertyD: true } } },
-  propertyE: [
-    { propertyF: false }, { propertyF: false }, { propertyF: false }
-  ]
-});
-// object.disableEvents()
-// object.assign({
-//   propertyA: { propertyB: { propertyC: { propertyD: true } } },
-//   propertyE: [
-//     { propertyF: false }, { propertyF: false }, { propertyF: false }
-//   ]
-// })
-// object.assign({
-//   propertyA: { propertyB: { propertyC: { propertyD: true } } },
-//   propertyE: [
-//     { propertyF: false }, { propertyF: false }, { propertyF: false }
-//   ],
-// })
+// object.get('propertyA.propertyB.propertyC').assign({ propertyD: false })
+// object.get('propertyA.propertyB.propertyC').assign({ propertyD: false })
+// object.get('propertyA.propertyB.propertyC').assign({ propertyD: false })
+
+
+console.log("Assignment 1");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } });
+object.disableEvents();
+console.log("No Assignment");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } });
+object.enableEvents();
+console.log("Assignment 2");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } });
+console.log("Assignment 3");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyG: true } } } });
+object.disableEvents();
+console.log("No Assignment");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } });
+console.log("No Assignment");
+object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } });
+object.enableEvents();
+console.log("Assignment 4");
+object.assign({ propertyI: false });
+object.assign({ propertyI: true });
+
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// const propertyC = object.get('propertyA.propertyB.propertyC')
+// propertyC.dispatchEvent(customEvent)
+// propertyC.dispatchEvent(customEvent)
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyE: false } } } })
+
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.enableEvents()
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+
+
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true } } } })
+// console.log("-----")
+// console.log("-----")
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
+// console.log("-----")
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: true }}}})
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
+// object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
 //# sourceMappingURL=index.js.map
