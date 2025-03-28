@@ -17,14 +17,19 @@ export default class Content extends Core {
   #_handler
   constructor($properties = {}, $schema = null, $options = {}) {
     super({
-      accessors: [($target, $property) => $target.get($property)]
+      accessors: [($target, $property) => {
+        if($property === undefined) { return $target.target }
+        else { return $target.get($property) }
+      }],
     })
     this.#properties = $properties
     this.#options = Options($options)
     this.schema = $schema
     Methods(this)
-    const { contentAssignmentMethod } = this.options
-    this[contentAssignmentMethod](this.#properties)
+    this.addEvents($options.addEvents || {})
+    this.enableEvents($options.enableEvents || false)
+    const { assignmentMethod } = this.options
+    this[assignmentMethod](this.#properties)
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -41,9 +46,7 @@ export default class Content extends Core {
   if(this.#schema !== undefined)  { return }
     const typeOfSchema = typeOf($schema)
     if(['undefined', 'null'].includes(typeOfSchema)) { this.#schema = null }
-    else if(
-      $schema instanceof Schema
-    ) { this.#schema = $schema }
+    else if($schema instanceof Schema) { this.#schema = $schema }
     else if(typeOfSchema === 'array') { this.#schema = new Schema(...arguments) }
     else if(typeOfSchema === 'object') { this.#schema = new Schema($schema) }
   }

@@ -32,7 +32,9 @@ export default function defineProperty($content, $options, $propertyKey, $proper
         propertyType = ['nonvalidProperty', $propertyKey].join(':')
       }
       for(const $eventType of [type, propertyType]) {
-        $content.dispatchEvent(new ValidatorEvent($eventType, validProperty, $content))
+        $content
+        .reenableEvents({ enable: true })
+        .dispatchEvent(new ValidatorEvent($eventType, validProperty, $content))
       }
     }
     if(!validProperty.valid) { return $content }
@@ -83,6 +85,7 @@ export default function defineProperty($content, $options, $propertyKey, $proper
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor)
   }
+  $content.reenableEvents({ enable: true })
   // Define Property Event
   if(events) {
     const contentEventPath = (path)

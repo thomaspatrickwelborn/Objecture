@@ -6,23 +6,23 @@ export default class ContentEvent extends CustomEvent {
     super($type, $settings)
     this.#settings = $settings
     this.#content = $content
-    if(!this.content.parent) return this
-    this.content.addEventListener(
-      $type, 
-      ($event) => {
-        const { path, value, detail, change } = $event
-        this.content.parent.dispatchEvent(
-          new ContentEvent(
-            this.type, 
-            { path, value, detail, change },
-            this.content.parent
-          )
-        )
-      }, 
-      {
-        once: true
-      }
-    )
+    // if(!this.content.parent) return this
+    // this.content.addEventListener(
+    //   $type, 
+    //   ($event) => {
+    //     const { path, value, detail, change } = $event
+    //     this.content.parent.dispatchEvent(
+    //       new ContentEvent(
+    //         this.type, 
+    //         { path, value, detail, change },
+    //         this.content.parent
+    //       )
+    //     )
+    //   }, 
+    //   {
+    //     once: true
+    //   }
+    // )
   }
   get content() { return this.#content }
   get key() {

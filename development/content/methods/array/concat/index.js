@@ -55,6 +55,7 @@ export default function concat($content, $options) {
       values[valueIndex] = $value
     }
     targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex])
+    $content.reenableEvents({ enable: true })
     if(events) {
       const contentEventPath = (path)
         ? [path, valueIndex].join('.')

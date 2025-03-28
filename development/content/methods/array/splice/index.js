@@ -22,6 +22,7 @@ export default function splice($content, $options) {
   spliceDelete:
   while(deleteItemsIndex < $deleteCount) {
     const deleteItem = Array.prototype.splice.call(target, $start, 1)[0]
+    $content.reenableEvents({ enable: true })
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
     if(events) {
@@ -70,6 +71,7 @@ export default function splice($content, $options) {
         const validatorEventPath = (path)
           ? [path, addItemsIndex].join('.')
           : String(addItemsIndex)
+        $content.reenableEvents({ enable: true })
         if(validAddItem.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', addItemsIndex].join('')
@@ -96,16 +98,13 @@ export default function splice($content, $options) {
         path: contentPath,
         parent: $content,
       })
-      Array.prototype.splice.call(
-        target, startIndex, 0, addItem
-      )
+      Array.prototype.splice.call(target, startIndex, 0, addItem)
     }
     // Add Item: Primitive Type
     else {
-      Array.prototype.splice.call(
-        target, startIndex, 0, addItem
-      )
+      Array.prototype.splice.call(target, startIndex, 0, addItem)
     }
+    $content.reenableEvents({ enable: true })
     // Array Splice Add Event
     if(events) {
       const contentEventPath = (path)

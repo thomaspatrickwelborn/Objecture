@@ -31,6 +31,7 @@ export default function copyWithin($content, $options) {
       copyIndex,
       copyIndex + 1
     )
+    $content.reenableEvents({ enable: true })
     // Array Copy Within Index Event Data
     if(events) {
       const contentEventPath = (path)

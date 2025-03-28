@@ -33,6 +33,7 @@ export default function unshift($content, $options, ...$elements) {
           type = 'nonvalidProperty'
           propertyType = ['nonvalidProperty', ':', elementCoindex].join('')
         }
+        $content.reenableEvents({ enable: true })
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(new ValidatorEvent($eventType, validElement, $content))
         }
@@ -74,6 +75,7 @@ export default function unshift($content, $options, ...$elements) {
     //   ? (targetElement.toString() !== JSON.stringify(element))
     //   : (JSON.stringify(targetElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
+    $content.reenableEvents({ enable: true })
     if(events) {
       const type = ['unshiftProp', elementCoindex].join(':')
       const contentEventPath = (path)

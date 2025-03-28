@@ -36,6 +36,7 @@ export default function assign($content, $options, ...$sources) {
             type = 'nonvalidProperty'
             propertyType = ['nonvalidProperty', $sourceKey].join(':')
           }
+          $content.reenableEvents({ enable: true })
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
           }
@@ -97,15 +98,14 @@ export default function assign($content, $options, ...$sources) {
       }
       Object.assign(target, assignment)
       Object.assign(assignedSource, assignment)
+      $content.reenableEvents({ enable: true })
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
         if(events['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':')
           assignSourcePropertyKeyChange.anter = target[$sourceKey]
-          $content
-          .reenableEvents({ enable: true })
-          .dispatchEvent(
+          $content.dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
               value: sourceValue,
@@ -118,9 +118,7 @@ export default function assign($content, $options, ...$sources) {
         }
         if(events['assignSourceProperty']) {
           assignSourcePropertyChange.anter = target[$sourceKey]
-          $content
-          .reenableEvents({ enable: true })
-          .dispatchEvent(
+          $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
               value: sourceValue,
@@ -137,9 +135,7 @@ export default function assign($content, $options, ...$sources) {
     // Content Event: Assign Source
     if(events && events['assignSource']) {
       assignSourceChange.anter = $content
-      $content
-      .reenableEvents({ enable: true })
-      .dispatchEvent(
+      $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
           change: assignSourceChange,
@@ -153,10 +149,7 @@ export default function assign($content, $options, ...$sources) {
   // Content Event: Assign
   if(events && events['assign']) {
     assignChange.anter = $content
-
-    $content
-    .reenableEvents({ enable: true })
-    .dispatchEvent(
+    $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,
         change: assignChange,

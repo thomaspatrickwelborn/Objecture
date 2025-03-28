@@ -46,6 +46,7 @@ export default function push($content, $options, ...$elements) {
       elements.push($element)
       Array.prototype.push.call(target, $element)
     }
+    $content.reenableEvents({ enable: true })
     if(events) {
       const contentEventPath = (path)
         ? [path, '.', elementsIndex].join('')
