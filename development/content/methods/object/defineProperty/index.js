@@ -69,6 +69,7 @@ export default function defineProperty($content, $options, $propertyKey, $proper
           parent: $content,
         }
       )
+      contentObject.retroReenableEvents()
       // Root Define Properties, Descriptor Tree
       if(descriptorTree === true) {
         contentObject.defineProperties(propertyValue)

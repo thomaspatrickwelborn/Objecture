@@ -6,7 +6,6 @@ export default function setContent($content, $options, $properties) {
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $content.set($propertyKey, $propertyValue, $options)
   }
-  // $content.enableEvents({ enable: true })
   // Set Property Event
   const { path } = $content
   const { events } = $options

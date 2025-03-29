@@ -20,6 +20,9 @@ export default class Content extends Core {
       accessors: [($target, $property) => {
         if($property === undefined) { return $target.target }
         else { return $target.get($property) }
+      }, ($target, $property) => {
+        if($property === undefined) { return $target }
+        else { return $target[$property] }
       }],
     })
     if($options.addEvents) {
@@ -93,6 +96,14 @@ export default class Content extends Core {
     if(this.#target !== undefined) return this.#target
     this.#target = typedObjectLiteral(this.#properties)
     return this.#target
+  }
+  retroReenableEvents() {
+    let content = this
+    while(content) {
+      content.reenableEvents({ enable: true })
+      content = content.parent
+    }
+    return this
   }
   parse($settings = {
     type: 'object', // string

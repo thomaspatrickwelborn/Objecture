@@ -9,27 +9,6 @@ export default class ValidatorEvent extends CustomEvent {
     super($type)
     this.#settings = $settings
     this.#content = $content
-    this.#content.addEventListener(
-      $type, 
-      ($event) => {
-        if(this.#content.parent !== null) {
-          this.#content.parent.dispatchEvent(
-            new ValidatorEvent(
-              this.type, 
-              {
-                key: $event.key,
-                path: $event.path,
-                detail: $event.detail,
-              },
-              this.#content.parent
-            )
-          )
-        }
-      }, 
-      {
-        once: true
-      }
-    )
   }
   get key() {
     if(this.#key !== undefined) { return this.#key }

@@ -44,7 +44,6 @@ export default function setContentProperty($content, $options, $path, $value) {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       propertyValue.set(subpaths.join('.'), $value, $options)
-      // $content.enableEvents({ enable: true })
       return propertyValue
     }
     // Validation
@@ -75,22 +74,32 @@ export default function setContentProperty($content, $options, $path, $value) {
       // Value: Content
       if($value instanceof Content) { $value = $value.valueOf() }
       let subschema
-      if(schema?.type === 'array') { subschema = schema.context[0] }
-      else if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
+      let subcontent
+      if(schema?.type === 'array') {
+        subschema = schema.context[0]
+        subcontent = []
+      }
+      else if(schema?.type === 'object') {
+        subschema = schema.context[propertyKey]
+        subcontent = {}
+      }
       else { subschema = undefined }
-      propertyValue = new Content($value, subschema, recursiveAssign(
+      propertyValue = new Content(subcontent, subschema, recursiveAssign(
         {}, $options, {
           path: contentPath,
           parent: $content,
         }
       ))
+      target[propertyKey] = propertyValue
+      $content.retroReenableEvents()
+      propertyValue.set($value)
     }
     // Value: Primitive Literal
     else {
       propertyValue = $value
+      target[propertyKey] = propertyValue
     }
     // Root Assignment
-    target[propertyKey] = propertyValue
     // Set Property Event
     if(events) {
       const contentEventPath = (path)
@@ -133,23 +142,34 @@ export default function setContentProperty($content, $options, $path, $value) {
     if(typeof $value === 'object') {
       if($value instanceof Content) { $value = $value.valueOf() }
       let subschema
-      if(schema?.type === 'array') { subschema = schema.context[0] }
-      if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
+      let subcontent
+      if(schema?.type === 'array') {
+        subschema = schema.context[0]
+        subcontent = []
+      }
+      if(schema?.type === 'object') {
+        subschema = schema.context[propertyKey]
+        subcontent = {}
+      }
       else { subschema = undefined }
       const contentPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      propertyValue = new Content($value, subschema, recursiveAssign(
+      propertyValue = new Content(subcontent, subschema, recursiveAssign(
         {}, $options, {
           path: contentPath,
           parent: $content,
         }
       ))
+      target[propertyKey] = propertyValue
+      propertyValue.set($value)
     }
     // Property Value: Primitive Literal
-    else { propertyValue = $value }
+    else {
+      propertyValue = $value
+      target[propertyKey] = propertyValue
+    }
     // Root Assignment
-    target[propertyKey] = propertyValue
     // Set Property Event
     if(events) {
       const contentEventPath = (path)
