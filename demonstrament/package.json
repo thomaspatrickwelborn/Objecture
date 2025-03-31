@@ -13,6 +13,7 @@
     "delete": "pm2 delete ecosystem.config.cjs"
   },
   "dependencies": {
+    "core-plex": "^2.0.0",
     "document-process-manager": "^1.4.15"
   },
   "devDependencies": {
