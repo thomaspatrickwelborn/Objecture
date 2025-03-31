@@ -1,6 +1,6 @@
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral, typeOf } = Coutil
-import Content from '../content/index.js'
+import Model from '../model/index.js'
 import Context from './context/index.js'
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'
@@ -105,7 +105,7 @@ export default class Schema extends EventTarget{
     const sourceProperties = Object.entries($source)
     let sourcePropertyIndex = 0
     let deadvancedRequiredProperties = []
-    // Iterate Content Properties 
+    // Iterate Model Properties 
     while(sourcePropertyIndex < sourceProperties.length) {
       const [$sourceKey, $sourceValue] = sourceProperties[sourcePropertyIndex]
       const propertyValidation = this.validateProperty($sourceKey, $sourceValue, $source, $target)
@@ -137,11 +137,11 @@ export default class Schema extends EventTarget{
   #parseValidatePropertyArguments() {
     let $arguments = [...arguments]
     let [$key, $value, $source, $target] = $arguments
-    // const ContentClassString = Content.toString()
-    const sourceIsContentClassInstance = ($source instanceof Content)
-    $source = (sourceIsContentClassInstance) ? $source.valueOf() : $source
-    const $targetIsContentClassInstance = ($target instanceof Content)
-    $target = ($targetIsContentClassInstance) ? $target.valueOf() : $target
+    // const ModelClassString = Model.toString()
+    const sourceIsModelClassInstance = ($source instanceof Model)
+    $source = (sourceIsModelClassInstance) ? $source.valueOf() : $source
+    const $targetIsModelClassInstance = ($target instanceof Model)
+    $target = ($targetIsModelClassInstance) ? $target.valueOf() : $target
     return { $key, $value, $source, $target }
   }
   validateProperty() {

@@ -1,4 +1,4 @@
-<% for(const $structure of $content.structure) { -%>
+<% for(const $structure of $model.structure) { -%>
   <<%= $structure.tag %> 
     <% if($structure.attributes) { -%>
       <% for(const [
@@ -7,8 +7,8 @@
       <%= $attributeKey %>="<%= $attributeVal %>" 
     <% } -%>
   <% } -%><% if($structure.selfClose === true) { %>/<% } %>>
-  <% if($structure.textContent) { -%>
-    <%= $structure.textContent %>
+  <% if($structure.textModel) { -%>
+    <%= $structure.textModel %>
   <% } -%>
   <% if($structure.structure) { -%>
     <%- await include('./structure.ejs', {

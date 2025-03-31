@@ -13,7 +13,7 @@ export default class RequiredValidator extends Validator {
         if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true }
         else if(type === 'object') {
           const corequiredContextProperties = typedObjectLiteral(type)
-          const corequiredContentProperties = typedObjectLiteral(type)
+          const corequiredModelProperties = typedObjectLiteral(type)
           iterateRequiredProperties: 
           for(const [
             $requiredPropertyName, $requiredProperty
@@ -26,7 +26,7 @@ export default class RequiredValidator extends Validator {
             const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName)
             if(sourcePropertyDescriptor !== undefined) {
               corequiredContextProperties[$requiredPropertyName] = requiredProperty
-              corequiredContentProperties[$requiredPropertyName] = sourcePropertyDescriptor.value
+              corequiredModelProperties[$requiredPropertyName] = sourcePropertyDescriptor.value
             }
             else if($target) {
               const targetPropertyDescriptor = Object.getOwnPropertyDescriptor($target, $requiredPropertyName)
@@ -38,9 +38,9 @@ export default class RequiredValidator extends Validator {
             }
           }
           const corequiredContextPropertiesSize = Object.keys(corequiredContextProperties).length
-          const corequiredContentPropertiesSize = Object.keys(corequiredContentProperties).length
-          if(corequiredContextPropertiesSize === 0 && corequiredContentPropertiesSize === 0) { pass = true }
-          else if(corequiredContextPropertiesSize !== corequiredContentPropertiesSize) { pass = false }
+          const corequiredModelPropertiesSize = Object.keys(corequiredModelProperties).length
+          if(corequiredContextPropertiesSize === 0 && corequiredModelPropertiesSize === 0) { pass = true }
+          else if(corequiredContextPropertiesSize !== corequiredModelPropertiesSize) { pass = false }
           else {
             const coschema = new Schema(corequiredContextProperties, Object.assign({}, this.schema.options, {
               required: false 
@@ -48,11 +48,11 @@ export default class RequiredValidator extends Validator {
             const validations = []
             for(const [
               $corequiredContextPropertyName, $corequiredContextProperty
-            ] of Object.entries(corequiredContentProperties)) {
-              const corequiredContentPropertyName = $corequiredContextPropertyName
-              const corequiredContentProperty = corequiredContentProperties[corequiredContentPropertyName]
+            ] of Object.entries(corequiredModelProperties)) {
+              const corequiredModelPropertyName = $corequiredContextPropertyName
+              const corequiredModelProperty = corequiredModelProperties[corequiredModelPropertyName]
               const coschemaPropertyValidation = coschema.validateProperty(
-                $corequiredContextPropertyName, corequiredContentProperty,
+                $corequiredContextPropertyName, corequiredModelProperty,
                 $source, $target
               )
               validations.push(coschemaPropertyValidation)

@@ -16,7 +16,7 @@ export default {
       name: 'RESTAdapter',
       message: function message($data, $isBinary) {
         try {
-          const [$type/*, $content */] = [].concat(stringifyBuffer($data))
+          const [$type/*, $model */] = [].concat(stringifyBuffer($data))
           return this.messages[$type]
         }
         catch($err) { console.log($err) }
@@ -24,11 +24,11 @@ export default {
       messages: {
         'get': function getMessage($webSocket, $data, $isBinary) {
           const [$type] = [].concat(stringifyBuffer($data))
-          const content = { propertyA: "propertyA" }
-          const messageString = JSON.stringify(['get', content])
+          const model = { propertyA: "propertyA" }
+          const messageString = JSON.stringify(['get', model])
           console.log(this)
           $webSocket.send(messageString)
-          return { type: $type, detail: content }
+          return { type: $type, detail: model }
         },
         'post': function postMessage($webSocket, $data, $isBinary) {
           console.log('post', JSON.stringify(data.toString()))

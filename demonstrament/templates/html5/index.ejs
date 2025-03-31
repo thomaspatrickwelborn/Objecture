@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <% if($content.metas) { %>
+  <% if($model.metas) { %>
     <%- await include('./structure.ejs', {
-      structure: $content.metas
+      structure: $model.metas
     }, { async: true }) %>
   <% } %>
-  <title><%= $content.title %></title>
-  <% if($content.styles) { %>
+  <title><%= $model.title %></title>
+  <% if($model.styles) { %>
     <%- await include('./structure.ejs', {
-      structure: $content.styles
+      structure: $model.styles
     }, { async: true }) %>
   <% } %>
 </head>
 <body>
-  <% if($content.structure) { %>
+  <% if($model.structure) { %>
     <%- await include('./structure.ejs', {
-      structure: $content.structure
+      structure: $model.structure
     }, { async: true }) %>
   <% } %>
-  <% if($content.scripts) { %>
+  <% if($model.scripts) { %>
     <%- await include('./structure.ejs', {
-      structure: $content.scripts
+      structure: $model.scripts
     }, { async: true }) %>
   <% } %>
 </body>

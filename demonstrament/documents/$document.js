@@ -4,7 +4,7 @@ export default {
   path: '/',
   source: 'documents',
   target: 'localhost',
-  ignore: ['content'],
+  ignore: ['model'],
   main: 'index.html',
   pilers: {
     sans: [{
@@ -74,7 +74,7 @@ export default {
       input: 'index.ejs',
       output: 'index.html',
       outputOptions: {
-        localsName: '$content',
+        localsName: '$model',
         root: ['templates'],
       },
     }, {
@@ -86,7 +86,7 @@ export default {
       input: '**/*.ejs',
       output: '',
       outputOptions: {
-        localsName: '$content',
+        localsName: '$model',
         root: [''],
       }, 
     }],
