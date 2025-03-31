@@ -1957,11 +1957,17 @@ var Options = ($options) => recursiveAssign$5({
       },
       freeze: {
         recursive: true,
-        events: { 'freeze': true  },
+        events: {
+          'freezeProperty': true,
+          'freeze': true,
+        },
       },
       seal: {
         recursive: true,
-        events: { 'seal': true  },
+        events: {
+          'sealProperty': true,
+          'seal': true,
+        },
       },
     },
   },
@@ -2242,7 +2248,6 @@ function defineProperties($content, $options, $propertyDescriptors) {
     // Property Descriptor Value Is Direct Instance Of Array/object/Map
     $content.defineProperty($propertyKey, $propertyDescriptor, impandPropertyDescriptors);
   }
-  // $content.enableEvents({ enable: true })
   // Define Properties Event
   if(events && events['defineProperties']) {
     // Define Properties Validator Event
@@ -2388,7 +2393,7 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
 
 function freeze($content, $options) {
   const { recursive, events } = $options;
-  const { target, path } = $content;
+  const { target } = $content;
   if(recursive === true) {
     iterateProperties: 
     for(const [
@@ -2396,27 +2401,34 @@ function freeze($content, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Content) {
         $propertyValue.freeze();
-      }
-      else { Object.freeze($propertyValue); }
-      if(events && events['freeze']) {
-        // $content.enableEvents({ enable: true })
-        $content.dispatchEvent(
-          new ContentEvent(
-            'freeze',
-            { path },
-            $content
-          )
-        );
+        if(events && events['freezeProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent(
+              'freezeProperty',
+              { path: $propertyValue.path },
+              $content
+            )
+          );
+        }
       }
     }
   }
   Object.freeze(target);
+  if(events && events['freeze']) {
+    $content.dispatchEvent(
+      new ContentEvent(
+        'freeze',
+        { path: $content.path },
+        $content
+      )
+    );
+  }
   return $content
 }
 
 function seal($content, $options) {
   const { recursive, events } = $options;
-  const { target, path } = $content;
+  const { target } = $content;
   if(recursive === true) {
     iterateProperties: 
     for(const [
@@ -2424,21 +2436,28 @@ function seal($content, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Content) {
         $propertyValue.seal();
-      }
-      else { Object.seal($propertyValue); }
-      // $content.enableEvents({ enable: true })
-      if(events && events['seal']) {
-        $content.dispatchEvent(
-          new ContentEvent(
-            'seal',
-            { path },
-            $content
-          )
-        );
+        if(events && events['sealProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent(
+              'sealProperty',
+              { path: $propertyValue.path },
+              $content
+            )
+          );
+        }
       }
     }
   }
   Object.seal(target);
+  if(events && events['seal']) {
+    $content.dispatchEvent(
+      new ContentEvent(
+        'seal',
+        { path: $content.path },
+        $content
+      )
+    );
+  }
   return $content
 }
 

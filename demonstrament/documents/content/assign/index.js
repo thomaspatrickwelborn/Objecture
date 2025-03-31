@@ -1,15 +1,14 @@
-import { Content } from '/dependencies/objecture.js';
-
+import { Schema, Content } from '/dependencies/objecture.js'
 function eventLog($event) {
   console.log(
     '\n', `$event.type: ${$event.type}`, 
     '\n', `$event.currentTarget.path: ${$event.currentTarget.path}`, 
     '\n', `$event.path: ${$event.path}`
-  );
+  )
 }
-console.log("------");
-console.log("EVENTS");
-console.log("------");
+console.log("------")
+console.log("EVENTS")
+console.log("------")
 const object = new Content({
   propertyA: { propertyB: { propertyC: { propertyD: true } } },
   propertyE: [
@@ -45,39 +44,39 @@ const object = new Content({
   enableEvents: true,
   // assignmentMethod: 'assign',
   assignmentMethod: 'assign',
-});
-console.log("---------");
-console.log("NO EVENTS");
-console.log("---------");
-object.disableEvents();
+})
+console.log("---------")
+console.log("NO EVENTS")
+console.log("---------")
+object.disableEvents()
 object.set({
   propertyA: { propertyB: { propertyC: { propertyD: true } } },
   propertyE: {
     3: { propertyF: false }, 4: { propertyF: false }, 5: { propertyF: false }
   }
-});
+})
 object.assign({
   propertyA: { propertyB: { propertyC: { propertyD: true } } },
   propertyE: {
     3: { propertyF: false }, 4: { propertyF: false }, 5: { propertyF: false }
   }
-});
-console.log("------");
-console.log("EVENTS");
-console.log("------");
-object.enableEvents();
+})
+console.log("------")
+console.log("EVENTS")
+console.log("------")
+object.enableEvents()
 object.set({
   propertyA: { propertyB: { propertyC: { propertyD: true } } },
   propertyE: {
     3: { propertyF: false }, 4: { propertyF: false }, 5: { propertyF: false }
   }
-});
+})
 object.assign({
   propertyA: { propertyB: { propertyC: { propertyD: true } } },
   propertyE: {
     3: { propertyF: false }, 4: { propertyF: false }, 5: { propertyF: false }
   }
-});
+})
 // object.assign({
 //   propertyA: { propertyB: { propertyC: { propertyD: true } } },
 //   propertyE: {
@@ -156,4 +155,3 @@ object.assign({
 // object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
 // object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
 // object.assign({ propertyA: { propertyB: { propertyC: { propertyD: false }}}})
-//# sourceMappingURL=index.js.map

@@ -1,6 +1,6 @@
 import { stringifyBuffer } from './coutil/index.js'
 export default {
-  active: true,
+  active: false,
   name: 'Index',
   protocol: "wss:",
   port: 3348,

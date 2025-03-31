@@ -1,0 +1,26 @@
+{
+  "title": "Objecture | Content | Freeze",
+  "metas": [{
+    "tag": "meta",
+    "attributes": {
+      "name": "viewport",
+      "content": "width=device-width, initial-scale=1.0"
+    }
+  }],
+  "styles": [{
+    "tag": "link",
+    "attributes": {
+      "rel": "stylesheet",
+      "type": "text/css",
+      "href": "./index.css"
+    },
+    "selfClose": true
+  }],
+  "scripts": [{
+    "tag": "script",
+    "attributes": {
+      "type": "module",
+      "src": "./index.js"
+    }
+  }]
+}

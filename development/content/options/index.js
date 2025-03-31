@@ -116,11 +116,17 @@ export default ($options) => recursiveAssign({
       },
       freeze: {
         recursive: true,
-        events: { 'freeze': true  },
+        events: {
+          'freezeProperty': true,
+          'freeze': true,
+        },
       },
       seal: {
         recursive: true,
-        events: { 'seal': true  },
+        events: {
+          'sealProperty': true,
+          'seal': true,
+        },
       },
     },
   },

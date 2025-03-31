@@ -2,7 +2,7 @@ import Content from '../../../index.js'
 import { ContentEvent } from '../../../events/index.js'
 export default function seal($content, $options) {
   const { recursive, events } = $options
-  const { target, path } = $content
+  const { target } = $content
   if(recursive === true) {
     iterateProperties: 
     for(const [
@@ -10,20 +10,27 @@ export default function seal($content, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Content) {
         $propertyValue.seal()
-      }
-      else { Object.seal($propertyValue) }
-      // $content.enableEvents({ enable: true })
-      if(events && events['seal']) {
-        $content.dispatchEvent(
-          new ContentEvent(
-            'seal',
-            { path },
-            $content
+        if(events && events['sealProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent(
+              'sealProperty',
+              { path: $propertyValue.path },
+              $content
+            )
           )
-        )
+        }
       }
     }
   }
   Object.seal(target)
+  if(events && events['seal']) {
+    $content.dispatchEvent(
+      new ContentEvent(
+        'seal',
+        { path: $content.path },
+        $content
+      )
+    )
+  }
   return $content
 }
