@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "core-plex": "^2.0.0",
-    "document-process-manager": "^1.4.15"
+    "document-process-manager": "^1.4.18"
   },
   "devDependencies": {
     "chokidar": "^4.0.3",

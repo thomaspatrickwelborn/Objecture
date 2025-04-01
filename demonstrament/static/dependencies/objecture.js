@@ -977,7 +977,7 @@ class EventDefinition {
         iterateTargetPathKeys: 
         while(pathKeysIndex < pathKeys.length) {
           let pathKey = pathKeys[pathKeysIndex];
-          if(pathKey === this.#scopeKey) { continue iterateTargetPathKeys }
+          if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
           iterateTargetAccessors: 
           for(const $targetAccessor of this.settings.accessors) {
             target = $targetAccessor(target, pathKey);
@@ -997,6 +997,7 @@ class EventDefinition {
             };
           }
         }
+        console.log("targetElement", targetElement);
         if(targetElement !== undefined) { targets.push(targetElement); }
       }
     }

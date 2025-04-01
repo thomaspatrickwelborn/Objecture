@@ -68,7 +68,11 @@ export default {
     scripts: [{
       name: 'RollupPiler',
       type: 'scripts',
-      watch: ['**/*.js'],
+      watch: [
+        '**/*.js',
+        '../application/**',
+        '../coutil/**',
+      ],
       ignore: [
         '**/$route.js',
         '**/$document.js',

@@ -1,2 +1,6 @@
 import stringifyBuffer from './stringifyBuffer/index.js'
-export { stringifyBuffer }
+import View from './view/index.js'
+export {
+  stringifyBuffer,
+  View,
+}

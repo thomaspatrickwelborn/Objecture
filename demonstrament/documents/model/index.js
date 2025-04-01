@@ -1,5 +1,7 @@
 import Application from '../application/index.js'
 
 const application = new Application({
-  title: "Objecture"
+  parentElement: document.querySelector('body')
+}).render({
+  title: 'Objecture'
 })
