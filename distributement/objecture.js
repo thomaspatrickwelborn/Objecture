@@ -964,7 +964,7 @@ class EventDefinition {
         const propertyPathMatch = propertyPathMatcher($propertyPath);
         if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
       }
-      if(this.path.charAt(0) === this.#scopeKey) { targetPaths.unshift(this.#scopeKey); }
+      if(this.path.match(`${this.#scopeKey}`)) { targetPaths.unshift(this.#scopeKey); }
       iterateTargetPaths: 
       for(const $targetPath of targetPaths) {
         const pretargetElement = pretargets.find(
@@ -997,7 +997,6 @@ class EventDefinition {
             };
           }
         }
-        console.log("targetElement", targetElement);
         if(targetElement !== undefined) { targets.push(targetElement); }
       }
     }
