@@ -32,8 +32,6 @@ export default class Change {
     ) { return this.#conter }
     const preter = JSON.stringify(this.preter)
     const anter = JSON.stringify(this.anter)
-    console.log("preter",preter)
-    console.log("anter",anter)
     let conter
     if(anter !== preter) { conter = true }
     else { conter = false }

@@ -1,0 +1,19 @@
+@mixin layout {
+	properties {
+		display: flex;
+		flex-direction: column;
+		& > * {
+			display: flex;
+			flex-direction: column;
+		}
+		& > h2 {}
+		& > capture {
+			content-editable: true;
+		}
+	}
+}
+@mixin style {
+	properties {
+		& > capture {}
+	}
+}

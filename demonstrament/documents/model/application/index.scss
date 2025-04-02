@@ -1,0 +1,34 @@
+@use "./properties/index.scss" as properties;
+@use "./schema/index.scss" as schema;
+@mixin layout {
+	application {
+		display: flex;
+		flex-direction: column;
+		width: 100vw;
+		height: 100vh;
+		h1, h2, h3, h4, h5, h6 {
+			// margin: 0; padding: 0;
+		}
+		& > * {
+			display: flex;
+			flex-direction: column;
+		}
+		& > main {
+			flex-grow: 1;
+			& > {
+				@include properties.layout;
+				@include schema.layout;
+			}
+		}
+	}
+}
+@mixin style {
+	application {
+		& > main {
+			& > {
+				@include properties.style;
+				@include schema.style;
+			}
+		}
+	}
+}

@@ -58,7 +58,10 @@ export default {
       type: 'styles',
       input: 'index.scss',
       output: 'index.css',
-      watch: ['**/*.scss'],
+      watch: [
+        '**/*.scss',
+        '../coutil/**/*.scss',
+      ],
       ignore: [],
       inputOptions: {},
       outputOptions: {
@@ -70,8 +73,7 @@ export default {
       type: 'scripts',
       watch: [
         '**/*.js',
-        '../application/**',
-        '../coutil/**',
+        '../coutil/**/*.js',
       ],
       ignore: [
         '**/$route.js',

@@ -1,7 +1,6 @@
-import Application from '../application/index.js'
+import Application from './application/index.js'
 
-const application = new Application({
-  parentElement: document.querySelector('body')
-}).render({
-  title: 'Objecture'
-})
+const application = new Application()
+console.log(application.getEvents())
+application.render()
+

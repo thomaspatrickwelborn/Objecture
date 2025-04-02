@@ -2,8 +2,13 @@ const defaultAccessor = ($target, $property) => {
   if($property === undefined) { return $target }
   else { return $target[$property] }
 };
+const getAccessor = ($target, $property) => {
+  if($property === undefined) { return $target }
+  else { return $target.get($property) }
+};
 var accessors = {
   default: defaultAccessor,
+  get: getAccessor,
 };
 
 function impandEvents($propEvents) {
@@ -23,7 +28,7 @@ function impandEvents($propEvents) {
   return propEvents
 }
 
-function expandEvents($propEvents) {
+function expandEvents($propEvents, $scopeKey = ':scope') {
   if(
     Array.isArray($propEvents) ||
     $propEvents === undefined
@@ -33,10 +38,10 @@ function expandEvents($propEvents) {
   for(const [
     $propEventSettings, $propEventListener
   ] of Object.entries($propEvents)) {
-    const propEventSettings = $propEventSettings.split(' ');
+    const propEventSettings = $propEventSettings.trim().split(' ');
     let path, type, listener, options;
     if(propEventSettings.length === 1) {
-      path = ':scope';
+      path = $scopeKey;
       type = propEventSettings[0];
     }
     else if(propEventSettings.length > 1) {
@@ -270,6 +275,7 @@ var Settings$1 = ($settings = {}) => {
       enableEvents: 'enableEvents',
       disableEvents: 'disableEvents',
       reenableEvents: 'reenableEvents',
+      emitEvents: 'emitEvents',
     },
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
@@ -810,8 +816,8 @@ var Settings = ($settings = {}) => {
   const Settings = {
     enable: false,
     accessors: [accessors.default],
-    propertyDirectory: { scopeKey: ':scope', maxDepth: 10 },
-    assign: 'addEventListener', deassign: 'removeEventListener',
+    propertyDirectory: { scopeKey: $settings.scopeKey, maxDepth: 10 },
+    assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
     scopeKey: ':scope',
     methods: {
@@ -846,6 +852,16 @@ var Settings = ($settings = {}) => {
           return $target['off'](type, listener)
         },
       },
+      transsign: {
+        // Event Target Dispatch Event
+        dispatchEvent: function dispatchEvent($eventDefinition, $target, $event) {
+          return $target['dispatchEvent']($event)
+        },
+        // Event Emitter Emit
+        emit: function emit($eventDefinition, $target, $type, ...$arguments) {
+          return $target['emit']($type, ...$arguments)
+        },
+      },
     },
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
@@ -877,9 +893,12 @@ class EventDefinition {
   #path
   #assigned = []
   #deassigned = []
+  #transsigned = []
+  #nontranssigned = []
   #_targets = []
   #_assign
   #_deassign
+  #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
     this.#settings = Settings($settings);
@@ -935,7 +954,6 @@ class EventDefinition {
   get #target() { return this.settings.target }
   get #targets() {
     const pretargets = this.#_targets;
-    const targetPaths = [];
     const targets = [];
     if(this.#target) {
       for(const $target of [].concat(this.#target)) {
@@ -955,49 +973,67 @@ class EventDefinition {
       }
     }
     else if(typeOf$4(this.path) === 'string') {
-      const propertyPathMatcher = outmatch(this.path, {
-        separator: '.',
-      });
-      const propertyDirectory = this.#propertyDirectory;
-      iteratePropertyPaths: 
-      for(const $propertyPath of propertyDirectory) {
-        const propertyPathMatch = propertyPathMatcher($propertyPath);
-        if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+      const targetPaths = [];
+      if(this.path === this.#scopeKey) {
+        const targetElement = {
+          path: this.path,
+          target: this.#context,
+          enable: false,
+        };
+        targets.push(targetElement);
       }
-      if(this.path.match(`${this.#scopeKey}`)) { targetPaths.unshift(this.#scopeKey); }
-      iterateTargetPaths: 
-      for(const $targetPath of targetPaths) {
-        const pretargetElement = pretargets.find(
-          ($pretarget) => $pretarget.path === $targetPath
-        );
-        let target = this.#context;
-        let targetElement;
-        const pathKeys = $targetPath.split('.');
-        let pathKeysIndex = 0;
-        iterateTargetPathKeys: 
-        while(pathKeysIndex < pathKeys.length) {
-          let pathKey = pathKeys[pathKeysIndex];
-          if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
-          iterateTargetAccessors: 
-          for(const $targetAccessor of this.settings.accessors) {
-            target = $targetAccessor(target, pathKey);
-            if(target !== undefined) { break iterateTargetAccessors }
+      else {
+        if(this.settings.propertyDirectory) {
+          const propertyDirectory = this.#propertyDirectory;
+          const propertyPathMatcher = outmatch(this.path, {
+            separator: '.',
+          });
+          iteratePropertyPaths: 
+          for(const $propertyPath of propertyDirectory) {
+            const propertyPathMatch = propertyPathMatcher($propertyPath);
+            if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
           }
-          pathKeysIndex++;
-        }
-        if(target !== undefined) {
-          if(target === pretargetElement?.target) {
-            targetElement = pretargetElement;
-          }
-          else if(typeof target === 'object') {
-            targetElement = {
-              path: $targetPath,
-              target: target,
-              enable: false,
-            };
+          if(this.path.charAt(0) === '*') {
+            targetPaths.unshift(this.#scopeKey);
           }
         }
-        if(targetElement !== undefined) { targets.push(targetElement); }
+        else {
+          targetPaths.push(this.path);
+        }
+        iterateTargetPaths: 
+        for(const $targetPath of targetPaths) {
+          const pretargetElement = pretargets.find(
+            ($pretarget) => $pretarget.path === $targetPath
+          );
+          let target = this.#context;
+          let targetElement;
+          const pathKeys = $targetPath.split('.');
+          let pathKeysIndex = 0;
+          iterateTargetPathKeys: 
+          while(pathKeysIndex < pathKeys.length) {
+            let pathKey = pathKeys[pathKeysIndex];
+            if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
+            iterateTargetAccessors: 
+            for(const $targetAccessor of this.settings.accessors) {
+              target = $targetAccessor(target, pathKey);
+              if(target !== undefined) { break iterateTargetAccessors }
+            }
+            pathKeysIndex++;
+          }
+          if(target !== undefined) {
+            if(target === pretargetElement?.target) {
+              targetElement = pretargetElement;
+            }
+            else if(typeof target === 'object') {
+              targetElement = {
+                path: $targetPath,
+                target: target,
+                enable: false,
+              };
+            }
+          }
+          if(targetElement !== undefined) { targets.push(targetElement); }
+        }
       }
     }
     this.#_targets = targets;
@@ -1014,12 +1050,35 @@ class EventDefinition {
     this.#_deassign = this.settings.methods.deassign[this.settings.deassign].bind(null, this);
     return this.#_deassign
   }
+  get #transsign() {
+    if(this.#_transsign !== undefined) { return this.#_transsign }
+    this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
+    return this.#_transsign
+  }
   get #methods() { return this.settings.methods }
   get #propertyDirectory() {
+    if(!this.settings.propertyDirectory) { return null }
     const propertyDirectorySettings = ({
       accessors: this.settings.accessors
     }, this.settings.propertyDirectory);
     return propertyDirectory(this.#context, propertyDirectorySettings)
+  }
+  emit() {
+    const targets = this.#targets;
+    const transsigned = this.#transsigned;
+    const nontranssigned = this.#nontranssigned;
+    transsigned.length = 0;
+    nontranssigned.length = 0;
+    iterateTargetElements: 
+    for(const $targetElement of targets) {
+      const { target } = $targetElement;
+      try {
+        this.#transsign(target, ...arguments);
+        transsigned.push($targetElement);
+      }
+      catch($err) { nontranssigned.push($targetElement); }
+    }
+    return this
   }
 }
 
@@ -1070,12 +1129,12 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0]);
+          let $addEvents = expandEvents(arguments[0], settings.scopeKey);
           iterateAddEvents: 
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'accessors', 'assign', 'deassign', 'propertyDirectory'
+              'accessors', 'assign', 'deassign', 'transsign', 'propertyDirectory'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -1133,6 +1192,17 @@ class Core extends EventTarget {
           for(const $event of $events) {
             $event.enable = false;
             $event.enable = true;
+          }
+          return $target
+        },
+      },
+      // Emit Events
+      [settings.propertyDefinitions.emitEvents]: {
+        enumerable: false, writable: false, 
+        value: function emitEvents($filterEvents, ...$eventParameters) {
+          const $events = $target[settings.propertyDefinitions.getEvents]($filterEvents);
+          for(const $event of $events) {
+            $event.emit(...$eventParameters);
           }
           return $target
         },
@@ -2029,8 +2099,6 @@ class Change {
     ) { return this.#conter }
     const preter = JSON.stringify(this.preter);
     const anter = JSON.stringify(this.anter);
-    console.log("preter",preter);
-    console.log("anter",anter);
     let conter;
     if(anter !== preter) { conter = true; }
     else { conter = false; }

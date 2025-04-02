@@ -8,7 +8,6 @@ const EcosystemConfig = {
         "package.json",
         "dpm.config.documents.js",
         "ecosystem.config.cjs",
-        "../distributement",
         "../Core-Plex/development/"
       ],
       args: "--config dpm.config.documents.js",
