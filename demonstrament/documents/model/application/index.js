@@ -36,6 +36,9 @@ export default class ModelView extends View {
           this.properties.render()
           this.schema.render()
         },
+        'properties.models.editor set:text': function($event) {
+          console.log($event.type, $event.detail)
+        },
       },
       models: { 
         ui: {

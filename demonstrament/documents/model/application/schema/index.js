@@ -39,8 +39,20 @@ export default class Schema extends View {
         'qs.active change': function($event) {
           this.models.ui.set("checked", !this.models.ui.get("checked"))
         },
+        'models.ui set:checked': function($event) {
+          const checked = $event.detail.value
+          console.log("checked", checked)
+          if(checked) { this.editor }
+          else {
+            this.qs.capture.innerHTML = ''
+            this.#editor = undefined
+          }
+        }
       },
       models: {
+        editor: {
+          text: '{}',
+        },
         ui: {
           headline: 'Schema',
           checked: false,
@@ -51,7 +63,10 @@ export default class Schema extends View {
   }
   #editor
   get editor() {
-    if(this.#editor !== undefined) { return this.#editor }
+    if(
+      this.#editor !== undefined ||
+      this.models.ui.get('checked') === false
+    ) { return this.#editor }
     this.#editor = createJSONEditor({
       target: this.qs.capture,
       props: {
@@ -59,7 +74,7 @@ export default class Schema extends View {
         mainMenuBar: false,
         navigationBar: false,
         content: {
-          json: {},
+          text: this.models.editor.get('text'),
         },
         onChange: function($updatedContent, $previousContent, { contentErrors, patchResult }) {
           if(!contentErrors) {

@@ -29,15 +29,13 @@ export default class Properties extends View {
           this.editor
         },
         'editor:change': function($event) {
-          console.log($event)
           this.models.editor.set('text', $event.detail.text)
-          this.models.editor.set('json', JSON.parse($event.detail.text))
+          this.models.editor.save()
         },
       },
       models: {
         editor: {
           text: '{}',
-          json: {},
         },
         ui: {
           headline: 'Properties',
@@ -56,11 +54,10 @@ export default class Properties extends View {
         mainMenuBar: false,
         navigationBar: false,
         content: {
-          json: this.models.editor.get('json'),
+          text: this.models.editor.get('text'),
         },
         onChange: function($updatedContent, $previousContent, { contentErrors, patchResult }) {
           if(!contentErrors) {
-            console.log('editor:change', { detail: $updatedContent })
             this.dispatchEvent(
               new CustomEvent('editor:change', { detail: $updatedContent })
             )

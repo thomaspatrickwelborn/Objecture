@@ -1721,7 +1721,7 @@ var Options$1 = (...$options) => Object.assign({
 
 const { typedObjectLiteral: typedObjectLiteral$4, typeOf: typeOf$1 } = index;
 
-class Schema extends EventTarget{
+class Schema extends EventTarget {
   #properties
   options
   #type

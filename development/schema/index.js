@@ -7,7 +7,7 @@ import Validation from './validation/index.js'
 import { RequiredValidator } from './validators/index.js'
 import Options from './options/index.js' 
 
-export default class Schema extends EventTarget{
+export default class Schema extends EventTarget {
   #properties
   options
   #type

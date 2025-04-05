@@ -33,7 +33,6 @@ export default class Model extends Core {
     this.#options = $options
     const setValue = Object.assign({}, this.#properties, this.load())
     this.set(setValue)
-    // this.set(this.#properties)
   }
   get parent() {
     if(this.#parent !== undefined) { return this.#parent }

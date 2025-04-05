@@ -93,7 +93,6 @@ export default class View extends Core {
     }
     this.parentElement.insertAdjacentHTML(this.settings.insertAdjacentPosition, defaultHTMLString)
     this.retroReenableEvents()
-    console.log(this.getEvents())
     this.dispatchEvent(new CustomEvent('render'))
     return this
   }
