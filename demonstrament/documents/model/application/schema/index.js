@@ -41,13 +41,13 @@ export default class Schema extends View {
         },
         'models.ui set:checked': function($event) {
           const checked = $event.detail.value
-          console.log("checked", checked)
           if(checked) { this.editor }
-          else {
-            this.qs.capture.innerHTML = ''
-            this.#editor = undefined
-          }
-        }
+          else { this.removeEditor() }
+        },
+        'editor:change': function($event) {
+          this.models.editor.set('text', $event.detail.text)
+          this.models.editor.save()
+        },
       },
       models: {
         editor: {
@@ -85,5 +85,10 @@ export default class Schema extends View {
         }.bind(this)
       }
     })
+  }
+  removeEditor() {
+    this.qs.capture.innerHTML = ''
+    this.#editor = undefined
+    return this
   }
 }

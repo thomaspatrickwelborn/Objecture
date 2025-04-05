@@ -219,12 +219,12 @@ const Primitives = {
   'null': null,
 };
 const PrimitiveKeys$1 = Object.keys(Primitives);
-const PrimitiveValues$1 = Object.values(Primitives);
+const PrimitiveValues = Object.values(Primitives);
 const Objects = {
   'object': Object,
   'array': Array,
 };
-const ObjectKeys = Object.keys(Objects);
+const ObjectKeys$1 = Object.keys(Objects);
 const ObjectValues = Object.values(Objects);
 const Types = Object.assign({}, Primitives, Objects);
 const TypeKeys = Object.keys(Types);
@@ -236,11 +236,11 @@ const TypeMethods = [
 
 var index$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  ObjectKeys: ObjectKeys,
+  ObjectKeys: ObjectKeys$1,
   ObjectValues: ObjectValues,
   Objects: Objects,
   PrimitiveKeys: PrimitiveKeys$1,
-  PrimitiveValues: PrimitiveValues$1,
+  PrimitiveValues: PrimitiveValues,
   Primitives: Primitives,
   TypeKeys: TypeKeys,
   TypeMethods: TypeMethods,
@@ -1362,25 +1362,25 @@ class RequiredValidator extends Validator {
   }
 }
 
-const {
-  typeOf: typeOf$3, variables: variables$1
-} = index;
-const { PrimitiveKeys, PrimitiveValues } = variables$1;
+const { typeOf: typeOf$3, variables: variables$1 } = index;
+const { PrimitiveKeys, ObjectKeys } = variables$1;
 class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'type',
       validate: ($key, $value) => {
-        const definition = this.definition;
         let pass;
-        let typeOfDefinitionValue = typeOf$3(definition.value);
-        typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
+        const definition = this.definition;
+        const typeOfDefinitionValue = (typeOf$3(definition.value) === 'function')
           ? typeOf$3(definition.value())
           : typeOfDefinitionValue;
-        const typeOfModelValue = typeOf$3($value);
-        if(typeOfModelValue === 'undefined') { pass = false; }
-        else if(typeOfDefinitionValue === 'undefined') { pass = true; }
-        else { pass = (typeOfDefinitionValue === typeOfModelValue); }
+        if(!PrimitiveKeys.concat(ObjectKeys).includes(typeOfDefinitionValue)) { pass = false; }
+        else {
+          const typeOfModelValue = typeOf$3($value);
+          if(typeOfModelValue === 'undefined') { pass = false; }
+          else if(typeOfDefinitionValue === 'undefined') { pass = true; }
+          else { pass = (typeOfDefinitionValue === typeOfModelValue); }
+        }
         return pass
       },
     }), $schema);
