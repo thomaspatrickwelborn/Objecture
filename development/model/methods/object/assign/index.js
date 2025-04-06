@@ -76,6 +76,7 @@ export default function assign($model, $options, ...$sources) {
         const assignment = { [$sourceKey]: sourceValue }
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
+        $model.retroReenableEvents()
         sourceValue.assign($sourceValue)
       }
       else {

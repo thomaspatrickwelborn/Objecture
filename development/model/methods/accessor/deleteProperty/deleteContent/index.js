@@ -5,7 +5,6 @@ export default function deleteContent($model, $options) {
   for(const [$targetPropertyKey, $targetPropertyValue] of Object.entries(target)) {
     $model.delete($targetPropertyKey, $options)
   }
-  // Delete Property Event
   const { path } = $model
   const { events } = $options
   if(events && events['delete']) {

@@ -4,6 +4,7 @@ import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
 import Methods from './methods/index.js'
+const validAssigmentMethods = Object.freeze(['assign', 'defineProperties', 'set'])
 
 export default class Model extends Core {
   #_properties
@@ -27,6 +28,7 @@ export default class Model extends Core {
     })
     if($options.addEvents) {
       this.addEvents($options.addEvents)
+      delete $options.addEvents
     }
     if($options.enableEvents) {
       const typeofEnableEvents = typeof $options.enableEvents
@@ -37,7 +39,11 @@ export default class Model extends Core {
     this.schema = $schema
     this.#options = Options($options)
     Methods(this)
-    this[this.options.assignmentMethod](this.#properties)
+    let assignmentMethod = this.options.assignmentMethod
+    assignmentMethod = (
+      validAssigmentMethods.includes(assignmentMethod)
+    ) ? assignmentMethod : validAssigmentMethods.at(-1)
+    this[assignmentMethod](this.#properties)
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {

@@ -63,11 +63,13 @@ export default function defineProperty($model, $options, $propertyKey, $property
         })
       )
       if(descriptorTree === true) {
-        modelObject.defineProperties(propertyValue)
         target[$propertyKey] = modelObject
-      } else 
-      if(descriptorTree === false) {
+        $model.retroReenableEvents()
+        modelObject.defineProperties(propertyValue)
+      }
+      else if(descriptorTree === false) {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor)
+        $model.retroReenableEvents()
       }
     }
   }

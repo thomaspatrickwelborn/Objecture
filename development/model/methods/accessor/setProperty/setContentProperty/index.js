@@ -85,6 +85,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         }
       ))
       target[propertyKey] = propertyValue
+      $model.retroReenableEvents()
       propertyValue.set($value)
     }
     else {
@@ -152,6 +153,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         }
       ))
       target[propertyKey] = propertyValue
+      $model.retroReenableEvents()
       propertyValue.set($value)
     }
     else {
