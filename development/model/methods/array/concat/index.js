@@ -1,20 +1,17 @@
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
   const { target, path, schema } = $model
   const { enableValidation, validationEvents, events } = $options
-  const $arguments = [...arguments].reduce(($arguments, $argument) => {
-    if(Array.isArray($argument)) { $arguments.push(...$argument) }
-    else { $arguments.push($argument) }
-    return $arguments
-  }, [])
+  const $arguments = [].concat(...arguments)
   let valueIndex = target.length
   const values = []
   let targetConcat = [...Array.from(target)]
   let model
   iterateValues: 
-  for(const $value of $arguments) {
-    // Validation: Value
+  for(let $value of $arguments) {
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue, {}, $model)
       if(schema &&validationEvents) {
@@ -24,11 +21,11 @@ export default function concat($model, $options) {
           : String(valueIndex)
         if(validValue.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', valueIndex].join('')
+          propertyType = ['validProperty', valueIndex].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', valueIndex].join('')
+          propertyType = ['nonvalidProperty', valueIndex].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validValue, $model))
@@ -39,23 +36,21 @@ export default function concat($model, $options) {
     const modelPath = (path)
       ? [path, valueIndex].join('.')
       : String(valueIndex)
-    // Value: Object Type
     if(typeof $value === 'object') {
-      // Value: Model
       if($value instanceof Model) { $value = $value.valueOf() }
       let subschema = schema?.context[0] || null
-      const value = new Model($value, subschema, {
+      const submodel = typedObjectLiteral($value)
+      let value = new Model(submodel, subschema, {
         path: modelPath,
         parent: $model,
       })
+      value.concat($value)
       values[valueIndex] = value
     }
-    // Value: Primitive Type
     else {
       values[valueIndex] = $value
     }
     targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex])
-    // $model.enableEvents({ enable: true })
     if(events) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
@@ -73,7 +68,7 @@ export default function concat($model, $options) {
         )
       }
       if(events['concatValue:$index']) {
-        const type = ['concatValue', ':', valueIndex].join('')
+        const type = ['concatValue', valueIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
             path: modelEventPath,

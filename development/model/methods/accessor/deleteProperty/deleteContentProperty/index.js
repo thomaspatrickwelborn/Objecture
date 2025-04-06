@@ -5,19 +5,14 @@ import { ModelEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model
   const { events, pathkey, subpathError, enableValidation, validationEvents } = $options
-  // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
     let propertyValue = target[propertyKey]
-
-    // Return: Subproperty
     if(subpaths.length) {
-      // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), $options)
     }
-    // Validation
     if(schema && enableValidation) {
       const differedPropertyProxy = $model.valueOf()
       delete differedPropertyProxy[propertyKey]
@@ -29,11 +24,11 @@ export default function deleteContentProperty($model, $options, $path) {
           : String(propertyKey)
         if(validTargetProp.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', propertyKey].join('')
+          propertyType = ['validProperty', propertyKey].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+          propertyType = ['nonvalidProperty', propertyKey].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(
@@ -49,7 +44,6 @@ export default function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options)
     }
     delete target[propertyKey]
-    // Delete Property Event
     if(events) {
       if(events['deleteProperty']) {
         $model.dispatchEvent(
@@ -64,8 +58,8 @@ export default function deleteContentProperty($model, $options, $path) {
         )
       }
       if(events['deleteProperty:$key']) {
-        const type = ['deleteProperty', ':', propertyKey].join('')
-        const _path = [path, '.', propertyKey].join('')
+        const type = ['deleteProperty', propertyKey].join(':')
+        const _path = [path, propertyKey].join('.')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: _path,
@@ -79,12 +73,10 @@ export default function deleteContentProperty($model, $options, $path) {
     }
     return undefined
   }
-  // Path Key: false
   else if(pathkey === false) {
     const propertyKey = $path
     const propertyValue = target[propertyKey]
 
-    // Validation
     if(schema && enableValidation) {
       const differedPropertyProxy = $model.valueOf()
       delete differedPropertyProxy[propertyKey]
@@ -96,11 +88,11 @@ export default function deleteContentProperty($model, $options, $path) {
           : String(propertyKey)
         if(validTargetProp.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', propertyKey].join('')
+          propertyType = ['validProperty', propertyKey].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+          propertyType = ['nonvalidProperty', propertyKey].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(
@@ -115,7 +107,6 @@ export default function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options)
     }
     delete target[propertyKey]
-    // Delete Property Event
     if(events) {
       if(events['deleteProperty']) {
         $model.dispatchEvent(
@@ -130,8 +121,8 @@ export default function deleteContentProperty($model, $options, $path) {
         )
       }
       if(events['deleteProperty:$key']) {
-        const type = ['deleteProperty', ':', propertyKey].join('')
-        const _path = [path, '.', propertyKey].join('')
+        const type = ['deleteProperty', propertyKey].join(':')
+        const _path = [path, propertyKey].join('.')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: _path,
