@@ -8,19 +8,16 @@ export default function assign($model, $options, ...$sources) {
   const { events, sourceTree, enableValidation, validationEvents } = $options
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
-  // Iterate Sources
   iterateAssignSources: 
   for(let $source of $sources) {
     let assignedSource
     const assignSourceChange = new Change({ preter: $model })
     if(Array.isArray($source)) { assignedSource = [] }
     else if(typeof $source === 'object') { assignedSource = {} }
-    // Iterate Source Propertiess
     iterateSourceProperties:
     for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
       const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })
       const assignSourcePropertyKeyChange = new Change({ preter: target[$sourceKey] })
-      // Validation
       if(schema && enableValidation) {
         const validSourceProperty = schema.validateProperty(
           $sourceKey, $sourceValue, $source, $model
@@ -42,24 +39,19 @@ export default function assign($model, $options, ...$sources) {
         }
         if(!validSourceProperty.valid) { continue iterateSourceProperties }
       }
-      // Source Prop: Object Type
       let sourceValue
       if($sourceValue && typeof $sourceValue === 'object') {
         if($sourceValue instanceof Model) {
           sourceValue = $sourceValue.valueOf()
         }
-        // Subschema
         let subschema
         if(schema?.type === 'array') { subschema = schema.context[0] }
         else if(schema?.type === 'object') { subschema = schema.context[$sourceKey] }
         else { subschema = null }
-        // Model
         const modelPath = (path)
           ? [path, $sourceKey].join('.')
           : String($sourceKey)
         let modelTypedLiteral = typedObjectLiteral($sourceValue)
-        // Assignment
-        // Source Tree: False
         if(sourceTree === false) {
           sourceValue = new Model(modelTypedLiteral, subschema, 
             recursiveAssign({}, $model.options, {
@@ -68,13 +60,10 @@ export default function assign($model, $options, ...$sources) {
             })
           )
         }
-        // Source Tree: true
         else {
-          // Assignment: Existing Model Instance
           if(target[$sourceKey] instanceof Model) {
             sourceValue = target[$sourceKey]
           }
-          // Assignment: New Model Instance
           else {
             sourceValue = new Model(modelTypedLiteral, subschema, 
               recursiveAssign({}, $model.options, {
@@ -87,16 +76,13 @@ export default function assign($model, $options, ...$sources) {
         const assignment = { [$sourceKey]: sourceValue }
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
-        // $model.retroReenableEvents()
         sourceValue.assign($sourceValue)
       }
-      // Source Prop: Primitive Type
       else {
         sourceValue = $sourceValue
         const assignment = { [$sourceKey]: sourceValue }
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
-        // $model.retroReenableEvents()
       }
       if(events) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
@@ -130,7 +116,6 @@ export default function assign($model, $options, ...$sources) {
       }
     }
     assignedSources.push(assignedSource)
-    // Model Event: Assign Source
     if(events && events['assignSource']) {
       assignSourceChange.anter = $model
       $model.dispatchEvent(
@@ -144,7 +129,6 @@ export default function assign($model, $options, ...$sources) {
       )
     }
   }
-  // Model Event: Assign
   if(events && events['assign']) {
     assignChange.anter = $model
     $model.dispatchEvent(
