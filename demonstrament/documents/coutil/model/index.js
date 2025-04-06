@@ -51,7 +51,7 @@ export default class Model extends Core {
     const path = this.path
     let localStoragePath
     if(path) {
-      localStoragePath = [this.#options.localStorage, this.path.split('.').join('/')].join('/')
+      localStoragePath = this.path.split('.').join('/')
     }
     else {
       localStoragePath = this.#options.localStorage || '/'

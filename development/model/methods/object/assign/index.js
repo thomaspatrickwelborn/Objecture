@@ -87,7 +87,7 @@ export default function assign($model, $options, ...$sources) {
         const assignment = { [$sourceKey]: sourceValue }
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
-        $model.retroReenableEvents()
+        // $model.retroReenableEvents()
         sourceValue.assign($sourceValue)
       }
       // Source Prop: Primitive Type
@@ -96,7 +96,7 @@ export default function assign($model, $options, ...$sources) {
         const assignment = { [$sourceKey]: sourceValue }
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
-        $model.retroReenableEvents()
+        // $model.retroReenableEvents()
       }
       if(events) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)

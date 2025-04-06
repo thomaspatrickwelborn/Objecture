@@ -9,8 +9,9 @@ export default class ModelView extends View {
   constructor($settings) {
     super({
       parentElement: document.querySelector('body'),
+      insertAdjacentPosition: 'afterbegin',
       parent: null,
-      path: '/model',
+      path: 'model',
       templates: {
         default: ($models) => {
           const ui = $models.ui
@@ -33,8 +34,8 @@ export default class ModelView extends View {
       enableEvents: true,
       events: {
         'render': function($event) {
-          this.properties.render()
-          this.schema.render()
+          console.log(this.properties.render())
+          // this.schema.render()
         },
         'properties.models.editor set:text': function($event) {
           console.log($event.type, $event.detail)
@@ -49,6 +50,7 @@ export default class ModelView extends View {
         }
       },
     })
+    const $this = this
     Object.defineProperties(this, {
       'properties': { enumerable: true, get() {
         if(this.#properties !== undefined) { return this.#properties }
@@ -56,7 +58,7 @@ export default class ModelView extends View {
           insertAdjacentPosition: 'beforeEnd',
           parentElement: this.qs.main,
           parent: this,
-          path: [this.path, 'properties'].join('/'),
+          path: [this.path, 'properties'].join('.'),
         })
         return this.#properties
       } },
@@ -66,7 +68,7 @@ export default class ModelView extends View {
           insertAdjacentPosition: 'beforeEnd',
           parentElement: this.qs.main,
           parent: this,
-          path: [this.path, 'schema'].join('/'),
+          path: [this.path, 'schema'].join('.'),
         })
         return this.#schema
       } },

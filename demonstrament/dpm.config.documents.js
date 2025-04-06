@@ -26,7 +26,7 @@ export default {
       cert: certificates.cert.path,
     },
     files: [
-      'static', 'localhost',
+      'static/**/*.*', 'localhost/**/*.*',
     ],
     proxy: {
       ws: true,

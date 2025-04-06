@@ -1,5 +1,5 @@
 import { Core, Coutil } from '../../../../node_modules/core-plex/distributement/core-plex.js'
-import Model from '../model/index.js'
+import { Model } from '../index.js'
 const Accessors = [($target, $property) => {
   if($property === undefined) { return $target }
   else { return $target[$property] }
@@ -22,6 +22,8 @@ export default class View extends Core {
     Object.defineProperties(this, {
       'insertAdjacentPosition': { enumerable: false, get() { return this.settings.insertAdjacentPosition }},
       'parentElement': { enumerable: true, get() { return this.settings.parentElement } },
+      'parent': { enumerable: true, get() { return this.settings.parent } },
+      'path': { enumerable: false, get() { return this.settings.path } },
       'qs': { enumerable: true, get() { return this.querySelectors } },
       'querySelectors': { enumerable: true, get() {
         if(this.#querySelectors !== undefined) { return this.#querySelectors }
@@ -36,7 +38,7 @@ export default class View extends Core {
         iterateQuerySelectorMethods: 
         for(const [
           $querySelectorMethod, $querySelectors
-        ] of Object.entries(this.settings.querySelectors)) {
+        ] of Object.entries(this.settings.querySelectors || {})) {
           iterateQuerySelectors: 
           for(const [
             $querySelectorName, $querySelector
@@ -45,6 +47,7 @@ export default class View extends Core {
             Object.defineProperty(querySelectors, $querySelectorName, {
               enumerable: true,
               get() {
+                console.log($this.parentElement)
                 return $this.parentElement[$querySelectorMethod]($querySelector)
               }
             })
@@ -56,17 +59,17 @@ export default class View extends Core {
         if(this.#models === undefined) {
           this.#models = this.settings.models || {}
           for(const [$modelName, $model] of Object.entries(this.#models)) {
-            const path = [this.path, $modelName].join('/')
+            const path = [this.path, $modelName].join('.')
             this.#models[$modelName] = new Model($model, {
-              parent: null,
-              localStorage: path,
+              // parent: this,
+              path, 
+              enableEvents: $settings.enableEvents,
+              localStorage: $settings.localStorage,
             })
           }
         }
         return this.#models
       } },
-      'parent': { enumerable: true, get() { return this.settings.parent } },
-      'path': { enumerable: false, get() { return this.settings.path } },
     })
   }
   get root() {

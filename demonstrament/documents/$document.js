@@ -1,5 +1,5 @@
 export default {
-  active: true,
+  active: false,
   name: 'Index',
   path: '/',
   source: 'documents',

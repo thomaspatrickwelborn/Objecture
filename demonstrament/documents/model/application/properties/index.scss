@@ -6,10 +6,10 @@
 			display: flex;
 			flex-direction: column;
 		}
-		& > h2 {}
-		& > capture {
-			content-editable: true;
+		& > h2 {
+			margin: 0.75em 0;
 		}
+		& > capture {}
 	}
 }
 @mixin style {

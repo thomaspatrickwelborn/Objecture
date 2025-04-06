@@ -14,8 +14,7 @@
   },
   "dependencies": {
     "core-plex": "^2.0.0",
-    "document-process-manager": "^1.4.19",
-    "vanilla-jsoneditor": "^3.3.0"
+    "document-process-manager": "^1.4.19"
   },
   "devDependencies": {
     "chokidar": "^4.0.3",

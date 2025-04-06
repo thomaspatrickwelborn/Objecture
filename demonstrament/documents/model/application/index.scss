@@ -1,5 +1,6 @@
 @use "./properties/index.scss" as properties;
 @use "./schema/index.scss" as schema;
+@use "./editor/index.scss" as editor;
 @mixin layout {
 	application {
 		display: flex;
@@ -9,6 +10,7 @@
 		h1, h2, h3, h4, h5, h6 {
 			// margin: 0; padding: 0;
 		}
+		@include editor.layout;
 		& > * {
 			display: flex;
 			flex-direction: column;
@@ -24,6 +26,7 @@
 }
 @mixin style {
 	application {
+		@include editor.style;
 		& > main {
 			& > {
 				@include properties.style;

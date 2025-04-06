@@ -1,7 +1,7 @@
-// import { Model, Schema } from '/dependencies/objecture.js'
-import { createJSONEditor } from '../../../../../node_modules/vanilla-jsoneditor/standalone.js'
+import Editor from '../editor/index.js'
 import { View } from '../../../coutil/index.js'
 export default class Properties extends View {
+  #editor
   constructor($settings) {
     super({
       parentElement: $settings.parentElement,
@@ -25,10 +25,11 @@ export default class Properties extends View {
       },
       enableEvents: true,
       events: {
-        'render': function() {
-          this.editor
+        'render': function($event) {
+          console.log($event)
+          // this.editor
         },
-        'editor:change': function($event) {
+        'editor change': function($event) {
           this.models.editor.set('text', $event.detail.text)
           this.models.editor.save()
         },
@@ -41,29 +42,22 @@ export default class Properties extends View {
           headline: 'Properties',
         }
       },
-      localStorage: { path: '/model/application/properties' },
     })
-  }
-  #editor
-  get editor() {
-    if(this.#editor !== undefined) { return this.#editor }
-    this.#editor = createJSONEditor({
-      target: this.qs.capture,
-      props: {
-        mode: 'text',
-        mainMenuBar: false,
-        navigationBar: false,
-        content: {
-          text: this.models.editor.get('text'),
-        },
-        onChange: function($updatedContent, $previousContent, { contentErrors, patchResult }) {
-          if(!contentErrors) {
-            this.dispatchEvent(
-              new CustomEvent('editor:change', { detail: $updatedContent })
-            )
-          }
-        }.bind(this),
-      },
-    })
+    Object.defineProperties(this, {
+      editor: { enumerable: true, get() {
+        if(this.#editor !== undefined) { return this.#editor }
+        this.#editor = new Editor({
+          parentElement: this.qs.capture,
+          parent: this,
+          path: [this.path, 'editor'].join('.'),
+          insertAdjacentPosition: 'afterbegin',
+          models: {
+            ui: { name: 'model-properties-editor' },
+            content: { text: this.models.editor.get('text') },
+          },
+        })
+        return this.#editor
+      }
+    } })
   }
 }

@@ -1,5 +1,5 @@
 // import { Model, Schema } from '/dependencies/objecture.js'
-import { createJSONEditor } from '../../../../../node_modules/vanilla-jsoneditor/standalone.js'
+// import { createJSONEditor } from '../../../../../node_modules/vanilla-jsoneditor/standalone.js'
 import { View } from '../../../coutil/index.js'
 export default class Schema extends View {
   constructor($settings) {
@@ -67,24 +67,25 @@ export default class Schema extends View {
       this.#editor !== undefined ||
       this.models.ui.get('checked') === false
     ) { return this.#editor }
-    this.#editor = createJSONEditor({
-      target: this.qs.capture,
-      props: {
-        mode: 'text',
-        mainMenuBar: false,
-        navigationBar: false,
-        content: {
-          text: this.models.editor.get('text'),
-        },
-        onChange: function($updatedContent, $previousContent, { contentErrors, patchResult }) {
-          if(!contentErrors) {
-            this.dispatchEvent(
-              new CustomEvent('editor:change', { detail: $updatedContent })
-            )
-          }
-        }.bind(this)
-      }
-    })
+    // this.#editor = createJSONEditor({
+    //   target: this.qs.capture,
+    //   props: {
+    //     mode: 'text',
+    //     mainMenuBar: false,
+    //     navigationBar: false,
+    //     content: {
+    //       text: this.models.editor.get('text'),
+    //     },
+    //     onChange: function($updatedContent, $previousContent, { contentErrors, patchResult }) {
+    //       if(!contentErrors) {
+    //         this.dispatchEvent(
+    //           new CustomEvent('editor:change', { detail: $updatedContent })
+    //         )
+    //       }
+    //     }.bind(this)
+    //   }
+    // })
+    this.#editor = new EventTarget()
   }
   removeEditor() {
     this.qs.capture.innerHTML = ''

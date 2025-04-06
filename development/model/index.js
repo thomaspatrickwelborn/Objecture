@@ -27,7 +27,6 @@ export default class Model extends Core {
     })
     if($options.addEvents) {
       this.addEvents($options.addEvents)
-      delete $options.addEvents
     }
     if($options.enableEvents) {
       const typeofEnableEvents = typeof $options.enableEvents
