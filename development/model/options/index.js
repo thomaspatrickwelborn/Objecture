@@ -12,7 +12,8 @@ export default ($options) => recursiveAssign({
   },
   pathkey: true,
   subpathError: false,
-  assignMethod: 'set', 
+  assignObject: 'set', 
+  assignArray: 'set',
   methods: {
     accessor: {
       get: {

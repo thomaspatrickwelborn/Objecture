@@ -1,6 +1,6 @@
 import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) { console.log($event.type, $event.path)}
-const model = new Model([{
+const model = new Model([/*{
   propertyA: {
     propertyB: {
       propertyC: 333
@@ -22,15 +22,16 @@ const model = new Model([{
       }
     }]
   ]
-}], null, {
+}*/], null, {
   addEvents: {
     '** pushProp': eventLog,
-    '** setProperty': eventLog,
+    // '** setProperty': eventLog,
   },
   enableEvents: true,
-  assignMethod: 'set',
+  assignObject: 'set',
+  assignArray: 'push',
 })
-model.push({ 
+model.push({
   propertyA: {
     propertyB: {
       propertyC: 333
@@ -53,4 +54,27 @@ model.push({
     }]
   ]
 })
+// model.push({ 
+//   propertyA: {
+//     propertyB: {
+//       propertyC: 333
+//     }
+//   },
+//   propertyD: [
+//     [{
+//       propertyE: 555,
+//     }, {
+//       propertyF: {
+//         propertyG: 777
+//       }
+//     }],
+//     [{
+//       propertyE: -555,
+//     }, {
+//       propertyF: {
+//         propertyG: -777
+//       }
+//     }]
+//   ]
+// })
 console.log(model.toString({ space: 2, replacer: null }))

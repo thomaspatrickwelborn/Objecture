@@ -5,14 +5,12 @@ import { ModelEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
   const { events } = $options
   const { target, path, schema } = $model
-  console.log($model.options)
   const { enableValidation, validationEvents } = $model.options
   const elements = []
   let elementsIndex = 0
   iterateElements:
   for(let $element of $elements) {
     let element
-    // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element, {}, $model)
       if(validationEvents) {
@@ -40,16 +38,24 @@ export default function push($model, $options, ...$elements) {
     if(typeof $element === 'object') {
       $element = ($element instanceof Model) ? $element.valueOf() : $element
       const subschema = schema?.context[0] || null
-      const submodel = typedObjectLiteral(typeOf($element))
-      element = new $model.constructor(submodel, subschema, recursiveAssign({}, $model.options, {
+      const subproperties = typedObjectLiteral(typeOf($element))
+      const submodelOptions = recursiveAssign({}, $model.options, {
         path: modelPath,
         parent: $model,
-      }))
+      })
+      // const submodelOptions = Object.assign({}, $model.options, {
+      //   path: modelPath,
+      //   parent: $model,
+      // })
+      element = new $model.constructor(subproperties, subschema, submodelOptions)
       Array.prototype.push.call(target, element)
       $model.retroReenableEvents()
-      element[element.options.assignMethod]($element)
-
-    } else {
+      const assignMethod = (element.type === 'array')
+        ? element.options.assignArray
+        : element.options.assignObject
+      element[assignMethod]($element)
+    }
+    else {
       element = $element
       Array.prototype.push.call(target, element)
     }
@@ -86,7 +92,6 @@ export default function push($model, $options, ...$elements) {
     }
     elementsIndex++
   }
-  // Push Event
   if(events && events['push']) {
     $model.dispatchEvent(
       new ModelEvent('push', {

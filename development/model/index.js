@@ -20,6 +20,7 @@ export default class Model extends Core {
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options)
+      console.log("model.options", options)
       if(options.addEvents) {
         this.addEvents(options.addEvents)
         delete options.addEvents

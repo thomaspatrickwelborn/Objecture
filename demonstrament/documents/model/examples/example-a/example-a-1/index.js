@@ -1,6 +1,26 @@
 import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) { console.log($event.type, $event.path)}
-const model = new Model({ 
+const model = new Model({
+    propertyA: 111,
+    propertyB: [{
+      propertyC: 333,
+      propertyD: {
+        propertyE: 555
+      }
+    }],
+    propertyF: {
+      propertyG: 777
+    }
+}, null, {
+  addEvents: {
+    '** defineProperty': eventLog,
+    '** assignSourceProperty': eventLog,
+    '** setProperty': eventLog,
+  },
+  assignObject: 'set',
+  enableEvents: true,
+})
+model.defineProperties({ 
   propertyA: { enumerable: true, writable: true, value: 111 },
   propertyB: { enumerable: true, writable: true, value: [{ enumerable: true, writable: true, value: {
     propertyC: { enumerable: true, writable: true, value: 333 },
@@ -11,14 +31,6 @@ const model = new Model({
   propertyF: { enumerable: true, writable: true, value: {
     propertyG: { enumerable: true, writable: true, value: 777 }
   } }
-}, null, {
-  addEvents: {
-    '** defineProperty': eventLog,
-    '** assignSourceProperty': eventLog,
-    '** setProperty': eventLog,
-  },
-  assignMethod: 'defineProperty',
-  enableEvents: true,
 })
 model.assign({
   propertyA: 111,
@@ -32,17 +44,3 @@ model.assign({
     propertyG: 777
   }
 })
-model.set({
-  propertyA: 111,
-  propertyB: [{
-    propertyC: 333,
-    propertyD: {
-      propertyE: 555
-    }
-  }],
-  propertyF: {
-    propertyG: 777
-  }
-})
-console.log(model.getEvents())
-// console.log(model.toString({ space: 2, replacer: null }))
