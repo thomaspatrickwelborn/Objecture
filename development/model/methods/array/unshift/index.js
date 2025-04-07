@@ -57,7 +57,7 @@ export default function unshift($model, $options, ...$elements) {
       const modelPath = (path)
         ? path.concat('.', elementCoindex)
         : String(elementCoindex)
-      element = new Model($element, subschema, {
+      element = new $model.constructor($element, subschema, {
         path: modelPath,
         parent: $model,
       })

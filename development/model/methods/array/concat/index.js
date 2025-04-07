@@ -40,7 +40,7 @@ export default function concat($model, $options) {
       if($value instanceof Model) { $value = $value.valueOf() }
       let subschema = schema?.context[0] || null
       const submodel = typedObjectLiteral($value)
-      let value = new Model(submodel, subschema, {
+      let value = new $model.constructor(submodel, subschema, {
         path: modelPath,
         parent: $model,
       })
@@ -83,7 +83,7 @@ export default function concat($model, $options) {
     }
     valueIndex++
   }
-  model = new Model(targetConcat, schema, $model.options)
+  model = new $model.constructor(targetConcat, schema, $model.options)
   if(events && events['concat']) {
     $model.dispatchEvent(
       new ModelEvent('concat', {

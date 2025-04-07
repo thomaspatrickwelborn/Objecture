@@ -4,103 +4,88 @@ import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
 import Methods from './methods/index.js'
-const validAssigmentMethods = Object.freeze(['assign', 'defineProperties', 'set'])
+import Assign from './assign/index.js'
 
 export default class Model extends Core {
-  #_properties
-  #options
-  #schema
-  #type
-  #target
-  #parent
-  #key
-  #path
-  #_handler
+  static accessors = Object.freeze([($target, $property) => {
+    if($property === undefined) { return $target.target }
+    else { return $target.get($property) }
+  }, ($target, $property) => {
+    if($property === undefined) { return $target }
+    else { return $target[$property] }
+  }])
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({
-      accessors: [($target, $property) => {
-        if($property === undefined) { return $target.target }
-        else { return $target.get($property) }
-      }, ($target, $property) => {
-        if($property === undefined) { return $target }
-        else { return $target[$property] }
-      }],
-    })
-    if($options.addEvents) {
-      this.addEvents($options.addEvents)
-      delete $options.addEvents
-    }
-    if($options.enableEvents) {
-      const typeofEnableEvents = typeof $options.enableEvents
-      if(typeofEnableEvents === 'boolean') { this.enableEvents() }
-      else if(typeofEnableEvents === 'object') { this.enableEvents($options.enableEvents) }
-    }
-    this.#properties = $properties
-    this.schema = $schema
-    this.#options = Options($options)
+    super({ accessors: Model.accessors })
+    const $this = this
+    const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
+    Object.defineProperty(this, 'options', { configurable: true, get() {
+      const options = Options($options)
+      if(options.addEvents) {
+        this.addEvents(options.addEvents)
+        delete options.addEvents
+      }
+      if(options.enableEvents) {
+        const typeofEnableEvents = typeof options.enableEvents
+        if(typeofEnableEvents === 'boolean') { this.enableEvents() }
+        else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents) }
+      }
+      Object.defineProperty(this, 'options', { enumerable: false, writable: false, value: options })
+      return options
+    } })
+    Object.defineProperty(this, 'target', { configurable: true, get() {
+      const target = typedObjectLiteral(properties)
+      Object.defineProperty(this, 'target', { enumerable: false, configurable: false, value: target })
+      return target
+    } })
+    Object.defineProperty(this, 'type', { configurable: true, get() {
+      const type = typeOf(this.target)
+      Object.defineProperty(this, 'type', { enumerable: false, configurable: false, value: type })
+      return type
+    } })
+    Object.defineProperty(this, 'schema', { configurable: true, get() {
+      const typeOfSchema = typeOf($schema)
+      let schema
+      if(['undefined', 'null'].includes(typeOfSchema)) { schema = null }
+      else if($schema instanceof Schema) { schema = $schema }
+      else if(typeOfSchema === 'array') { schema = new Schema(...arguments) }
+      else if(typeOfSchema === 'object') { schema = new Schema($schema) }
+      Object.defineProperty($this, 'schema', { value: schema })
+      return schema
+    } })
+    Object.defineProperty(this, 'parent', { configurable: true, get() {
+      const options = this.options
+      const parent = (options.parent) ? options.parent : null
+      Object.defineProperty(this, 'parent', {
+        writable: false, enumerable: false, configurable: false, value: parent
+      })
+      return parent
+    } })
+    Object.defineProperty(this, 'path', { enumerable: false, configurable: true, get() {
+      const options = this.options
+      let path = (options.path) ? String(options.path) : null
+      Object.defineProperty(this, 'path', {
+        writable: false, enumerable: false, configurable: false, value: path
+      })
+      return path
+    } })
+    Object.defineProperty(this, 'key', { enumerable: false, configurable: true, get() {
+      let key = (this.path) ? this.path.split('.').pop() : null
+      Object.defineProperty(this, 'key', {
+        writable: false, enumerable: false, configurable: false, value: key
+      })
+      return key
+    } })
+    Object.defineProperty(this, 'root', { enumerable: false, configurable: false, get() {
+      let root = this
+      iterateParents: 
+      while(root) {
+        if([undefined, null].includes(root.parent)) { break iterateParents }
+        root = root.parent
+      }
+      return root
+    } })
     Methods(this)
-    let assignmentMethod = this.options.assignmentMethod
-    assignmentMethod = (
-      validAssigmentMethods.includes(assignmentMethod)
-    ) ? assignmentMethod : validAssigmentMethods.at(-1)
-    this[assignmentMethod](this.#properties)
-  }
-  get #properties() { return this.#_properties }
-  set #properties($properties) {
-    if(this.#_properties !== undefined) return
-    if($properties instanceof Model) {
-      this.#_properties = $properties.valueOf()
-    }
-    this.#_properties = $properties
-    return this.#_properties
-  }
-  get options() { return this.#options }
-  get schema() { return this.#schema }
-  set schema($schema) {
-  if(this.#schema !== undefined)  { return }
-    const typeOfSchema = typeOf($schema)
-    if(['undefined', 'null'].includes(typeOfSchema)) { this.#schema = null }
-    else if($schema instanceof Schema) { this.#schema = $schema }
-    else if(typeOfSchema === 'array') { this.#schema = new Schema(...arguments) }
-    else if(typeOfSchema === 'object') { this.#schema = new Schema($schema) }
-  }
-  get classToString() { return Model.toString() }
-  get type() {
-    if(this.#type !== undefined) return this.#type
-    this.#type = typeOf(this.#properties)
-    return this.#type
-  }
-  get parent() {
-    if(this.#parent !== undefined)  return this.#parent
-    this.#parent = (this.options.parent) ? this.options.parent : null
-    return this.#parent
-  }
-  get root() {
-    let root = this
-    iterateParents: 
-    while(root) {
-      if([undefined, null].includes(root.parent)) { break iterateParents }
-      root = root.parent
-    }
-    return root
-  }
-  get key() {
-    if(this.#key !== undefined) { return this.#key }
-    if(this.path) { this.#key = this.path.split('.').pop() }
-    else { this.#key = null }
-    return this.#key
-  }
-  get path() {
-    if(this.#path !== undefined)  return this.#path
-    this.#path = (this.options.path)
-      ? String(this.options.path)
-      : null
-    return this.#path
-  }
-  get target() {
-    if(this.#target !== undefined) return this.#target
-    this.#target = typedObjectLiteral(this.#properties)
-    return this.#target
+    Assign(this, properties, this.options)
   }
   retroReenableEvents() {
     let model = this
@@ -110,11 +95,7 @@ export default class Model extends Core {
     }
     return this
   }
-  parse($settings = {
-    type: 'object', // string
-    replacer: null,
-    space: 0,
-  }) {
+  parse($settings = { type: 'object', replacer: null, space: 0 }) {
     let parsement = typedObjectLiteral(this.type)
     for(const [
       $propertyDescriptorName, $propertyDescriptor

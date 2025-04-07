@@ -13,12 +13,11 @@ const model = new Model({
   } }
 }, null, {
   addEvents: {
-    'propertyB defineProperty': eventLog,
-    'propertyB assignSourceProperty': eventLog,
-    'propertyB setProperty': eventLog,
+    '** defineProperty': eventLog,
+    '** assignSourceProperty': eventLog,
+    '** setProperty': eventLog,
   },
-  // assignmentMethod: 'set',
-  assignmentMethod: 'defineProperties',
+  assignMethod: 'defineProperty',
   enableEvents: true,
 })
 model.assign({

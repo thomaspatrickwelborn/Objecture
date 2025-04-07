@@ -51,7 +51,7 @@ export default function fill($model, $options) {
     if(typeof value === 'object') {
       if(value instanceof Model) { value = value.valueOf() }
       const subschema = schema?.context[0] || null
-      value = new Model(value, subschema, {
+      value = new $model.constructor(value, subschema, {
         path: modelPath,
         parent: $model,
       })

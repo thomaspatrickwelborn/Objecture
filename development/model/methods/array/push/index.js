@@ -1,13 +1,17 @@
+import { Coutil } from 'core-plex'
+const { recursiveAssign, typedObjectLiteral, typeOf } = Coutil
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
   const { events } = $options
   const { target, path, schema } = $model
+  console.log($model.options)
   const { enableValidation, validationEvents } = $model.options
   const elements = []
   let elementsIndex = 0
   iterateElements:
   for(let $element of $elements) {
+    let element
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element, {}, $model)
@@ -34,19 +38,22 @@ export default function push($model, $options, ...$elements) {
       ? [path, elementsIndex].join('.')
       : String(elementsIndex)
     if(typeof $element === 'object') {
-      if($element instanceof Model) { $element = $element.valueOf() }
+      $element = ($element instanceof Model) ? $element.valueOf() : $element
       const subschema = schema?.context[0] || null
-      $element = new Model($element, subschema, {
+      const submodel = typedObjectLiteral(typeOf($element))
+      element = new $model.constructor(submodel, subschema, recursiveAssign({}, $model.options, {
         path: modelPath,
         parent: $model,
-      })
-      elements.push($element)
-      Array.prototype.push.call(target, $element)
+      }))
+      Array.prototype.push.call(target, element)
+      $model.retroReenableEvents()
+      element[element.options.assignMethod]($element)
+
     } else {
-      elements.push($element)
-      Array.prototype.push.call(target, $element)
+      element = $element
+      Array.prototype.push.call(target, element)
     }
-    // $model.enableEvents({ enable: true })
+    elements.push(element)
     if(events) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')

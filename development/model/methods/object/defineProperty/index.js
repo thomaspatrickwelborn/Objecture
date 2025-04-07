@@ -56,7 +56,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
         else { subschema = undefined}
       }
       let _target = typedObjectLiteral(propertyValue)
-      const modelObject = new Model(
+      const modelObject = new $model.constructor(
         _target, subschema, recursiveAssign({}, $model.options, {
           path: modelPath,
           parent: $model,

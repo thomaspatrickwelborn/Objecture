@@ -27,7 +27,7 @@ export default function setContentProperty($model, $options, $path, $value) {
           if(isNaN(Number(propertyKey))) { submodel = {} }
           else { submodel = [] }
         }
-        propertyValue = new Model(submodel, subschema, recursiveAssign({}, $options, {
+        propertyValue = new $model.constructor(submodel, subschema, recursiveAssign({}, $options, {
           path: modelPath,
           parent: $model,
         }))
@@ -78,7 +78,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         if(isNaN(Number(propertyKey))) { submodel = {} }
         else { submodel = [] }
       }
-      propertyValue = new Model(submodel, subschema, recursiveAssign(
+      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign(
         {}, $options, {
           path: modelPath,
           parent: $model,
@@ -146,7 +146,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       const modelPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      propertyValue = new Model(submodel, subschema, recursiveAssign(
+      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign(
         {}, $options, {
           path: modelPath,
           parent: $model,

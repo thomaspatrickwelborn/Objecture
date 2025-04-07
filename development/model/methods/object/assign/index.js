@@ -51,33 +51,36 @@ export default function assign($model, $options, ...$sources) {
         const modelPath = (path)
           ? [path, $sourceKey].join('.')
           : String($sourceKey)
-        let modelTypedLiteral = typedObjectLiteral($sourceValue)
         if(sourceTree === false) {
-          sourceValue = new Model(modelTypedLiteral, subschema, 
+          sourceValue = new $model.constructor($sourceValue, subschema, 
             recursiveAssign({}, $model.options, {
               path: modelPath,
               parent: $model,
             })
           )
+          const assignment = { [$sourceKey]: sourceValue }
+          Object.assign(target, assignment)
+          Object.assign(assignedSource, assignment)
         }
         else {
           if(target[$sourceKey] instanceof Model) {
             sourceValue = target[$sourceKey]
           }
           else {
-            sourceValue = new Model(modelTypedLiteral, subschema, 
+            let modelTypedLiteral = typedObjectLiteral($sourceValue)
+            sourceValue = new $model.constructor(modelTypedLiteral, subschema, 
               recursiveAssign({}, $model.options, {
                 path: modelPath,
                 parent: $model,
               })
             )
           }
+          const assignment = { [$sourceKey]: sourceValue }
+          Object.assign(target, assignment)
+          Object.assign(assignedSource, assignment)
+          $model.retroReenableEvents()
+          sourceValue.assign($sourceValue)
         }
-        const assignment = { [$sourceKey]: sourceValue }
-        Object.assign(target, assignment)
-        Object.assign(assignedSource, assignment)
-        $model.retroReenableEvents()
-        sourceValue.assign($sourceValue)
       }
       else {
         sourceValue = $sourceValue

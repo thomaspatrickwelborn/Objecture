@@ -820,44 +820,38 @@ var Settings = ($settings = {}) => {
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
     scopeKey: ':scope',
+    errorLog: false,
     methods: {
       assign: {
-        // Event Target Add Event Listener
         addEventListener: function addEventListener($eventDefinition, $target) {
           const { type, listener, settings } = $eventDefinition;
           const { options, useCapture } = settings;
           return $target['addEventListener'](type, listener, options || useCapture)
         },
-        // Event Emitter On
         on: function on($eventDefinition, $target) {
           const { type, listener } = $eventDefinition;
           return $target['on'](type, listener)
         },
-        // Event Emitter Once
         once: function once($eventDefinition, $target) {
           const { type, listener } = $eventDefinition;
           return $target['once'](type, listener)
         },
       },  
       deassign: {
-        // Event Target Remove Event Listener
         removeEventListener: function removeEventListener($eventDefinition, $target) {
           const { type, listener, settings } = $eventDefinition;
           const { options, useCapture } = settings;
           return $target['removeEventListener'](type, listener, options || useCapture)
         },
-        // Event Emitter Off
         off: function off($eventDefinition, $target) {
           const { type, listener } = $eventDefinition;
           return $target['off'](type, listener)
         },
       },
       transsign: {
-        // Event Target Dispatch Event
         dispatchEvent: function dispatchEvent($eventDefinition, $target, $event) {
           return $target['dispatchEvent']($event)
         },
-        // Event Emitter Emit
         emit: function emit($eventDefinition, $target, $type, ...$arguments) {
           return $target['emit']($type, ...$arguments)
         },
@@ -936,7 +930,7 @@ class EventDefinition {
           assigned.push($targetElement);
           
         }
-        catch($err) { console.error($err); }
+        catch($err) { if(this.settings.errorLog) { console.error($err); } }
       }
       else if($enable === false) {
         try {
@@ -944,7 +938,7 @@ class EventDefinition {
           $targetElement.enable = $enable;
           deassigned.push($targetElement);
         }
-        catch($err) { console.error($err); }
+        catch($err) { if(this.settings.errorLog) { console.error($err); } }
       }
     }
     this.#enable = $enable;
@@ -1015,7 +1009,8 @@ class EventDefinition {
             if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
             iterateTargetAccessors: 
             for(const $targetAccessor of this.settings.accessors) {
-              target = $targetAccessor(target, pathKey);
+              try { target = $targetAccessor(target, pathKey); }
+              catch($err) { if(this.settings.errorLog) { console.error($err); } }
               if(target !== undefined) { break iterateTargetAccessors }
             }
             pathKeysIndex++;
@@ -1088,7 +1083,6 @@ class Core extends EventTarget {
     const settings = Settings$1($settings);
     const events = [];
     Object.defineProperties($target, {
-      // Get Events
       [settings.propertyDefinitions.getEvents]: {
         enumerable: false, writable: false, 
         value: function getEvents() {
@@ -1124,7 +1118,6 @@ class Core extends EventTarget {
           return getEvents
         }
       },
-      // Add Events
       [settings.propertyDefinitions.addEvents]: {
         enumerable: false, writable: false, 
         value: function addEvents() {
@@ -1146,7 +1139,6 @@ class Core extends EventTarget {
           return $target
         },
       },
-      // Remove Events
       [settings.propertyDefinitions.removeEvents]: {
         enumerable: false, writable: false, 
         value: function removeEvents() {
@@ -1164,7 +1156,6 @@ class Core extends EventTarget {
           return $target
         }
       },
-      // Enable Events
       [settings.propertyDefinitions.enableEvents]: {
         enumerable: false, writable: false, 
         value: function enableEvents() {
@@ -1174,7 +1165,6 @@ class Core extends EventTarget {
           return $target
         },
       },
-      // Disable Events
       [settings.propertyDefinitions.disableEvents]: {
         enumerable: false, writable: false, 
         value: function disableEvents() {
@@ -1184,7 +1174,6 @@ class Core extends EventTarget {
           return $target
         },
       },
-      // Reenable Events
       [settings.propertyDefinitions.reenableEvents]: {
         enumerable: false, writable: false, 
         value: function reenableEvents() {
@@ -1196,7 +1185,6 @@ class Core extends EventTarget {
           return $target
         },
       },
-      // Emit Events
       [settings.propertyDefinitions.emitEvents]: {
         enumerable: false, writable: false, 
         value: function emitEvents($filterEvents, ...$eventParameters) {

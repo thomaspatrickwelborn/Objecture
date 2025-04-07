@@ -94,7 +94,7 @@ export default function splice($model, $options) {
     if(typeof addItem === 'object') {
       if(addItem instanceof Model) { addItem = addItem.valueOf() }
       const subschema = schema?.context[0] || null
-      addItem = new Model(addItem, subschema, {
+      addItem = new $model.constructor(addItem, subschema, {
         path: modelPath,
         parent: $model,
       })
