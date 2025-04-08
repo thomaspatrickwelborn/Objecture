@@ -23,7 +23,7 @@ const model = new Model([/*{
     }]
   ]
 }*/], null, {
-  addEvents: {
+  events: {
     '** pushProp': eventLog,
     // '** setProperty': eventLog,
   },

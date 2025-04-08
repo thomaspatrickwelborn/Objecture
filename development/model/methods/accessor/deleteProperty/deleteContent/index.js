@@ -6,8 +6,8 @@ export default function deleteContent($model, $options) {
     $model.delete($targetPropertyKey, $options)
   }
   const { path } = $model
-  const { events } = $options
-  if(events && events['delete']) {
+  const { mutatorEvents } = $options
+  if(mutatorEvents && mutatorEvents['delete']) {
     $model.dispatchEvent(
       new ModelEvent('delete', {
         path,

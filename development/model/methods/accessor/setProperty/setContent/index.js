@@ -8,8 +8,8 @@ export default function setContent($model, $options, $properties) {
   }
   // Set Property Event
   const { path } = $model
-  const { events } = $options
-  if(events && events['set']) {
+  const { mutator } = $options
+  if(mutator && mutator['set']) {
     $model.dispatchEvent(
       new ModelEvent('set', {
         path,

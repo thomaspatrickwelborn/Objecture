@@ -1,7 +1,7 @@
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function seal($model, $options) {
-  const { recursive, events } = $options
+  const { recursive, mutatorEvents } = $options
   const { target } = $model
   if(recursive === true) {
     iterateProperties: 
@@ -10,7 +10,7 @@ export default function seal($model, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Model) {
         $propertyValue.seal()
-        if(events && events['sealProperty']) {
+        if(mutatorEvents && mutatorEvents['sealProperty']) {
           $model.dispatchEvent(
             new ModelEvent(
               'sealProperty',
@@ -23,7 +23,7 @@ export default function seal($model, $options) {
     }
   }
   Object.seal(target)
-  if(events && events['seal']) {
+  if(mutatorEvents && mutatorEvents['seal']) {
     $model.dispatchEvent(
       new ModelEvent(
         'seal',

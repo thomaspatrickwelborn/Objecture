@@ -1,7 +1,7 @@
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function splice($model, $options) {
-  const { events } = $options
+  const { mutatorEvents } = $options
   const { target, path, schema } = $model
   const { enableValidation, validationEvents } = $options
   const $arguments = [...arguments]
@@ -25,11 +25,11 @@ export default function splice($model, $options) {
     // $model.enableEvents({ enable: true })
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex)
-      if(events['spliceDelete']) {
+      if(mutatorEvents['spliceDelete']) {
         $model.dispatchEvent(
           new ModelEvent('spliceDelete', {
             path: modelEventPath,
@@ -42,7 +42,7 @@ export default function splice($model, $options) {
           }, $model)
         )
       }
-      if(events['spliceDelete:$index']) {
+      if(mutatorEvents['spliceDelete:$index']) {
         const type = ['spliceDelete', ':', deleteItemsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -106,11 +106,11 @@ export default function splice($model, $options) {
     }
     // $model.enableEvents({ enable: true })
     // Array Splice Add Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex)
-      if(events['spliceAdd']) {
+      if(mutatorEvents['spliceAdd']) {
         $model.dispatchEvent(
           new ModelEvent('spliceAdd', {
             path: modelEventPath,
@@ -123,7 +123,7 @@ export default function splice($model, $options) {
           }, $model)
         )
       }
-      if(events['spliceAdd:$index']) {
+      if(mutatorEvents['spliceAdd:$index']) {
         const type = ['spliceAdd', ':', addItemsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -141,7 +141,7 @@ export default function splice($model, $options) {
     addItemsIndex++
   }
   // Array Splice Event
-  if(events && events['splice']) {
+  if(mutatorEvents && mutatorEvents['splice']) {
     $model.dispatchEvent(
       new ModelEvent('splice', {
         path,

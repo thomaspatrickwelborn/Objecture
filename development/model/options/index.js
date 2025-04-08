@@ -17,7 +17,7 @@ export default ($options) => recursiveAssign({
   methods: {
     accessor: {
       get: {
-        events: {
+        mutatorEvents: {
           'get': true,
           'getProperty': true,
           'getProperty:$key': true,
@@ -25,14 +25,14 @@ export default ($options) => recursiveAssign({
       },
       set: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'set': true,
           'setProperty': true,
           'setProperty:$key': true,
         },
       },
       delete: {
-        events: {
+        mutatorEvents: {
           'delete': true,
           'deleteProperty': true,
           'deleteProperty:$key': true,
@@ -41,44 +41,44 @@ export default ($options) => recursiveAssign({
     },
     array: {
       concat: {
-        events: {
+        mutatorEvents: {
           'concatValue:$index': true,
           'concatValue': true,
           'concat': true,
         }
       },
       copyWithin: {
-        events: {
+        mutatorEvents: {
           'copyWithinIndex:$index': true,
           'copyWithinIndex': true,
           'copyWithin': true,
         }
       },
       fill: {
-        events: {
+        mutatorEvents: {
           'fillIndex:$index': true,
           'fillIndex': true,
           'fill': true,
         }
       },
       pop: {
-        events: { 'pop': true  },
+        mutatorEvents: { 'pop': true  },
       },
       push: {
-        events: {
+        mutatorEvents: {
           'pushProp:$index': true,
           'pushProp': true,
           'push': true,
         }
       },
       reverse: {
-        events: { 'reverse': true  },
+        mutatorEvents: { 'reverse': true  },
       },
       shift: {
-        events: { 'shift': true  },
+        mutatorEvents: { 'shift': true  },
       },
       splice: {
-        events: {
+        mutatorEvents: {
           'spliceDelete:$index': true,
           'spliceDelete': true,
           'spliceAdd:$index': true,
@@ -87,7 +87,7 @@ export default ($options) => recursiveAssign({
         }
       },
       unshift: {
-        events: {
+        mutatorEvents: {
           'unshiftProp:$index': true,
           'unshiftProp': true,
           'unshift': true,
@@ -97,7 +97,7 @@ export default ($options) => recursiveAssign({
     object: {
       assign: {
         sourceTree: true,
-        events: {
+        mutatorEvents: {
           'assignSourceProperty:$key': true,
           'assignSourceProperty': true,
           'assignSource': true,
@@ -106,25 +106,25 @@ export default ($options) => recursiveAssign({
       },
       defineProperties: {
         descriptorTree: true,
-        events: { 'defineProperties': true },
+        mutatorEvents: { 'defineProperties': true },
       },
       defineProperty: {
         descriptorTree: true,
-        events: {
+        mutatorEvents: {
           'defineProperty': true,
           'defineProperty:$key': true,
         },
       },
       freeze: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'freezeProperty': true,
           'freeze': true,
         },
       },
       seal: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'sealProperty': true,
           'seal': true,
         },

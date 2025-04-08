@@ -1,7 +1,7 @@
 import { ModelEvent } from '../../../events/index.js'
 export default function copyWithin($model, $options) {
   const { target, path } = $model
-  const { enableValidation, validationEvents, events } = $options
+  const { enableValidation, validationEvents, mutatorEvents } = $options
   const $arguments = [...arguments]
   const copyTarget = (
     arguments[0] >= 0
@@ -33,11 +33,11 @@ export default function copyWithin($model, $options) {
     )
     // $model.enableEvents({ enable: true })
     // Array Copy Within Index Event Data
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex)
-      if(events['copyWithinIndex']) {
+      if(mutatorEvents['copyWithinIndex']) {
         $model.dispatchEvent(
           new ModelEvent(
             'copyWithinIndex',
@@ -55,7 +55,7 @@ export default function copyWithin($model, $options) {
           )
         )
       }
-      if(events['copyWithinIndex:$index']) {
+      if(mutatorEvents['copyWithinIndex:$index']) {
         const type  = ['copyWithinIndex', ':', copyIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(
@@ -79,7 +79,7 @@ export default function copyWithin($model, $options) {
     targetIndex++
   }
   // Array Copy Within Event
-  if(events && events['copyWithin']) {
+  if(mutatorEvents && mutatorEvents['copyWithin']) {
     $model.dispatchEvent(
       new ModelEvent(
         'copyWithin',

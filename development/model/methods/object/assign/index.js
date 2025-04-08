@@ -5,7 +5,7 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
   const { path, target, schema } = $model
-  const { events, sourceTree, enableValidation, validationEvents } = $options
+  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = $options
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
   iterateAssignSources: 
@@ -88,9 +88,9 @@ export default function assign($model, $options, ...$sources) {
         Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
       }
-      if(events) {
+      if(mutatorEvents) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
-        if(events['assignSourceProperty:$key']) {
+        if(mutatorEvents['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':')
           assignSourcePropertyKeyChange.anter = target[$sourceKey]
           $model.dispatchEvent(
@@ -104,7 +104,7 @@ export default function assign($model, $options, ...$sources) {
             }, $model)
           )
         }
-        if(events['assignSourceProperty']) {
+        if(mutatorEvents['assignSourceProperty']) {
           assignSourcePropertyChange.anter = target[$sourceKey]
           $model.dispatchEvent(
             new ModelEvent('assignSourceProperty', {
@@ -120,7 +120,7 @@ export default function assign($model, $options, ...$sources) {
       }
     }
     assignedSources.push(assignedSource)
-    if(events && events['assignSource']) {
+    if(mutatorEvents && mutatorEvents['assignSource']) {
       assignSourceChange.anter = $model
       $model.dispatchEvent(
         new ModelEvent('assignSource', {
@@ -133,7 +133,7 @@ export default function assign($model, $options, ...$sources) {
       )
     }
   }
-  if(events && events['assign']) {
+  if(mutatorEvents && mutatorEvents['assign']) {
     assignChange.anter = $model
     $model.dispatchEvent(
       new ModelEvent('assign', { 

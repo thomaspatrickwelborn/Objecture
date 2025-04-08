@@ -4,7 +4,7 @@ import Model from '../../../../index.js'
 import { ModelEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model
-  const { events, pathkey, subpathError, enableValidation, validationEvents } = $options
+  const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
@@ -44,8 +44,8 @@ export default function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options)
     }
     delete target[propertyKey]
-    if(events) {
-      if(events['deleteProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(
           new ModelEvent('deleteProperty', {
             path,
@@ -57,7 +57,7 @@ export default function deleteContentProperty($model, $options, $path) {
           }, $model)
         )
       }
-      if(events['deleteProperty:$key']) {
+      if(mutatorEvents['deleteProperty:$key']) {
         const type = ['deleteProperty', propertyKey].join(':')
         const _path = [path, propertyKey].join('.')
         $model.dispatchEvent(
@@ -107,8 +107,8 @@ export default function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options)
     }
     delete target[propertyKey]
-    if(events) {
-      if(events['deleteProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(
           new ModelEvent('deleteProperty', {
             path,
@@ -120,7 +120,7 @@ export default function deleteContentProperty($model, $options, $path) {
           }, $model)
         )
       }
-      if(events['deleteProperty:$key']) {
+      if(mutatorEvents['deleteProperty:$key']) {
         const type = ['deleteProperty', propertyKey].join(':')
         const _path = [path, propertyKey].join('.')
         $model.dispatchEvent(

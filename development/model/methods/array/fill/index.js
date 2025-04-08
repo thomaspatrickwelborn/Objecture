@@ -2,7 +2,7 @@ import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function fill($model, $options) {
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, events } = $options
+  const { enableValidation, validationEvents, mutatorEvents } = $options
   const $arguments = [...arguments]
   let $start
   if(typeof $arguments[1] === 'number') {
@@ -61,11 +61,11 @@ export default function fill($model, $options) {
     )
     // $model.enableEvents({ enable: true })
     // Array Fill Index Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex)
-      if(events['fillIndex']) {
+      if(mutatorEvents['fillIndex']) {
         $model.dispatchEvent(
           new ModelEvent('fillIndex', {
             path: modelEventPath, 
@@ -78,7 +78,7 @@ export default function fill($model, $options) {
           }, $model)
         )
       }
-      if(events['fillIndex:$index']) {
+      if(mutatorEvents['fillIndex:$index']) {
         const type = ['fillIndex', ':', fillIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -95,7 +95,7 @@ export default function fill($model, $options) {
     fillIndex++
   }
   // Array Fill Event
-  if(events && events['fill']) {
+  if(mutatorEvents && mutatorEvents['fill']) {
     $model.dispatchEvent(
       new ModelEvent('fill', {
         path,

@@ -4,7 +4,7 @@ import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, events } = $options
+  const { enableValidation, validationEvents, mutatorEvents } = $options
   const $arguments = [].concat(...arguments)
   let valueIndex = target.length
   const values = []
@@ -51,11 +51,11 @@ export default function concat($model, $options) {
       values[valueIndex] = $value
     }
     targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex])
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex)
-      if(events['concatValue']) {
+      if(mutatorEvents['concatValue']) {
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
             path: modelEventPath,
@@ -67,7 +67,7 @@ export default function concat($model, $options) {
           }, $model)
         )
       }
-      if(events['concatValue:$index']) {
+      if(mutatorEvents['concatValue:$index']) {
         const type = ['concatValue', valueIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
@@ -84,7 +84,7 @@ export default function concat($model, $options) {
     valueIndex++
   }
   model = new $model.constructor(targetConcat, schema, $model.options)
-  if(events && events['concat']) {
+  if(mutatorEvents && mutatorEvents['concat']) {
     $model.dispatchEvent(
       new ModelEvent('concat', {
         path,

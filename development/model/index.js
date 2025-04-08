@@ -21,9 +21,9 @@ export default class Model extends Core {
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options)
       console.log("model.options", options)
-      if(options.addEvents) {
-        this.addEvents(options.addEvents)
-        delete options.addEvents
+      if(options.events) {
+        this.addEvents(options.events)
+        delete options.events
       }
       if(options.enableEvents) {
         const typeofEnableEvents = typeof options.enableEvents

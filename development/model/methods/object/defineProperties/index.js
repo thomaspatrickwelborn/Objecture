@@ -4,7 +4,7 @@ import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function defineProperties($model, $options, $propertyDescriptors) {
-  const { events } = $options
+  const { mutatorEvents } = $options
   const { path } = $model
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   let properties = typedObjectLiteral($model.valueOf())
@@ -15,7 +15,7 @@ export default function defineProperties($model, $options, $propertyDescriptors)
   ] of propertyDescriptorEntries) {
     $model.defineProperty($propertyKey, $propertyDescriptor)
   }
-  if(events && events['defineProperties']) {
+  if(mutatorEvents && mutatorEvents['defineProperties']) {
     definePropertiesChange.anter = $model
     $model.dispatchEvent(
       new ModelEvent(

@@ -3,7 +3,7 @@ const { recursiveAssign, typedObjectLiteral, typeOf } = Coutil
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
-  const { events } = $options
+  const { mutatorEvents } = $options
   const { target, path, schema } = $model
   const { enableValidation, validationEvents } = $model.options
   const elements = []
@@ -43,28 +43,27 @@ export default function push($model, $options, ...$elements) {
         path: modelPath,
         parent: $model,
       })
-      // const submodelOptions = Object.assign({}, $model.options, {
-      //   path: modelPath,
-      //   parent: $model,
-      // })
       element = new $model.constructor(subproperties, subschema, submodelOptions)
       Array.prototype.push.call(target, element)
       $model.retroReenableEvents()
-      const assignMethod = (element.type === 'array')
-        ? element.options.assignArray
-        : element.options.assignObject
-      element[assignMethod]($element)
+      const { assignArray, assignObject } = element.options
+      if(element.type === 'array') {
+        element[assignArray](...$element)
+      }
+      else if(element.type === 'object') {
+        element[assignObject]($element)
+      }
     }
     else {
       element = $element
       Array.prototype.push.call(target, element)
     }
     elements.push(element)
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex)
-      if(events['pushProp']) {
+      if(mutatorEvents['pushProp']) {
         $model.dispatchEvent(
           new ModelEvent('pushProp', {
             path: modelEventPath,
@@ -76,7 +75,7 @@ export default function push($model, $options, ...$elements) {
           }, $model)
         )
       }
-      if(events['pushProp:$index']) {
+      if(mutatorEvents['pushProp:$index']) {
         const type = ['pushProp', ':', elementsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -92,7 +91,7 @@ export default function push($model, $options, ...$elements) {
     }
     elementsIndex++
   }
-  if(events && events['push']) {
+  if(mutatorEvents && mutatorEvents['push']) {
     $model.dispatchEvent(
       new ModelEvent('push', {
         path,

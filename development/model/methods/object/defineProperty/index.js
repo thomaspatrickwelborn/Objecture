@@ -4,7 +4,7 @@ import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
-  const { descriptorTree, events } = $options
+  const { descriptorTree, mutatorEvents } = $options
   const { target, path, schema } = $model
   const { enableValidation, validationEvents } = $options
   const propertyValue = $propertyDescriptor.value
@@ -76,11 +76,11 @@ export default function defineProperty($model, $options, $propertyKey, $property
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor)
   }
-  if(events) {
+  if(mutatorEvents) {
     const modelEventPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey)
-    if(events['defineProperty:$key']) {
+    if(mutatorEvents['defineProperty:$key']) {
       definePropertyKeyChange.anter = target[$propertyKey]
       const type = ['defineProperty', $propertyKey].join(':')
       $model.dispatchEvent(
@@ -95,7 +95,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
         }, $model
       ))
     }
-    if(events['defineProperty']) {
+    if(mutatorEvents['defineProperty']) {
       definePropertyChange.anter = target[$propertyKey]
       $model.dispatchEvent(
         new ModelEvent('defineProperty', {

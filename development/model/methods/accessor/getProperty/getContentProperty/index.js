@@ -4,7 +4,7 @@ import Model from '../../../../index.js'
 import { ModelEvent } from '../../../../events/index.js'
 export default function getContentProperty($model, $options, $path) {
   const { target, path } = $model
-  const { events, pathkey, subpathError } = $options
+  const { mutatorEvents, pathkey, subpathError } = $options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
@@ -13,8 +13,8 @@ export default function getContentProperty($model, $options, $path) {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.get(subpaths.join('.'), $options)
     }
-    if(events) {
-      if(events['getProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['getProperty']) {
         $model.dispatchEvent(
           new ModelEvent('getProperty', {
             path,
@@ -26,7 +26,7 @@ export default function getContentProperty($model, $options, $path) {
           }, $model)
         )
       }
-      if(events['getProperty:$key']) {
+      if(mutatorEvents['getProperty:$key']) {
         const type = ['getProperty', propertyKey].join(':')
         const _path = [path, propertyKey].join('.')
         $model.dispatchEvent(

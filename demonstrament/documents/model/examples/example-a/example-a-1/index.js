@@ -12,7 +12,7 @@ const model = new Model({
       propertyG: 777
     }
 }, null, {
-  addEvents: {
+  events: {
     '** defineProperty': eventLog,
     '** assignSourceProperty': eventLog,
     '** setProperty': eventLog,

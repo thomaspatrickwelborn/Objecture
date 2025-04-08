@@ -5,7 +5,7 @@ import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, events, pathkey, subpathError, recursive, source } = $options
+  const { enableValidation, validationEvents, mutatorEvents, pathkey, subpathError, recursive, source } = $options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
@@ -92,11 +92,11 @@ export default function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value
       target[propertyKey] = propertyValue
     }
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      if(events['setProperty']) {
+      if(mutatorEvents['setProperty']) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
@@ -108,7 +108,7 @@ export default function setContentProperty($model, $options, $path, $value) {
           }, $model)
         )
       }
-      if(events['setProperty:$key']) {
+      if(mutatorEvents['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -160,11 +160,11 @@ export default function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value
       target[propertyKey] = propertyValue
     }
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      if(events['setProperty']) {
+      if(mutatorEvents['setProperty']) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
@@ -176,7 +176,7 @@ export default function setContentProperty($model, $options, $path, $value) {
           }, $model)
         )
       }
-      if(events['setProperty:$key']) {
+      if(mutatorEvents['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {

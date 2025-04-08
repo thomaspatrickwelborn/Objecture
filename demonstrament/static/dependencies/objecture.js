@@ -1916,7 +1916,7 @@ var Options = ($options) => recursiveAssign$8({
   methods: {
     accessor: {
       get: {
-        events: {
+        mutatorEvents: {
           'get': true,
           'getProperty': true,
           'getProperty:$key': true,
@@ -1924,14 +1924,14 @@ var Options = ($options) => recursiveAssign$8({
       },
       set: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'set': true,
           'setProperty': true,
           'setProperty:$key': true,
         },
       },
       delete: {
-        events: {
+        mutatorEvents: {
           'delete': true,
           'deleteProperty': true,
           'deleteProperty:$key': true,
@@ -1940,44 +1940,44 @@ var Options = ($options) => recursiveAssign$8({
     },
     array: {
       concat: {
-        events: {
+        mutatorEvents: {
           'concatValue:$index': true,
           'concatValue': true,
           'concat': true,
         }
       },
       copyWithin: {
-        events: {
+        mutatorEvents: {
           'copyWithinIndex:$index': true,
           'copyWithinIndex': true,
           'copyWithin': true,
         }
       },
       fill: {
-        events: {
+        mutatorEvents: {
           'fillIndex:$index': true,
           'fillIndex': true,
           'fill': true,
         }
       },
       pop: {
-        events: { 'pop': true  },
+        mutatorEvents: { 'pop': true  },
       },
       push: {
-        events: {
+        mutatorEvents: {
           'pushProp:$index': true,
           'pushProp': true,
           'push': true,
         }
       },
       reverse: {
-        events: { 'reverse': true  },
+        mutatorEvents: { 'reverse': true  },
       },
       shift: {
-        events: { 'shift': true  },
+        mutatorEvents: { 'shift': true  },
       },
       splice: {
-        events: {
+        mutatorEvents: {
           'spliceDelete:$index': true,
           'spliceDelete': true,
           'spliceAdd:$index': true,
@@ -1986,7 +1986,7 @@ var Options = ($options) => recursiveAssign$8({
         }
       },
       unshift: {
-        events: {
+        mutatorEvents: {
           'unshiftProp:$index': true,
           'unshiftProp': true,
           'unshift': true,
@@ -1996,7 +1996,7 @@ var Options = ($options) => recursiveAssign$8({
     object: {
       assign: {
         sourceTree: true,
-        events: {
+        mutatorEvents: {
           'assignSourceProperty:$key': true,
           'assignSourceProperty': true,
           'assignSource': true,
@@ -2005,25 +2005,25 @@ var Options = ($options) => recursiveAssign$8({
       },
       defineProperties: {
         descriptorTree: true,
-        events: { 'defineProperties': true },
+        mutatorEvents: { 'defineProperties': true },
       },
       defineProperty: {
         descriptorTree: true,
-        events: {
+        mutatorEvents: {
           'defineProperty': true,
           'defineProperty:$key': true,
         },
       },
       freeze: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'freezeProperty': true,
           'freeze': true,
         },
       },
       seal: {
         recursive: true,
-        events: {
+        mutatorEvents: {
           'sealProperty': true,
           'seal': true,
         },
@@ -2134,7 +2134,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$6 } = index;
 function assign($model, $options, ...$sources) {
   const { path, target, schema } = $model;
-  const { events, sourceTree, enableValidation, validationEvents } = $options;
+  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = $options;
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
   iterateAssignSources: 
@@ -2217,9 +2217,9 @@ function assign($model, $options, ...$sources) {
         Object.assign(target, assignment);
         Object.assign(assignedSource, assignment);
       }
-      if(events) {
+      if(mutatorEvents) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey);
-        if(events['assignSourceProperty:$key']) {
+        if(mutatorEvents['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':');
           assignSourcePropertyKeyChange.anter = target[$sourceKey];
           $model.dispatchEvent(
@@ -2233,7 +2233,7 @@ function assign($model, $options, ...$sources) {
             }, $model)
           );
         }
-        if(events['assignSourceProperty']) {
+        if(mutatorEvents['assignSourceProperty']) {
           assignSourcePropertyChange.anter = target[$sourceKey];
           $model.dispatchEvent(
             new ModelEvent('assignSourceProperty', {
@@ -2249,7 +2249,7 @@ function assign($model, $options, ...$sources) {
       }
     }
     assignedSources.push(assignedSource);
-    if(events && events['assignSource']) {
+    if(mutatorEvents && mutatorEvents['assignSource']) {
       assignSourceChange.anter = $model;
       $model.dispatchEvent(
         new ModelEvent('assignSource', {
@@ -2262,7 +2262,7 @@ function assign($model, $options, ...$sources) {
       );
     }
   }
-  if(events && events['assign']) {
+  if(mutatorEvents && mutatorEvents['assign']) {
     assignChange.anter = $model;
     $model.dispatchEvent(
       new ModelEvent('assign', { 
@@ -2279,7 +2279,7 @@ function assign($model, $options, ...$sources) {
 
 const { impandTree, typedObjectLiteral: typedObjectLiteral$5 } = index;
 function defineProperties($model, $options, $propertyDescriptors) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { path } = $model;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   let properties = typedObjectLiteral$5($model.valueOf());
@@ -2290,7 +2290,7 @@ function defineProperties($model, $options, $propertyDescriptors) {
   ] of propertyDescriptorEntries) {
     $model.defineProperty($propertyKey, $propertyDescriptor);
   }
-  if(events && events['defineProperties']) {
+  if(mutatorEvents && mutatorEvents['defineProperties']) {
     definePropertiesChange.anter = $model;
     $model.dispatchEvent(
       new ModelEvent(
@@ -2311,7 +2311,7 @@ function defineProperties($model, $options, $propertyDescriptors) {
 
 const { recursiveAssign: recursiveAssign$6, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
-  const { descriptorTree, events } = $options;
+  const { descriptorTree, mutatorEvents } = $options;
   const { target, path, schema } = $model;
   const { enableValidation, validationEvents } = $options;
   const propertyValue = $propertyDescriptor.value;
@@ -2383,11 +2383,11 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor);
   }
-  if(events) {
+  if(mutatorEvents) {
     const modelEventPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey);
-    if(events['defineProperty:$key']) {
+    if(mutatorEvents['defineProperty:$key']) {
       definePropertyKeyChange.anter = target[$propertyKey];
       const type = ['defineProperty', $propertyKey].join(':');
       $model.dispatchEvent(
@@ -2402,7 +2402,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
         }, $model
       ));
     }
-    if(events['defineProperty']) {
+    if(mutatorEvents['defineProperty']) {
       definePropertyChange.anter = target[$propertyKey];
       $model.dispatchEvent(
         new ModelEvent('defineProperty', {
@@ -2421,7 +2421,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
 }
 
 function freeze($model, $options) {
-  const { recursive, events } = $options;
+  const { recursive, mutatorEvents } = $options;
   const { target } = $model;
   if(recursive === true) {
     iterateProperties: 
@@ -2430,7 +2430,7 @@ function freeze($model, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Model) {
         $propertyValue.freeze();
-        if(events && events['freezeProperty']) {
+        if(mutatorEvents && mutatorEvents['freezeProperty']) {
           $model.dispatchEvent(
             new ModelEvent(
               'freezeProperty',
@@ -2443,7 +2443,7 @@ function freeze($model, $options) {
     }
   }
   Object.freeze(target);
-  if(events && events['freeze']) {
+  if(mutatorEvents && mutatorEvents['freeze']) {
     $model.dispatchEvent(
       new ModelEvent(
         'freeze',
@@ -2456,7 +2456,7 @@ function freeze($model, $options) {
 }
 
 function seal($model, $options) {
-  const { recursive, events } = $options;
+  const { recursive, mutatorEvents } = $options;
   const { target } = $model;
   if(recursive === true) {
     iterateProperties: 
@@ -2465,7 +2465,7 @@ function seal($model, $options) {
     ] of Object.entries(target)) {
       if($propertyValue instanceof Model) {
         $propertyValue.seal();
-        if(events && events['sealProperty']) {
+        if(mutatorEvents && mutatorEvents['sealProperty']) {
           $model.dispatchEvent(
             new ModelEvent(
               'sealProperty',
@@ -2478,7 +2478,7 @@ function seal($model, $options) {
     }
   }
   Object.seal(target);
-  if(events && events['seal']) {
+  if(mutatorEvents && mutatorEvents['seal']) {
     $model.dispatchEvent(
       new ModelEvent(
         'seal',
@@ -2501,7 +2501,7 @@ var ObjectProperty = {
 const { typedObjectLiteral: typedObjectLiteral$3 } = index;
 function concat($model, $options) {
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents, events } = $options;
+  const { enableValidation, validationEvents, mutatorEvents } = $options;
   const $arguments = [].concat(...arguments);
   let valueIndex = target.length;
   const values = [];
@@ -2548,11 +2548,11 @@ function concat($model, $options) {
       values[valueIndex] = $value;
     }
     targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex]);
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex);
-      if(events['concatValue']) {
+      if(mutatorEvents['concatValue']) {
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
             path: modelEventPath,
@@ -2564,7 +2564,7 @@ function concat($model, $options) {
           }, $model)
         );
       }
-      if(events['concatValue:$index']) {
+      if(mutatorEvents['concatValue:$index']) {
         const type = ['concatValue', valueIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
@@ -2581,7 +2581,7 @@ function concat($model, $options) {
     valueIndex++;
   }
   model = new $model.constructor(targetConcat, schema, $model.options);
-  if(events && events['concat']) {
+  if(mutatorEvents && mutatorEvents['concat']) {
     $model.dispatchEvent(
       new ModelEvent('concat', {
         path,
@@ -2596,7 +2596,7 @@ function concat($model, $options) {
 
 function copyWithin($model, $options) {
   const { target, path } = $model;
-  const { enableValidation, validationEvents, events } = $options;
+  const { enableValidation, validationEvents, mutatorEvents } = $options;
   const $arguments = [...arguments];
   const copyTarget = (
     arguments[0] >= 0
@@ -2628,11 +2628,11 @@ function copyWithin($model, $options) {
     );
     // $model.enableEvents({ enable: true })
     // Array Copy Within Index Event Data
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex);
-      if(events['copyWithinIndex']) {
+      if(mutatorEvents['copyWithinIndex']) {
         $model.dispatchEvent(
           new ModelEvent(
             'copyWithinIndex',
@@ -2650,7 +2650,7 @@ function copyWithin($model, $options) {
           )
         );
       }
-      if(events['copyWithinIndex:$index']) {
+      if(mutatorEvents['copyWithinIndex:$index']) {
         const type  = ['copyWithinIndex', ':', copyIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(
@@ -2674,7 +2674,7 @@ function copyWithin($model, $options) {
     targetIndex++;
   }
   // Array Copy Within Event
-  if(events && events['copyWithin']) {
+  if(mutatorEvents && mutatorEvents['copyWithin']) {
     $model.dispatchEvent(
       new ModelEvent(
         'copyWithin',
@@ -2696,7 +2696,7 @@ function copyWithin($model, $options) {
 
 function fill($model, $options) {
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents, events } = $options;
+  const { enableValidation, validationEvents, mutatorEvents } = $options;
   const $arguments = [...arguments];
   let $start;
   if(typeof $arguments[1] === 'number') {
@@ -2755,11 +2755,11 @@ function fill($model, $options) {
     );
     // $model.enableEvents({ enable: true })
     // Array Fill Index Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex);
-      if(events['fillIndex']) {
+      if(mutatorEvents['fillIndex']) {
         $model.dispatchEvent(
           new ModelEvent('fillIndex', {
             path: modelEventPath, 
@@ -2772,7 +2772,7 @@ function fill($model, $options) {
           }, $model)
         );
       }
-      if(events['fillIndex:$index']) {
+      if(mutatorEvents['fillIndex:$index']) {
         const type = ['fillIndex', ':', fillIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -2789,7 +2789,7 @@ function fill($model, $options) {
     fillIndex++;
   }
   // Array Fill Event
-  if(events && events['fill']) {
+  if(mutatorEvents && mutatorEvents['fill']) {
     $model.dispatchEvent(
       new ModelEvent('fill', {
         path,
@@ -2806,13 +2806,13 @@ function fill($model, $options) {
 }
 
 function pop($model, $options) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path } = $model;
   const popElement = Array.prototype.pop.call(target);
   // $model.enableEvents({ enable: true })
   const popElementIndex = target.length - 1;
   // Array Pop Event
-  if(events && events['pop']) {
+  if(mutatorEvents && mutatorEvents['pop']) {
     const modelEventPath = (path)
       ? [path, popElementIndex].join('.')
       : String(popElementIndex);
@@ -2836,7 +2836,7 @@ function pop($model, $options) {
 
 const { recursiveAssign: recursiveAssign$5, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$2 } = index;
 function push($model, $options, ...$elements) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path, schema } = $model;
   const { enableValidation, validationEvents } = $model.options;
   const elements = [];
@@ -2876,28 +2876,27 @@ function push($model, $options, ...$elements) {
         path: modelPath,
         parent: $model,
       });
-      // const submodelOptions = Object.assign({}, $model.options, {
-      //   path: modelPath,
-      //   parent: $model,
-      // })
       element = new $model.constructor(subproperties, subschema, submodelOptions);
       Array.prototype.push.call(target, element);
       $model.retroReenableEvents();
-      const assignMethod = (element.type === 'array')
-        ? element.options.assignArray
-        : element.options.assignObject;
-      element[assignMethod]($element);
+      const { assignArray, assignObject } = element.options;
+      if(element.type === 'array') {
+        element[assignArray](...$element);
+      }
+      else if(element.type === 'object') {
+        element[assignObject]($element);
+      }
     }
     else {
       element = $element;
       Array.prototype.push.call(target, element);
     }
     elements.push(element);
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex);
-      if(events['pushProp']) {
+      if(mutatorEvents['pushProp']) {
         $model.dispatchEvent(
           new ModelEvent('pushProp', {
             path: modelEventPath,
@@ -2909,7 +2908,7 @@ function push($model, $options, ...$elements) {
           }, $model)
         );
       }
-      if(events['pushProp:$index']) {
+      if(mutatorEvents['pushProp:$index']) {
         const type = ['pushProp', ':', elementsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -2925,7 +2924,7 @@ function push($model, $options, ...$elements) {
     }
     elementsIndex++;
   }
-  if(events && events['push']) {
+  if(mutatorEvents && mutatorEvents['push']) {
     $model.dispatchEvent(
       new ModelEvent('push', {
         path,
@@ -2939,11 +2938,11 @@ function push($model, $options, ...$elements) {
 }
 
 function reverse($model, $options) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path } = $model;
   Array.prototype.reverse.call(target, ...arguments);
   // $model.enableEvents({ enable: true })
-  if(events && events['reverse']) {
+  if(mutatorEvents && mutatorEvents['reverse']) {
     $model.dispatchEvent(
       new ModelEvent(
         'reverse',
@@ -2961,13 +2960,13 @@ function reverse($model, $options) {
 }
 
 function shift($model, $options) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path } = $model;
   const shiftElement = Array.prototype.shift.call(target);
   // $model.enableEvents({ enable: true })
   const shiftElementIndex = 0;
   // Array Shift Event
-  if(events && events['shift']) {
+  if(mutatorEvents && mutatorEvents['shift']) {
     const modelEventPath = (path)
       ? [path, shiftElementIndex].join('.')
       : String(shiftElementIndex);
@@ -2990,7 +2989,7 @@ function shift($model, $options) {
 }
 
 function splice($model, $options) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path, schema } = $model;
   const { enableValidation, validationEvents } = $options;
   const $arguments = [...arguments];
@@ -3014,11 +3013,11 @@ function splice($model, $options) {
     // $model.enableEvents({ enable: true })
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex);
-      if(events['spliceDelete']) {
+      if(mutatorEvents['spliceDelete']) {
         $model.dispatchEvent(
           new ModelEvent('spliceDelete', {
             path: modelEventPath,
@@ -3031,7 +3030,7 @@ function splice($model, $options) {
           }, $model)
         );
       }
-      if(events['spliceDelete:$index']) {
+      if(mutatorEvents['spliceDelete:$index']) {
         const type = ['spliceDelete', ':', deleteItemsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -3095,11 +3094,11 @@ function splice($model, $options) {
     }
     // $model.enableEvents({ enable: true })
     // Array Splice Add Event
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex);
-      if(events['spliceAdd']) {
+      if(mutatorEvents['spliceAdd']) {
         $model.dispatchEvent(
           new ModelEvent('spliceAdd', {
             path: modelEventPath,
@@ -3112,7 +3111,7 @@ function splice($model, $options) {
           }, $model)
         );
       }
-      if(events['spliceAdd:$index']) {
+      if(mutatorEvents['spliceAdd:$index']) {
         const type = ['spliceAdd', ':', addItemsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -3130,7 +3129,7 @@ function splice($model, $options) {
     addItemsIndex++;
   }
   // Array Splice Event
-  if(events && events['splice']) {
+  if(mutatorEvents && mutatorEvents['splice']) {
     $model.dispatchEvent(
       new ModelEvent('splice', {
         path,
@@ -3148,7 +3147,7 @@ function splice($model, $options) {
 }
 
 function unshift($model, $options, ...$elements) {
-  const { events } = $options;
+  const { mutatorEvents } = $options;
   const { target, path, schema } = $model;
   const { enableValidation, validationEvents } = $options;
   const elements = [];
@@ -3223,12 +3222,12 @@ function unshift($model, $options, ...$elements) {
     //   : (JSON.stringify(targetElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
     // $model.enableEvents({ enable: true })
-    if(events) {
+    if(mutatorEvents) {
       const type = ['unshiftProp', elementCoindex].join(':');
       const modelEventPath = (path)
         ? [path, elementCoindex].join('.')
         : String(elementCoindex);
-      if(events['unshiftProp']) {
+      if(mutatorEvents['unshiftProp']) {
         $model.dispatchEvent(
           new ModelEvent('unshiftProp', {
             path: modelEventPath,
@@ -3241,7 +3240,7 @@ function unshift($model, $options, ...$elements) {
           }, $model)
         );
       }
-      if(events['unshiftProp:$index']) {
+      if(mutatorEvents['unshiftProp:$index']) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -3260,7 +3259,7 @@ function unshift($model, $options, ...$elements) {
     elementCoindex++;
   }
   // Array Unshift Event
-  if(events && events['unshift'] && elements.length) {
+  if(mutatorEvents && mutatorEvents['unshift'] && elements.length) {
     $model.dispatchEvent(
       new ModelEvent('unshift', {
         path,
@@ -3288,8 +3287,8 @@ var ArrayProperty = {
 
 function getContent($model, $options) {
   const { path } = $model;
-  const { events } = $options;
-  if(events && events['get']) {
+  const { mutatorEvents } = $options;
+  if(mutatorEvents && mutatorEvents['get']) {
     $model.dispatchEvent(
       new ModelEvent('get', {
         path,
@@ -3306,7 +3305,7 @@ function getContent($model, $options) {
 const { regularExpressions: regularExpressions$2} = index;
 function getContentProperty($model, $options, $path) {
   const { target, path } = $model;
-  const { events, pathkey, subpathError } = $options;
+  const { mutatorEvents, pathkey, subpathError } = $options;
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions$2.quotationEscape));
     const propertyKey = subpaths.shift();
@@ -3315,8 +3314,8 @@ function getContentProperty($model, $options, $path) {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.get(subpaths.join('.'), $options)
     }
-    if(events) {
-      if(events['getProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['getProperty']) {
         $model.dispatchEvent(
           new ModelEvent('getProperty', {
             path,
@@ -3328,7 +3327,7 @@ function getContentProperty($model, $options, $path) {
           }, $model)
         );
       }
-      if(events['getProperty:$key']) {
+      if(mutatorEvents['getProperty:$key']) {
         const type = ['getProperty', propertyKey].join(':');
         const _path = [path, propertyKey].join('.');
         $model.dispatchEvent(
@@ -3371,8 +3370,8 @@ function setContent($model, $options, $properties) {
   }
   // Set Property Event
   const { path } = $model;
-  const { events } = $options;
-  if(events && events['set']) {
+  const { mutator } = $options;
+  if(mutator && mutator['set']) {
     $model.dispatchEvent(
       new ModelEvent('set', {
         path,
@@ -3389,7 +3388,7 @@ function setContent($model, $options, $properties) {
 const { recursiveAssign: recursiveAssign$3, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
 function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents, events, pathkey, subpathError, recursive, source } = $options;
+  const { enableValidation, validationEvents, mutatorEvents, pathkey, subpathError, recursive, source } = $options;
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions$1.quotationEscape));
     const propertyKey = subpaths.shift();
@@ -3476,11 +3475,11 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value;
       target[propertyKey] = propertyValue;
     }
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      if(events['setProperty']) {
+      if(mutatorEvents['setProperty']) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
@@ -3492,7 +3491,7 @@ function setContentProperty($model, $options, $path, $value) {
           }, $model)
         );
       }
-      if(events['setProperty:$key']) {
+      if(mutatorEvents['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -3544,11 +3543,11 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value;
       target[propertyKey] = propertyValue;
     }
-    if(events) {
+    if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      if(events['setProperty']) {
+      if(mutatorEvents['setProperty']) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
@@ -3560,7 +3559,7 @@ function setContentProperty($model, $options, $path, $value) {
           }, $model)
         );
       }
-      if(events['setProperty:$key']) {
+      if(mutatorEvents['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
@@ -3598,8 +3597,8 @@ function deleteContent($model, $options) {
     $model.delete($targetPropertyKey, $options);
   }
   const { path } = $model;
-  const { events } = $options;
-  if(events && events['delete']) {
+  const { mutatorEvents } = $options;
+  if(mutatorEvents && mutatorEvents['delete']) {
     $model.dispatchEvent(
       new ModelEvent('delete', {
         path,
@@ -3615,7 +3614,7 @@ function deleteContent($model, $options) {
 const { regularExpressions} = index;
 function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model;
-  const { events, pathkey, subpathError, enableValidation, validationEvents } = $options;
+  const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options;
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
@@ -3655,8 +3654,8 @@ function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options);
     }
     delete target[propertyKey];
-    if(events) {
-      if(events['deleteProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(
           new ModelEvent('deleteProperty', {
             path,
@@ -3668,7 +3667,7 @@ function deleteContentProperty($model, $options, $path) {
           }, $model)
         );
       }
-      if(events['deleteProperty:$key']) {
+      if(mutatorEvents['deleteProperty:$key']) {
         const type = ['deleteProperty', propertyKey].join(':');
         const _path = [path, propertyKey].join('.');
         $model.dispatchEvent(
@@ -3718,8 +3717,8 @@ function deleteContentProperty($model, $options, $path) {
       propertyValue.delete($options);
     }
     delete target[propertyKey];
-    if(events) {
-      if(events['deleteProperty']) {
+    if(mutatorEvents) {
+      if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(
           new ModelEvent('deleteProperty', {
             path,
@@ -3731,7 +3730,7 @@ function deleteContentProperty($model, $options, $path) {
           }, $model)
         );
       }
-      if(events['deleteProperty:$key']) {
+      if(mutatorEvents['deleteProperty:$key']) {
         const type = ['deleteProperty', propertyKey].join(':');
         const _path = [path, propertyKey].join('.');
         $model.dispatchEvent(
@@ -3906,9 +3905,9 @@ class Model extends Core {
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options);
       console.log("model.options", options);
-      if(options.addEvents) {
-        this.addEvents(options.addEvents);
-        delete options.addEvents;
+      if(options.events) {
+        this.addEvents(options.events);
+        delete options.events;
       }
       if(options.enableEvents) {
         const typeofEnableEvents = typeof options.enableEvents;

@@ -1,7 +1,7 @@
 import Model from '../../../index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
-  const { events } = $options
+  const { mutatorEvents } = $options
   const { target, path, schema } = $model
   const { enableValidation, validationEvents } = $options
   const elements = []
@@ -76,12 +76,12 @@ export default function unshift($model, $options, ...$elements) {
     //   : (JSON.stringify(targetElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
     // $model.enableEvents({ enable: true })
-    if(events) {
+    if(mutatorEvents) {
       const type = ['unshiftProp', elementCoindex].join(':')
       const modelEventPath = (path)
         ? [path, elementCoindex].join('.')
         : String(elementCoindex)
-      if(events['unshiftProp']) {
+      if(mutatorEvents['unshiftProp']) {
         $model.dispatchEvent(
           new ModelEvent('unshiftProp', {
             path: modelEventPath,
@@ -94,7 +94,7 @@ export default function unshift($model, $options, ...$elements) {
           }, $model)
         )
       }
-      if(events['unshiftProp:$index']) {
+      if(mutatorEvents['unshiftProp:$index']) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -113,7 +113,7 @@ export default function unshift($model, $options, ...$elements) {
     elementCoindex++
   }
   // Array Unshift Event
-  if(events && events['unshift'] && elements.length) {
+  if(mutatorEvents && mutatorEvents['unshift'] && elements.length) {
     $model.dispatchEvent(
       new ModelEvent('unshift', {
         path,
