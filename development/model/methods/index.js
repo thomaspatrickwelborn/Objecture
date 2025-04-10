@@ -1,3 +1,5 @@
+import { Coutil } from '/dependencies/core-plex.js'
+const { recursiveAssign, recursiveFreeze } = Coutil
 import ObjectProperty from './object/index.js'
 import ArrayProperty from './array/index.js'
 import AccessorProperty from './accessor/index.js'
@@ -82,7 +84,10 @@ export default function Methods($model) {
       const { keys, createMethod, type } = $propertyClass
       for(const $methodName of keys) {
         if($propertyClassName === 'accessor' || type === 'mutators') {
-          const methodOptions = $model.options?.methods[$propertyClassName][$methodName] || {}
+          const modelMethodOptions = structuredClone($model.options.methods[$propertyClassName][$methodName])
+          const methodOptions = Object.assign({}, $model.options)
+          delete methodOptions.mutatorEvents
+          methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents
           Object.defineProperty($model, $methodName, {
             enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName, $model, methodOptions),

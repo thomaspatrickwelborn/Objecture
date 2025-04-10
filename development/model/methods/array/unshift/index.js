@@ -1,9 +1,9 @@
 import Model from '../../../index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
-  const { mutatorEvents } = $options
-  const { target, path, schema } = $model
-  const { enableValidation, validationEvents } = $options
+  const options = Object.assign({}, $options)
+  options.assignArray = 'unshift'
+  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options
   const elements = []
   const elementsLength = $elements.length
   let elementIndex = elementsLength - 1
@@ -61,8 +61,8 @@ export default function unshift($model, $options, ...$elements) {
         path: modelPath,
         parent: $model,
       })
-      elements.unshift(element)
-      Array.prototype.unshift.call(target, element)
+      if(element.type === 'array') { element[assignArray](...$value) }
+      else if(element.type === 'object') { element[assignObject]($value) }
     }
     // Element: Primitive Type
     else {

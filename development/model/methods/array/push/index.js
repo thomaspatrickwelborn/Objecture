@@ -3,9 +3,10 @@ const { recursiveAssign, typedObjectLiteral, typeOf } = Coutil
 import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
-  const { mutatorEvents } = $options
+  const options = Object.assign({}, $options)
+  options.assignArray = 'push'
+  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents } = $model.options
   const elements = []
   let elementsIndex = 0
   iterateElements:
@@ -36,23 +37,18 @@ export default function push($model, $options, ...$elements) {
       ? [path, elementsIndex].join('.')
       : String(elementsIndex)
     if(typeof $element === 'object') {
-      $element = ($element instanceof Model) ? $element.valueOf() : $element
+      $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element
       const subschema = schema?.context[0] || null
       const subproperties = typedObjectLiteral(typeOf($element))
-      const submodelOptions = recursiveAssign({}, $model.options, {
+      const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
       })
       element = new $model.constructor(subproperties, subschema, submodelOptions)
       Array.prototype.push.call(target, element)
       $model.retroReenableEvents()
-      const { assignArray, assignObject } = element.options
-      if(element.type === 'array') {
-        element[assignArray](...$element)
-      }
-      else if(element.type === 'object') {
-        element[assignObject]($element)
-      }
+      if(element.type === 'array') { element[assignArray](...$element) }
+      else if(element.type === 'object') { element[assignObject]($element) }
     }
     else {
       element = $element
