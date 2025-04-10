@@ -4,7 +4,7 @@ import getContent from './getContent/index.js'
 import getContentProperty from './getContentProperty/index.js'
 export default function getProperty($model, $options, ...$arguments) {
   let getProperty
-  const options = recursiveAssign({}, $model.options, $options)
+  const options = $options
   if(typeof $arguments[0] === 'string') {
     if($arguments.length === 2) { recursiveAssign(options, $arguments[1]) }
     getProperty = getContentProperty($model, options, ...$arguments)

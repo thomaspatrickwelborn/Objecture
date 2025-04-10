@@ -1,3 +1,5 @@
+import { Coutil } from '../../../../../dependencies/core-plex.js';
+
 const defaultAccessor = ($target, $property) => {
   if($property === undefined) { return $target }
   else { return $target[$property] }
@@ -84,6 +86,35 @@ function isPropertyDefinition$1($propertyDefinition) {
   else { return false }
 }
 
+const typeOf$6 = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
+function typedObjectLiteral$a($value) {
+  let _typedObjectLiteral;
+  const typeOfValue = typeOf$6($value);
+  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
+  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
+  else if(typeOfValue === 'string') {
+    if($value === 'object') { _typedObjectLiteral = {}; }
+    else if($value === 'array') { _typedObjectLiteral = []; }
+  }
+  else { _typedObjectLiteral = undefined; }
+  return _typedObjectLiteral
+}
+
+function objectClone($target) {
+  const target = typedObjectLiteral$a($target);
+  for(const [$targetKey, $targetValue] of Object.entries($target)) {
+    if(typeof $targetValue === 'object') {
+      target[$targetKey] = objectClone($targetValue);
+    }
+    else { target[$targetKey] = $targetValue; }
+  }
+  return target
+}
+
 const Options$2 = {
   depth: 0,
   maxDepth: 10,
@@ -123,12 +154,7 @@ function propertyDirectory($object, $options) {
   return _propertyDirectory
 }
 
-const typeOf$6 = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
-function recursiveAssign$b($target, ...$sources) {
+function recursiveAssign$c($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
   for(const $source of $sources) {
@@ -143,7 +169,7 @@ function recursiveAssign$b($target, ...$sources) {
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
       ) {
-        $target[$sourcePropertyKey] = recursiveAssign$b($target[$sourcePropertyKey], $sourcePropertyValue);
+        $target[$sourcePropertyKey] = recursiveAssign$c($target[$sourcePropertyKey], $sourcePropertyValue);
       }
       else {
         $target[$sourcePropertyKey] = $sourcePropertyValue;
@@ -188,26 +214,13 @@ var index$2 = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-function recursiveFreeze($target) {
+function recursiveFreeze$1($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
-      recursiveFreeze($propertyValue);
+      recursiveFreeze$1($propertyValue);
     }
   }
   return Object.freeze($target)
-}
-
-function typedObjectLiteral$a($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf$6($value);
-  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
-  }
-  else { _typedObjectLiteral = undefined; }
-  return _typedObjectLiteral
 }
 
 const Primitives = {
@@ -254,10 +267,11 @@ var index = /*#__PURE__*/Object.freeze({
   expandEvents: expandEvents,
   impandEvents: impandEvents,
   isPropertyDefinition: isPropertyDefinition$1,
+  objectClone: objectClone,
   propertyDirectory: propertyDirectory,
-  recursiveAssign: recursiveAssign$b,
+  recursiveAssign: recursiveAssign$c,
   recursiveAssignConcat: recursiveAssignConcat,
-  recursiveFreeze: recursiveFreeze,
+  recursiveFreeze: recursiveFreeze$1,
   regularExpressions: index$2,
   typeOf: typeOf$6,
   typedObjectLiteral: typedObjectLiteral$a,
@@ -836,7 +850,7 @@ var Settings = ($settings = {}) => {
           const { type, listener } = $eventDefinition;
           return $target['once'](type, listener)
         },
-      },  
+      }, 
       deassign: {
         removeEventListener: function removeEventListener($eventDefinition, $target) {
           const { type, listener, settings } = $eventDefinition;
@@ -868,7 +882,7 @@ var Settings = ($settings = {}) => {
         Settings.propertyDirectory[$settingKey] = $settingValue;
         break
       case 'methods': 
-        Settings[$settingKey] = recursiveAssign$b(Settings[$settingKey], $settingValue);
+        Settings[$settingKey] = recursiveAssign$c(Settings[$settingKey], $settingValue);
         break
       case 'enableEvents': break
       default: 
@@ -1132,7 +1146,7 @@ class Core extends EventTarget {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
             }
-            recursiveAssign$b(event, $addEvent);
+            recursiveAssign$c(event, $addEvent);
             const eventDefinition = new EventDefinition(event, $target);
             events.push(eventDefinition);
           }
@@ -1236,7 +1250,7 @@ class Verification extends EventTarget {
   }
 }
 
-const { recursiveAssign: recursiveAssign$a } = index;
+const { recursiveAssign: recursiveAssign$b } = index;
 const Messages$1 = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
@@ -1270,7 +1284,7 @@ class Validator extends EventTarget {
         definition: definition,
         key: $key,
         value: $value,
-        messages: recursiveAssign$a({}, this.messages, definition.messages),
+        messages: recursiveAssign$b({}, this.messages, definition.messages),
       });
       verification.pass = definition.validate(...arguments);
       return verification
@@ -1280,7 +1294,7 @@ class Validator extends EventTarget {
   }
 }
 
-const { recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$9 } = index;
+const { recursiveAssign: recursiveAssign$a, typedObjectLiteral: typedObjectLiteral$9 } = index;
 class RequiredValidator extends Validator {
   constructor($definition, $schema) {
     super(Object.assign($definition, {
@@ -1297,7 +1311,7 @@ class RequiredValidator extends Validator {
           for(const [
             $requiredPropertyName, $requiredProperty
           ] of Object.entries(requiredProperties)) {
-            const requiredProperty = recursiveAssign$9({}, $requiredProperty);
+            const requiredProperty = recursiveAssign$a({}, $requiredProperty);
             // ?:START
             requiredProperty.required.value = false;
             // ?:STOP
@@ -1898,139 +1912,142 @@ class Schema extends EventTarget {
   }
 }
 
-const { recursiveAssign: recursiveAssign$8 } = index;
-var Options = ($options) => recursiveAssign$8({
-  path: null, 
-  parent: null, 
-  enableValidation: true, 
-  validationEvents: {
-    'validProperty:$key': true,
-    'validProperty': true,
-    'nonvalidProperty:$key': true,
-    'nonvalidProperty': true,
-  },
-  pathkey: true,
-  subpathError: false,
-  assignObject: 'set', 
-  assignArray: 'set',
-  methods: {
-    accessor: {
-      get: {
-        mutatorEvents: {
-          'get': true,
-          'getProperty': true,
-          'getProperty:$key': true,
+const { recursiveAssign: recursiveAssign$9 } = index;
+var Options = ($options) => {
+  const Options = recursiveAssign$9({
+    path: null, 
+    parent: null, 
+    enableValidation: true, 
+    validationEvents: {
+      'validProperty:$key': true,
+      'validProperty': true,
+      'nonvalidProperty:$key': true,
+      'nonvalidProperty': true,
+    },
+    pathkey: true,
+    subpathError: false,
+    assignObject: 'set', 
+    assignArray: 'set',
+    methods: {
+      accessor: {
+        get: {
+          mutatorEvents: {
+            'get': true,
+            'getProperty': true,
+            'getProperty:$key': true,
+          },
+        },
+        set: {
+          recursive: true,
+          mutatorEvents: {
+            'set': true,
+            'setProperty': true,
+            'setProperty:$key': true,
+          },
+        },
+        delete: {
+          mutatorEvents: {
+            'delete': true,
+            'deleteProperty': true,
+            'deleteProperty:$key': true,
+          },
         },
       },
-      set: {
-        recursive: true,
-        mutatorEvents: {
-          'set': true,
-          'setProperty': true,
-          'setProperty:$key': true,
+      array: {
+        concat: {
+          mutatorEvents: {
+            'concatValue:$index': true,
+            'concatValue': true,
+            'concat': true,
+          }
+        },
+        copyWithin: {
+          mutatorEvents: {
+            'copyWithinIndex:$index': true,
+            'copyWithinIndex': true,
+            'copyWithin': true,
+          }
+        },
+        fill: {
+          mutatorEvents: {
+            'fillIndex:$index': true,
+            'fillIndex': true,
+            'fill': true,
+          }
+        },
+        pop: {
+          mutatorEvents: { 'pop': true  },
+        },
+        push: {
+          mutatorEvents: {
+            'pushProp:$index': true,
+            'pushProp': true,
+            'push': true,
+          }
+        },
+        reverse: {
+          mutatorEvents: { 'reverse': true  },
+        },
+        shift: {
+          mutatorEvents: { 'shift': true  },
+        },
+        splice: {
+          mutatorEvents: {
+            'spliceDelete:$index': true,
+            'spliceDelete': true,
+            'spliceAdd:$index': true,
+            'spliceAdd': true,
+            'splice': true,
+          }
+        },
+        unshift: {
+          mutatorEvents: {
+            'unshiftProp:$index': true,
+            'unshiftProp': true,
+            'unshift': true,
+          }
         },
       },
-      delete: {
-        mutatorEvents: {
-          'delete': true,
-          'deleteProperty': true,
-          'deleteProperty:$key': true,
+      object: {
+        assign: {
+          sourceTree: true,
+          mutatorEvents: {
+            'assignSourceProperty:$key': true,
+            'assignSourceProperty': true,
+            'assignSource': true,
+            'assign': true,
+          },
+        },
+        defineProperties: {
+          descriptorTree: true,
+          mutatorEvents: { 'defineProperties': true },
+        },
+        defineProperty: {
+          descriptorTree: true,
+          mutatorEvents: {
+            'defineProperty': true,
+            'defineProperty:$key': true,
+          },
+        },
+        freeze: {
+          recursive: true,
+          mutatorEvents: {
+            'freezeProperty': true,
+            'freeze': true,
+          },
+        },
+        seal: {
+          recursive: true,
+          mutatorEvents: {
+            'sealProperty': true,
+            'seal': true,
+          },
         },
       },
     },
-    array: {
-      concat: {
-        mutatorEvents: {
-          'concatValue:$index': true,
-          'concatValue': true,
-          'concat': true,
-        }
-      },
-      copyWithin: {
-        mutatorEvents: {
-          'copyWithinIndex:$index': true,
-          'copyWithinIndex': true,
-          'copyWithin': true,
-        }
-      },
-      fill: {
-        mutatorEvents: {
-          'fillIndex:$index': true,
-          'fillIndex': true,
-          'fill': true,
-        }
-      },
-      pop: {
-        mutatorEvents: { 'pop': true  },
-      },
-      push: {
-        mutatorEvents: {
-          'pushProp:$index': true,
-          'pushProp': true,
-          'push': true,
-        }
-      },
-      reverse: {
-        mutatorEvents: { 'reverse': true  },
-      },
-      shift: {
-        mutatorEvents: { 'shift': true  },
-      },
-      splice: {
-        mutatorEvents: {
-          'spliceDelete:$index': true,
-          'spliceDelete': true,
-          'spliceAdd:$index': true,
-          'spliceAdd': true,
-          'splice': true,
-        }
-      },
-      unshift: {
-        mutatorEvents: {
-          'unshiftProp:$index': true,
-          'unshiftProp': true,
-          'unshift': true,
-        }
-      },
-    },
-    object: {
-      assign: {
-        sourceTree: true,
-        mutatorEvents: {
-          'assignSourceProperty:$key': true,
-          'assignSourceProperty': true,
-          'assignSource': true,
-          'assign': true,
-        },
-      },
-      defineProperties: {
-        descriptorTree: true,
-        mutatorEvents: { 'defineProperties': true },
-      },
-      defineProperty: {
-        descriptorTree: true,
-        mutatorEvents: {
-          'defineProperty': true,
-          'defineProperty:$key': true,
-        },
-      },
-      freeze: {
-        recursive: true,
-        mutatorEvents: {
-          'freezeProperty': true,
-          'freeze': true,
-        },
-      },
-      seal: {
-        recursive: true,
-        mutatorEvents: {
-          'sealProperty': true,
-          'seal': true,
-        },
-      },
-    },
-  },
-}, $options);
+  }, $options);
+  return Options
+};
 
 class ModelEvent extends CustomEvent {
   #settings
@@ -2131,10 +2148,12 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   }
 };
 
-const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$6 } = index;
+const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$6 } = index;
 function assign($model, $options, ...$sources) {
+  const options = Object.assign({}, $options);
+  options.assignObject = 'assign';
   const { path, target, schema } = $model;
-  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = $options;
+  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
   iterateAssignSources: 
@@ -2182,7 +2201,7 @@ function assign($model, $options, ...$sources) {
           : String($sourceKey);
         if(sourceTree === false) {
           sourceValue = new $model.constructor($sourceValue, subschema, 
-            recursiveAssign$7({}, $model.options, {
+            recursiveAssign$8({}, options, {
               path: modelPath,
               parent: $model,
             })
@@ -2198,7 +2217,7 @@ function assign($model, $options, ...$sources) {
           else {
             let modelTypedLiteral = typedObjectLiteral$6($sourceValue);
             sourceValue = new $model.constructor(modelTypedLiteral, subschema, 
-              recursiveAssign$7({}, $model.options, {
+              recursiveAssign$8({}, options, {
                 path: modelPath,
                 parent: $model,
               })
@@ -2309,11 +2328,12 @@ function defineProperties($model, $options, $propertyDescriptors) {
   return $model
 }
 
-const { recursiveAssign: recursiveAssign$6, typedObjectLiteral: typedObjectLiteral$4 } = index;
+const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
-  const { descriptorTree, mutatorEvents } = $options;
+  const options = Object.assign({}, $options);
+  options.assignObject = 'defineProperties';
+  const { assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents } = options;
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents } = $options;
   const propertyValue = $propertyDescriptor.value;
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {};
   const targetPropertyValue = targetPropertyDescriptor.value;
@@ -2364,7 +2384,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
       }
       let _target = typedObjectLiteral$4(propertyValue);
       const modelObject = new $model.constructor(
-        _target, subschema, recursiveAssign$6({}, $model.options, {
+        _target, subschema, recursiveAssign$7({}, $model.options, {
           path: modelPath,
           parent: $model,
         })
@@ -2372,7 +2392,8 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
       if(descriptorTree === true) {
         target[$propertyKey] = modelObject;
         $model.retroReenableEvents();
-        modelObject.defineProperties(propertyValue);
+        if(propertyValue.type === 'array') { modelObject[assignArray](...$value); }
+        else if(propertyValue.type === 'object') { modelObject[assignObject]($value); }
       }
       else if(descriptorTree === false) {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor);
@@ -2834,11 +2855,12 @@ function pop($model, $options) {
   return popElement
 }
 
-const { recursiveAssign: recursiveAssign$5, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$2 } = index;
+const { recursiveAssign: recursiveAssign$6, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$2 } = index;
 function push($model, $options, ...$elements) {
-  const { mutatorEvents } = $options;
+  const options = Object.assign({}, $options);
+  options.assignArray = 'push';
+  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options;
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents } = $model.options;
   const elements = [];
   let elementsIndex = 0;
   iterateElements:
@@ -2869,23 +2891,18 @@ function push($model, $options, ...$elements) {
       ? [path, elementsIndex].join('.')
       : String(elementsIndex);
     if(typeof $element === 'object') {
-      $element = ($element instanceof Model) ? $element.valueOf() : $element;
+      $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.context[0] || null;
       const subproperties = typedObjectLiteral$2(typeOf$2($element));
-      const submodelOptions = recursiveAssign$5({}, $model.options, {
+      const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
       });
       element = new $model.constructor(subproperties, subschema, submodelOptions);
       Array.prototype.push.call(target, element);
       $model.retroReenableEvents();
-      const { assignArray, assignObject } = element.options;
-      if(element.type === 'array') {
-        element[assignArray](...$element);
-      }
-      else if(element.type === 'object') {
-        element[assignObject]($element);
-      }
+      if(element.type === 'array') { element[assignArray](...$element); }
+      else if(element.type === 'object') { element[assignObject]($element); }
     }
     else {
       element = $element;
@@ -3147,9 +3164,9 @@ function splice($model, $options) {
 }
 
 function unshift($model, $options, ...$elements) {
-  const { mutatorEvents } = $options;
-  const { target, path, schema } = $model;
-  const { enableValidation, validationEvents } = $options;
+  const options = Object.assign({}, $options);
+  options.assignArray = 'unshift';
+  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options;
   const elements = [];
   const elementsLength = $elements.length;
   let elementIndex = elementsLength - 1;
@@ -3207,8 +3224,8 @@ function unshift($model, $options, ...$elements) {
         path: modelPath,
         parent: $model,
       });
-      elements.unshift(element);
-      Array.prototype.unshift.call(target, element);
+      if(element.type === 'array') { element[assignArray](...$value); }
+      else if(element.type === 'object') { element[assignObject]($value); }
     }
     // Element: Primitive Type
     else {
@@ -3348,16 +3365,16 @@ function getContentProperty($model, $options, $path) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$4 } = index;
+const { recursiveAssign: recursiveAssign$5 } = index;
 function getProperty($model, $options, ...$arguments) {
   let getProperty;
-  const options = recursiveAssign$4({}, $model.options, $options);
+  const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign$4(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$5(options, $arguments[1]); }
     getProperty = getContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 1) { recursiveAssign$4(options, $arguments[0]); }
+    if($arguments.length === 1) { recursiveAssign$5(options, $arguments[0]); }
     getProperty = getContent($model, options, ...$arguments);
   }
   return getProperty
@@ -3368,10 +3385,9 @@ function setContent($model, $options, $properties) {
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $model.set($propertyKey, $propertyValue, $options);
   }
-  // Set Property Event
   const { path } = $model;
-  const { mutator } = $options;
-  if(mutator && mutator['set']) {
+  const { mutatorEvents  } = $options;
+  if(mutatorEvents && mutatorEvents['set']) {
     $model.dispatchEvent(
       new ModelEvent('set', {
         path,
@@ -3385,10 +3401,15 @@ function setContent($model, $options, $properties) {
   return $model
 }
 
-const { recursiveAssign: recursiveAssign$3, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
+const { recursiveAssign: recursiveAssign$4, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
 function setContentProperty($model, $options, $path, $value) {
+  const options = Object.assign({}, $options);
+  options.assignObject = 'set';
   const { target, path, schema } = $model;
-  const { enableValidation, validationEvents, mutatorEvents, pathkey, subpathError, recursive, source } = $options;
+  const {
+    assignArray, assignObject, enableValidation, mutatorEvents, pathkey, 
+    recursive, source, subpathError, validationEvents,
+  } = options;
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions$1.quotationEscape));
     const propertyKey = subpaths.shift();
@@ -3410,16 +3431,18 @@ function setContentProperty($model, $options, $path, $value) {
           if(isNaN(Number(propertyKey))) { submodel = {}; }
           else { submodel = []; }
         }
-        propertyValue = new $model.constructor(submodel, subschema, recursiveAssign$3({}, $options, {
+        const submodelOptions = recursiveAssign$4({}, options, {
           path: modelPath,
           parent: $model,
-        }));
+        });
+        propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       }
       else {
         propertyValue = target[propertyKey];
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      propertyValue.set(subpaths.join('.'), $value, $options);
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options); }
       return propertyValue
     }
     if(schema && enableValidation) {
@@ -3461,15 +3484,15 @@ function setContentProperty($model, $options, $path, $value) {
         if(isNaN(Number(propertyKey))) { submodel = {}; }
         else { submodel = []; }
       }
-      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign$3(
-        {}, $options, {
-          path: modelPath,
-          parent: $model,
-        }
-      ));
+      const submodelOptions = recursiveAssign$4({}, options, {
+        path: modelPath,
+        parent: $model,
+      });
+      propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      propertyValue.set($value);
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {
       propertyValue = $value;
@@ -3529,15 +3552,15 @@ function setContentProperty($model, $options, $path, $value) {
       const modelPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign$3(
-        {}, $options, {
-          path: modelPath,
-          parent: $model,
-        }
-      ));
+      const submodelOptions = recursiveAssign$4({}, options, {
+        path: modelPath,
+        parent: $model,
+      });
+      propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      propertyValue.set($value);
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {
       propertyValue = $value;
@@ -3576,16 +3599,16 @@ function setContentProperty($model, $options, $path, $value) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$2 } = index;
+const { recursiveAssign: recursiveAssign$3 } = index;
 function setProperty($model, $options, ...$arguments) {
   let setProperty;
-  const options = recursiveAssign$2({}, $model.options, $options);
+  const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 3) { recursiveAssign$2(options, $arguments[2]); }
+    if($arguments.length === 3) { recursiveAssign$3(options, $arguments[2]); }
     setProperty = setContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 2) { recursiveAssign$2(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$3(options, $arguments[1]); }
     setProperty = setContent($model, options, ...$arguments);
   }
   return setProperty
@@ -3748,16 +3771,16 @@ function deleteContentProperty($model, $options, $path) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$1 } = index;
+const { recursiveAssign: recursiveAssign$2 } = index;
 function deleteProperty($model, $options, ...$arguments) {
   let deleteProperty;
-  const options = recursiveAssign$1({}, $model.options, $options);
+  const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign$1(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$2(options, $arguments[1]); }
     deleteProperty = deleteContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 1) { recursiveAssign$1(options, $arguments[0]); }
+    if($arguments.length === 1) { recursiveAssign$2(options, $arguments[0]); }
     deleteProperty = deleteContent($model, options, ...$arguments);
   }
   return deleteProperty
@@ -3769,6 +3792,7 @@ var AccessorProperty = {
   delete: deleteProperty,
 };
 
+const { recursiveAssign: recursiveAssign$1, recursiveFreeze } = Coutil;
 const Defaults = Object.freeze({
   object: [{
     keys: ['valueOf'],
@@ -3850,7 +3874,10 @@ function Methods($model) {
       const { keys, createMethod, type } = $propertyClass;
       for(const $methodName of keys) {
         if($propertyClassName === 'accessor' || type === 'mutators') {
-          const methodOptions = $model.options?.methods[$propertyClassName][$methodName] || {};
+          const modelMethodOptions = structuredClone($model.options.methods[$propertyClassName][$methodName]);
+          const methodOptions = Object.assign({}, $model.options);
+          delete methodOptions.mutatorEvents;
+          methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents;
           Object.defineProperty($model, $methodName, {
             enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName, $model, methodOptions),
@@ -3904,7 +3931,6 @@ class Model extends Core {
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options);
-      console.log("model.options", options);
       if(options.events) {
         this.addEvents(options.events);
         delete options.events;

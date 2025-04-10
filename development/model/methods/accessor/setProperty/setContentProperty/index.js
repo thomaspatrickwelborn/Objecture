@@ -4,8 +4,13 @@ import Model from '../../../../index.js'
 import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
+  const options = Object.assign({}, $options)
+  options.assignObject = 'set'
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, mutatorEvents, pathkey, subpathError, recursive, source } = $options
+  const {
+    assignArray, assignObject, enableValidation, mutatorEvents, pathkey, 
+    recursive, source, subpathError, validationEvents,
+  } = options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
@@ -27,16 +32,18 @@ export default function setContentProperty($model, $options, $path, $value) {
           if(isNaN(Number(propertyKey))) { submodel = {} }
           else { submodel = [] }
         }
-        propertyValue = new $model.constructor(submodel, subschema, recursiveAssign({}, $options, {
+        const submodelOptions = recursiveAssign({}, options, {
           path: modelPath,
           parent: $model,
-        }))
+        })
+        propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       }
       else {
         propertyValue = target[propertyKey]
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      propertyValue.set(subpaths.join('.'), $value, $options)
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options) }
       return propertyValue
     }
     if(schema && enableValidation) {
@@ -78,15 +85,15 @@ export default function setContentProperty($model, $options, $path, $value) {
         if(isNaN(Number(propertyKey))) { submodel = {} }
         else { submodel = [] }
       }
-      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign(
-        {}, $options, {
-          path: modelPath,
-          parent: $model,
-        }
-      ))
+      const submodelOptions = recursiveAssign({}, options, {
+        path: modelPath,
+        parent: $model,
+      })
+      propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       target[propertyKey] = propertyValue
       $model.retroReenableEvents()
-      propertyValue.set($value)
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject]($value) }
     }
     else {
       propertyValue = $value
@@ -146,15 +153,15 @@ export default function setContentProperty($model, $options, $path, $value) {
       const modelPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      propertyValue = new $model.constructor(submodel, subschema, recursiveAssign(
-        {}, $options, {
-          path: modelPath,
-          parent: $model,
-        }
-      ))
+      const submodelOptions = recursiveAssign({}, options, {
+        path: modelPath,
+        parent: $model,
+      })
+      propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       target[propertyKey] = propertyValue
       $model.retroReenableEvents()
-      propertyValue.set($value)
+      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      else if(propertyValue.type === 'object') { propertyValue[assignObject]($value) }
     }
     else {
       propertyValue = $value

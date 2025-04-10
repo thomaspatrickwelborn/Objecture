@@ -4,9 +4,10 @@ import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
-  const { descriptorTree, mutatorEvents } = $options
+  const options = Object.assign({}, $options)
+  options.assignObject = 'defineProperties'
+  const { assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents } = options
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents } = $options
   const propertyValue = $propertyDescriptor.value
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {}
   const targetPropertyValue = targetPropertyDescriptor.value
@@ -65,7 +66,8 @@ export default function defineProperty($model, $options, $propertyKey, $property
       if(descriptorTree === true) {
         target[$propertyKey] = modelObject
         $model.retroReenableEvents()
-        modelObject.defineProperties(propertyValue)
+        if(propertyValue.type === 'array') { modelObject[assignArray](...$value) }
+        else if(propertyValue.type === 'object') { modelObject[assignObject]($value) }
       }
       else if(descriptorTree === false) {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor)

@@ -4,8 +4,10 @@ import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
+  const options = Object.assign({}, $options)
+  options.assignObject = 'assign'
   const { path, target, schema } = $model
-  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = $options
+  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
   iterateAssignSources: 
@@ -53,7 +55,7 @@ export default function assign($model, $options, ...$sources) {
           : String($sourceKey)
         if(sourceTree === false) {
           sourceValue = new $model.constructor($sourceValue, subschema, 
-            recursiveAssign({}, $model.options, {
+            recursiveAssign({}, options, {
               path: modelPath,
               parent: $model,
             })
@@ -69,7 +71,7 @@ export default function assign($model, $options, ...$sources) {
           else {
             let modelTypedLiteral = typedObjectLiteral($sourceValue)
             sourceValue = new $model.constructor(modelTypedLiteral, subschema, 
-              recursiveAssign({}, $model.options, {
+              recursiveAssign({}, options, {
                 path: modelPath,
                 parent: $model,
               })
