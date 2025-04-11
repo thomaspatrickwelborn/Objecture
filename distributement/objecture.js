@@ -2139,6 +2139,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$6 } = index;
 function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
+  options.assignArray = 'assign';
   options.assignObject = 'assign';
   const { path, target, schema } = $model;
   const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
@@ -3392,6 +3393,7 @@ function setContent($model, $options, $properties) {
 const { recursiveAssign: recursiveAssign$4, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
 function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options);
+  options.assignArray = 'set';
   options.assignObject = 'set';
   const { target, path, schema } = $model;
   const {
@@ -3429,7 +3431,7 @@ function setContentProperty($model, $options, $path, $value) {
         propertyValue = target[propertyKey];
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
       else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options); }
       return propertyValue
     }
@@ -3479,7 +3481,7 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {
@@ -3547,7 +3549,7 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value); }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {

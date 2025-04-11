@@ -5,6 +5,7 @@ import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options)
+  options.assignArray = 'set'
   options.assignObject = 'set'
   const { target, path, schema } = $model
   const {
@@ -42,7 +43,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         propertyValue = target[propertyKey]
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value) }
       else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options) }
       return propertyValue
     }
@@ -92,7 +93,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       target[propertyKey] = propertyValue
       $model.retroReenableEvents()
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value) }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value) }
     }
     else {
@@ -160,7 +161,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       target[propertyKey] = propertyValue
       $model.retroReenableEvents()
-      if(propertyValue.type === 'array') { propertyValue[assignArray](...$value) }
+      if(propertyValue.type === 'array') { propertyValue[assignArray]($value) }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value) }
     }
     else {

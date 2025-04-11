@@ -1,7 +1,7 @@
 import { Model, Schema } from '/dependencies/objecture.js'
-import ComplexArrayB from '../../sets/complex-array-b/index.js'
+import ComplexObjectB from '../../sets/complex-object-b/index.js'
 function eventLog($event) { console.log($event.type, $event.path) }
-const model = new Model(ComplexArrayB, null, {
+const model = new Model(ComplexObjectB, null, {
   events: { '** defineProperty': eventLog },
   enableEvents: true,
   assignArray: 'defineProperties',
