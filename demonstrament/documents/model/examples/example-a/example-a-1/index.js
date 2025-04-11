@@ -1,34 +1,7 @@
 import { Model, Schema } from '/dependencies/objecture.js'
+import ComplexObjectA from '../../sets/complex-object-a/index.js'
 function eventLog($event) { console.log($event.type, $event.path)}
-const model = new Model({
-  propertyA: 111,
-  propertyB: [{
-    propertyC: 333,
-    propertyD: {
-      propertyE: 555
-    }
-  }],
-  propertyF: {
-    propertyG: 777
-  }
-}, null, {
-  events: {
-    '** defineProperty': eventLog,
-    '** assignSourceProperty': eventLog,
-    '** setProperty': eventLog,
-  },
-  assignObject: 'set',
+const model = new Model(ComplexObjectA, null, {
+  events: { '** setProperty': eventLog },
   enableEvents: true,
-})
-model.assign({
-  propertyA: 111,
-  propertyB: [{
-    propertyC: 333,
-    propertyD: {
-      propertyE: 555
-    }
-  }],
-  propertyF: {
-    propertyG: 777
-  }
 })

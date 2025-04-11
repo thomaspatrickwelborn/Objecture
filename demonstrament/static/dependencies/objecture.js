@@ -2319,17 +2319,18 @@ function defineProperties($model, $options, $propertyDescriptors) {
 const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
+  options.assignArray = 'defineProperties';
   options.assignObject = 'defineProperties';
-  const { assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents } = options;
+  const {
+    assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
+  } = options;
   const { target, path, schema } = $model;
   const propertyValue = $propertyDescriptor.value;
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {};
   const targetPropertyValue = targetPropertyDescriptor.value;
   const definePropertyChange = new Change({ preter: targetPropertyValue });
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue });
-  const targetPropertyValueIsModelInstance = (
-    targetPropertyValue instanceof Model
-  ) ? true : false;
+  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof Model) ? true : false;
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty($propertyKey, propertyValue, $model);
     if(validationEvents) {
@@ -2357,7 +2358,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
       : String($propertyKey);
     if(targetPropertyValueIsModelInstance) {
       if(descriptorTree === true) {
-        targetPropertyValue.defineProperties(propertyValue);
+        targetPropertyValue.defineProperties($propertyDescriptor);
       }
       else {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor);
@@ -2370,22 +2371,21 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
         else if(schema.type === 'object') { subschema = schema.context[$propertyKey]; }
         else { subschema = undefined;}
       }
-      let _target = typedObjectLiteral$4(propertyValue);
-      const modelObject = new $model.constructor(
-        _target, subschema, recursiveAssign$7({}, $model.options, {
+      let subtarget = typedObjectLiteral$4(propertyValue);
+      const submodel = new $model.constructor(
+        subtarget, subschema, recursiveAssign$7({}, options, {
           path: modelPath,
           parent: $model,
         })
       );
       if(descriptorTree === true) {
-        target[$propertyKey] = modelObject;
+        target[$propertyKey] = submodel;
         $model.retroReenableEvents();
-        if(propertyValue.type === 'array') { modelObject[assignArray](...$value); }
-        else if(propertyValue.type === 'object') { modelObject[assignObject]($value); }
+        if(submodel.type === 'array') { submodel[assignArray](propertyValue); }
+        else if(submodel.type === 'object') { submodel[assignObject](propertyValue); }
       }
       else if(descriptorTree === false) {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor);
-        $model.retroReenableEvents();
       }
     }
   }
@@ -3863,7 +3863,7 @@ function Methods($model) {
       for(const $methodName of keys) {
         if($propertyClassName === 'accessor' || type === 'mutators') {
           const modelMethodOptions = structuredClone($model.options.methods[$propertyClassName][$methodName]);
-          const methodOptions = Object.assign({}, $model.options);
+          const methodOptions = Object.assign({}, $model.options, modelMethodOptions);
           delete methodOptions.mutatorEvents;
           methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents;
           Object.defineProperty($model, $methodName, {

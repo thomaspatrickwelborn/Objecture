@@ -85,7 +85,7 @@ export default function Methods($model) {
       for(const $methodName of keys) {
         if($propertyClassName === 'accessor' || type === 'mutators') {
           const modelMethodOptions = structuredClone($model.options.methods[$propertyClassName][$methodName])
-          const methodOptions = Object.assign({}, $model.options)
+          const methodOptions = Object.assign({}, $model.options, modelMethodOptions)
           delete methodOptions.mutatorEvents
           methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents
           Object.defineProperty($model, $methodName, {

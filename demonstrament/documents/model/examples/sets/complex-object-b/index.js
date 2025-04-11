@@ -1,12 +1,29 @@
-export default { 
-  propertyA: { enumerable: true, writable: true, value: 111 },
-  propertyB: { enumerable: true, writable: true, value: [{ enumerable: true, writable: true, value: {
-    propertyC: { enumerable: true, writable: true, value: 333 },
-    propertyD: { enumerable: true, writable: true, value: {
-      propertyE: { enumerable: true, writable: true, value: 555 }
-    } } },
-  }] }, 
-  propertyF: { enumerable: true, writable: true, value: {
-    propertyG: { enumerable: true, writable: true, value: 777 }
-  } }
+export default {
+  propertyA: { value: {
+    propertyB: { value: {
+      propertyC: { value: 333 },
+      propertyH: { value: null },
+    } },
+  } },
+  propertyD: { value: [
+    { value: [{ value: {
+      propertyE: { value: 555 },
+      propertyI: { value: false },
+    } }, { value: {
+      propertyF: { value: {
+        propertyG: { value: 777 },
+        propertyJ: { value: true },
+      } },
+    } }] },
+    { value: [{ value: {
+      propertyE: { value: -555 },
+      propertyK: { value: "555" },
+    } }, { value: {
+      propertyF: { value: {
+        propertyG: { value: -777 },
+        propertyL: { value: "777" ,
+      } } }
+    } }] },
+  ] },
+  propertyM: { value: BigInt("0b11111111111111111111111111111111111111111111111111111") },
 }

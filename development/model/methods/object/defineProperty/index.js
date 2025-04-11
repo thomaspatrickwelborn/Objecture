@@ -5,17 +5,18 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options)
+  options.assignArray = 'defineProperties'
   options.assignObject = 'defineProperties'
-  const { assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents } = options
+  const {
+    assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
+  } = options
   const { target, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {}
   const targetPropertyValue = targetPropertyDescriptor.value
   const definePropertyChange = new Change({ preter: targetPropertyValue })
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
-  const targetPropertyValueIsModelInstance = (
-    targetPropertyValue instanceof Model
-  ) ? true : false
+  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof Model) ? true : false
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty($propertyKey, propertyValue, $model)
     if(validationEvents) {
@@ -43,7 +44,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
       : String($propertyKey)
     if(targetPropertyValueIsModelInstance) {
       if(descriptorTree === true) {
-        targetPropertyValue.defineProperties(propertyValue)
+        targetPropertyValue.defineProperties($propertyDescriptor)
       }
       else {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor)
@@ -56,22 +57,21 @@ export default function defineProperty($model, $options, $propertyKey, $property
         else if(schema.type === 'object') { subschema = schema.context[$propertyKey] }
         else { subschema = undefined}
       }
-      let _target = typedObjectLiteral(propertyValue)
-      const modelObject = new $model.constructor(
-        _target, subschema, recursiveAssign({}, $model.options, {
+      let subtarget = typedObjectLiteral(propertyValue)
+      const submodel = new $model.constructor(
+        subtarget, subschema, recursiveAssign({}, options, {
           path: modelPath,
           parent: $model,
         })
       )
       if(descriptorTree === true) {
-        target[$propertyKey] = modelObject
+        target[$propertyKey] = submodel
         $model.retroReenableEvents()
-        if(propertyValue.type === 'array') { modelObject[assignArray](...$value) }
-        else if(propertyValue.type === 'object') { modelObject[assignObject]($value) }
+        if(submodel.type === 'array') { submodel[assignArray](propertyValue) }
+        else if(submodel.type === 'object') { submodel[assignObject](propertyValue) }
       }
       else if(descriptorTree === false) {
         Object.defineProperty(target, $propertyKey, $propertyDescriptor)
-        $model.retroReenableEvents()
       }
     }
   }
