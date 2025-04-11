@@ -37,7 +37,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
     }
     if(!validProperty.valid) { return $model }
   }
-  if(typeof propertyValue === 'object') {
+  if(propertyValue && typeof propertyValue === 'object') {
     const modelPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey)

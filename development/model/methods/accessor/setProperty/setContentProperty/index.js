@@ -67,7 +67,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       }
       if(!validTargetProp.valid) { return }
     }
-    if(typeof $value === 'object') {
+    if($value && typeof $value === 'object') {
       if($value instanceof Model) { $value = $value.valueOf() }
       const typeOfPropertyValue= typeOf($value)
       let subschema
@@ -132,7 +132,7 @@ export default function setContentProperty($model, $options, $path, $value) {
   }
   else if(pathkey === false) {
     let propertyKey = $path
-    if(typeof $value === 'object') {
+    if($value && typeof $value === 'object') {
       if($value instanceof Model) { $value = $value.valueOf() }
       const typeOfPropertyValue = typeOf($value)
       let subschema

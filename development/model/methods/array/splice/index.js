@@ -91,7 +91,7 @@ export default function splice($model, $options) {
       : String(addItemsIndex)
     let startIndex = $start + addItemsIndex
     // Add Item: Object Type
-    if(typeof addItem === 'object') {
+    if(addItem && typeof addItem === 'object') {
       if(addItem instanceof Model) { addItem = addItem.valueOf() }
       const subschema = schema?.context[0] || null
       addItem = new $model.constructor(addItem, subschema, {

@@ -84,35 +84,6 @@ function isPropertyDefinition($propertyDefinition) {
   else { return false }
 }
 
-const typeOf = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
-function typedObjectLiteral($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf($value);
-  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
-  }
-  else { _typedObjectLiteral = undefined; }
-  return _typedObjectLiteral
-}
-
-function objectClone($target) {
-  const target = typedObjectLiteral($target);
-  for(const [$targetKey, $targetValue] of Object.entries($target)) {
-    if(typeof $targetValue === 'object') {
-      target[$targetKey] = objectClone($targetValue);
-    }
-    else { target[$targetKey] = $targetValue; }
-  }
-  return target
-}
-
 const Options = {
   depth: 0,
   maxDepth: 10,
@@ -151,6 +122,11 @@ function propertyDirectory($object, $options) {
   }
   return _propertyDirectory
 }
+
+const typeOf = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
 
 function recursiveAssign($target, ...$sources) {
   if(!$target) { return $target}
@@ -221,6 +197,19 @@ function recursiveFreeze($target) {
   return Object.freeze($target)
 }
 
+function typedObjectLiteral($value) {
+  let _typedObjectLiteral;
+  const typeOfValue = typeOf($value);
+  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
+  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
+  else if(typeOfValue === 'string') {
+    if($value === 'object') { _typedObjectLiteral = {}; }
+    else if($value === 'array') { _typedObjectLiteral = []; }
+  }
+  else { _typedObjectLiteral = undefined; }
+  return _typedObjectLiteral
+}
+
 const Primitives = {
   'string': String, 
   'number': Number, 
@@ -265,7 +254,6 @@ var index = /*#__PURE__*/Object.freeze({
   expandEvents: expandEvents,
   impandEvents: impandEvents,
   isPropertyDefinition: isPropertyDefinition,
-  objectClone: objectClone,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign,
   recursiveAssignConcat: recursiveAssignConcat,

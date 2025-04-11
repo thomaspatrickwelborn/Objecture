@@ -52,7 +52,7 @@ export default function unshift($model, $options, ...$elements) {
     //   conter: undefined,
     // }
     // Element: Object Type
-    if(typeof $element === 'object') {
+    if($element && typeof $element === 'object') {
       const subschema = schema?.context[0] || null
       const modelPath = (path)
         ? path.concat('.', elementCoindex)
