@@ -40,7 +40,7 @@ export default function deleteContentProperty($model, $options, $path) {
       }
       if(!validTargetProp.valid) { return }
     }
-    if(typeof propertyValue === 'object') {
+    if(propertyValue && typeof propertyValue === 'object') {
       propertyValue.delete($options)
     }
     delete target[propertyKey]

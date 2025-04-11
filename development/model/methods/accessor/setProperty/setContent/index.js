@@ -2,6 +2,7 @@ import { ModelEvent } from '../../../../events/index.js'
 import Model from '../../../../index.js'
 import Change from '../../../../change/index.js'
 export default function setContent($model, $options, $properties) {
+  if()
   iterateProperties: 
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $model.set($propertyKey, $propertyValue, $options)

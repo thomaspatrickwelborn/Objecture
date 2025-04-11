@@ -36,7 +36,7 @@ export default function concat($model, $options) {
     const modelPath = (path)
       ? [path, valueIndex].join('.')
       : String(valueIndex)
-    if(typeof $value === 'object') {
+    if($value && typeof $value === 'object') {
       if($value instanceof Model) { $value = $value.valueOf() }
       let subschema = schema?.context[0] || null
       const submodel = typedObjectLiteral($value)

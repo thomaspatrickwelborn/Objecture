@@ -85,7 +85,7 @@ export default class Schema extends EventTarget {
     else if($arguments.length === 2 && typeof $arguments[0] === 'string') {
       $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
     }
-    else if($arguments.length === 2 && typeof $arguments[0] === 'object') {
+    else if($arguments.length === 2 && $arguments[0] && typeof $arguments[0] === 'object') {
       $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
     }
     else if($arguments.length === 3 && typeof $arguments[0] === 'string') {

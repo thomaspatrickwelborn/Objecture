@@ -99,7 +99,7 @@ export default class Context extends EventTarget {
             if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
             const typeOfPropertyValidator = typeOf($propertyValidator)
             let propertyValidator
-            if(typeOfPropertyValidator && typeOfPropertyValidator === 'object') {
+            if(typeOfPropertyValidator === 'object') {
               propertyValidator = $propertyValidator
             }
             else {

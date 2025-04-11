@@ -15,7 +15,7 @@ export default function assign($model, $options, ...$sources) {
     let assignedSource
     const assignSourceChange = new Change({ preter: $model })
     if(Array.isArray($source)) { assignedSource = [] }
-    else if(typeof $source === 'object') { assignedSource = {} }
+    else if($source && typeof $source === 'object') { assignedSource = {} }
     iterateSourceProperties:
     for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
       const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })

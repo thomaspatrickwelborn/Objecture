@@ -48,7 +48,7 @@ export default function fill($model, $options) {
       ? [path, fillIndex].join('.')
       : String(fillIndex)
     let value = $arguments[0]
-    if(typeof value === 'object') {
+    if(value && typeof value === 'object') {
       if(value instanceof Model) { value = value.valueOf() }
       const subschema = schema?.context[0] || null
       value = new $model.constructor(value, subschema, {

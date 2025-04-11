@@ -36,7 +36,7 @@ export default function push($model, $options, ...$elements) {
     const modelPath = (path)
       ? [path, elementsIndex].join('.')
       : String(elementsIndex)
-    if(typeof $element === 'object') {
+    if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element
       const subschema = schema?.context[0] || null
       const subproperties = typedObjectLiteral(typeOf($element))
