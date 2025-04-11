@@ -5,7 +5,7 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options)
-  options.assignArray = 'defineProperties'
+  // options.assignArray = 'defineProperties'
   options.assignObject = 'defineProperties'
   const {
     assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents

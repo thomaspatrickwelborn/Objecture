@@ -216,7 +216,6 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
-  'bigint': BigInt, 
   'undefined': undefined,
   'null': null,
 };
@@ -2139,7 +2138,6 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$6 } = index;
 function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
-  options.assignArray = 'assign';
   options.assignObject = 'assign';
   const { path, target, schema } = $model;
   const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
@@ -2320,7 +2318,7 @@ function defineProperties($model, $options, $propertyDescriptors) {
 const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
-  options.assignArray = 'defineProperties';
+  // options.assignArray = 'defineProperties'
   options.assignObject = 'defineProperties';
   const {
     assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
@@ -2890,7 +2888,10 @@ function push($model, $options, ...$elements) {
       element = new $model.constructor(subproperties, subschema, submodelOptions);
       Array.prototype.push.call(target, element);
       $model.retroReenableEvents();
-      if(element.type === 'array') { element[assignArray](...$element); }
+      if(element.type === 'array') {
+        console.log('...$element',...$element);
+        element[assignArray](...$element);
+      }
       else if(element.type === 'object') { element[assignObject]($element); }
     }
     else {
@@ -3393,7 +3394,6 @@ function setContent($model, $options, $properties) {
 const { recursiveAssign: recursiveAssign$4, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
 function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options);
-  options.assignArray = 'set';
   options.assignObject = 'set';
   const { target, path, schema } = $model;
   const {
@@ -4003,10 +4003,10 @@ class Model extends Core {
     ] of Object.entries(
       Object.getOwnPropertyDescriptors(this.target))
     ) {
-      const { enumerable, value, writable, configurable } = $propertyDescriptor;
-      if($propertyDescriptor.value instanceof Model) {
+      let { enumerable, value, writable, configurable } = $propertyDescriptor;
+      if(value instanceof Model) {
         Object.defineProperty(parsement, $propertyDescriptorName, {
-          enumerable, value: value.parse({ type: 'object' }), writable, configurable
+          enumerable, value: value.valueOf(), writable, configurable
         });
       }
       else {
@@ -4015,7 +4015,10 @@ class Model extends Core {
         });
       }
     }
-    const { type, replacer, space } = $settings;
+    let { type, replacer, space } = $settings;
+    if(!replacer) { replacer = (
+      key, value
+    ) => typeof value === 'bigint' ? value.toString() : value; }
     if(type === 'object') { return parsement }
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }

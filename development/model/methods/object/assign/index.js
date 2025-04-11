@@ -5,7 +5,6 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)
-  options.assignArray = 'assign'
   options.assignObject = 'assign'
   const { path, target, schema } = $model
   const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options

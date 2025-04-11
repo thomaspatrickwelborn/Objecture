@@ -18,6 +18,6 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^2.1.4"
+    "core-plex": "^2.2.1"
   }
 }

@@ -214,7 +214,6 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
-  'bigint': BigInt, 
   'undefined': undefined,
   'null': null,
 };

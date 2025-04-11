@@ -5,7 +5,6 @@ import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options)
-  options.assignArray = 'set'
   options.assignObject = 'set'
   const { target, path, schema } = $model
   const {

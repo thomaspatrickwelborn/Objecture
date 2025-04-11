@@ -102,10 +102,10 @@ export default class Model extends Core {
     ] of Object.entries(
       Object.getOwnPropertyDescriptors(this.target))
     ) {
-      const { enumerable, value, writable, configurable } = $propertyDescriptor
-      if($propertyDescriptor.value instanceof Model) {
+      let { enumerable, value, writable, configurable } = $propertyDescriptor
+      if(value instanceof Model) {
         Object.defineProperty(parsement, $propertyDescriptorName, {
-          enumerable, value: value.parse({ type: 'object' }), writable, configurable
+          enumerable, value: value.valueOf(), writable, configurable
         })
       }
       else {
@@ -114,7 +114,10 @@ export default class Model extends Core {
         })
       }
     }
-    const { type, replacer, space } = $settings
+    let { type, replacer, space } = $settings
+    if(!replacer) { replacer = (
+      key, value
+    ) => typeof value === 'bigint' ? value.toString() : value }
     if(type === 'object') { return parsement }
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
