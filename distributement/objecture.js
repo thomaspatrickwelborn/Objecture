@@ -2124,7 +2124,7 @@ function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
   options.assignObject = 'assign';
   const { path, target, schema } = $model;
-  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
+  const { assignArray, assignObject, mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
   for(let $source of $sources) {
@@ -2196,7 +2196,10 @@ function assign($model, $options, ...$sources) {
           Object.assign(target, assignment);
           Object.assign(assignedSource, assignment);
           $model.retroReenableEvents();
-          if(sourceValue.type === 'array') { sourceValue[assignArray](...$sourceValue); }
+          if(sourceValue.type === 'array') {
+            if(['push', 'unshift'].includes(assignArray)) { sourceValue[assignArray](...$sourceValue); }
+            else { sourceValue[assignArray]($sourceValue); }
+          }
           else if(sourceValue.type === 'object') { sourceValue[assignObject]($sourceValue); }
         }
       }

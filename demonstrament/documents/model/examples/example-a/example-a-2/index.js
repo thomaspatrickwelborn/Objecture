@@ -1,3 +1,6 @@
+console.log("--------")
+console.log("pushProp")
+console.log("--------")
 import { Model, Schema } from '/dependencies/objecture.js'
 import ComplexObjectA from '../../sets/complex-object-a/index.js'
 function eventLog($event) { console.log($event.type, $event.path) }
@@ -13,4 +16,3 @@ const objectString = JSON.stringify(object, null, 2)
 console.log("modelString", modelString)
 console.log("objectString", objectString)
 console.log(modelString === objectString)
-console.log(model)
