@@ -1,33 +1,28 @@
 export default class ValidatorEvent extends CustomEvent {
-  #settings
-  #model
-  #key
-  #path
-  #value
-  #valid
   constructor($type, $settings, $model) {
     super($type)
-    this.#settings = $settings
-    this.#model = $model
-  }
-  get key() {
-    if(this.#key !== undefined) { return this.#key }
-    this.#key = this.#settings.key
-    return this.#key
-  }
-  get path() {
-    if(this.#path !== undefined) { return this.#path }
-    this.#path = this.#settings.path
-    return this.#path
-  }
-  get value() {
-    if(this.#value !== undefined) { return this.#value }
-    this.#value = this.#settings.value
-    return this.#value
-  }
-  get valid() {
-    if(this.#valid !== undefined) { return this.#valid }
-    this.#valid = this.#settings.valid
-    return this.#valid
+    Object.defineProperties(this, {
+      'key': { configurable: true, enumerable: true, get () {
+        const key = $settings.key
+        Object.defineProperty(this, 'key', { enumerable: true, value: key })
+        return key
+      } },
+      'path': { configurable: true, enumerable: true, get () {
+        const path = $settings.path
+        Object.defineProperty(this, 'path', { enumerable: true, value: path })
+        return path
+      } },
+      'value': { configurable: true, enumerable: true, get () {
+        const value = $settings.value
+        Object.defineProperty(this, 'value', { enumerable: true, value: value, })
+        return value
+      } },
+      'valid': { configurable: true, enumerable: true, get () {
+        const valid = $settings.valid
+        Object.defineProperty(this, 'valid', { enumerable: true, value: valid })
+        return valid
+      } },
+
+    })
   }
 }

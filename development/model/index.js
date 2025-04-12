@@ -16,7 +16,6 @@ export default class Model extends Core {
   }])
   constructor($properties = {}, $schema = null, $options = {}) {
     super({ accessors: Model.accessors })
-    const $this = this
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options)
@@ -29,17 +28,17 @@ export default class Model extends Core {
         if(typeofEnableEvents === 'boolean') { this.enableEvents() }
         else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents) }
       }
-      Object.defineProperty(this, 'options', { enumerable: false, writable: false, value: options })
+      Object.defineProperty(this, 'options', { value: options })
       return options
     } })
     Object.defineProperty(this, 'target', { configurable: true, get() {
       const target = typedObjectLiteral(properties)
-      Object.defineProperty(this, 'target', { enumerable: false, configurable: false, value: target })
+      Object.defineProperty(this, 'target', { value: target })
       return target
     } })
     Object.defineProperty(this, 'type', { configurable: true, get() {
       const type = typeOf(this.target)
-      Object.defineProperty(this, 'type', { enumerable: false, configurable: false, value: type })
+      Object.defineProperty(this, 'type', { value: type })
       return type
     } })
     Object.defineProperty(this, 'schema', { configurable: true, get() {
@@ -49,33 +48,29 @@ export default class Model extends Core {
       else if($schema instanceof Schema) { schema = $schema }
       else if(typeOfSchema === 'array') { schema = new Schema(...arguments) }
       else if(typeOfSchema === 'object') { schema = new Schema($schema) }
-      Object.defineProperty($this, 'schema', { value: schema })
+      Object.defineProperty(this, 'schema', { value: schema })
       return schema
     } })
     Object.defineProperty(this, 'parent', { configurable: true, get() {
       const options = this.options
       const parent = (options.parent) ? options.parent : null
-      Object.defineProperty(this, 'parent', {
-        writable: false, enumerable: false, configurable: false, value: parent
-      })
+      Object.defineProperty(this, 'parent', { value: parent })
       return parent
     } })
-    Object.defineProperty(this, 'path', { enumerable: false, configurable: true, get() {
+    Object.defineProperty(this, 'path', { configurable: true, get() {
       const options = this.options
       let path = (options.path) ? String(options.path) : null
-      Object.defineProperty(this, 'path', {
-        writable: false, enumerable: false, configurable: false, value: path
-      })
+      Object.defineProperty(this, 'path', { value: path })
       return path
     } })
-    Object.defineProperty(this, 'key', { enumerable: false, configurable: true, get() {
+    Object.defineProperty(this, 'key', { configurable: true, get() {
       let key = (this.path) ? this.path.split('.').pop() : null
       Object.defineProperty(this, 'key', {
-        writable: false, enumerable: false, configurable: false, value: key
+         value: key
       })
       return key
     } })
-    Object.defineProperty(this, 'root', { enumerable: false, configurable: false, get() {
+    Object.defineProperty(this, 'root', { get() {
       let root = this
       iterateParents: 
       while(root) {

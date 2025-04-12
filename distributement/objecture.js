@@ -2021,26 +2021,37 @@ var Options = ($options) => {
 };
 
 class ModelEvent extends CustomEvent {
-  #settings
-  #model
-  #key
   constructor($type, $settings, $model) {
     super($type, $settings);
-    this.#settings = $settings;
-    this.#model = $model;
-    if(!this.model.parent) return this
+    Object.defineProperties(this, {
+      'model': { get () { return $model } },
+      'key': { configurable: true, get () {
+        const key = (this.path) ? this.path.split('.').pop() : null;
+        Object.defineProperty(this, 'key', { value: key });
+        return key
+      } },
+      'change': { configurable: true, get () {
+        const change = $settings.change;
+        Object.defineProperty(this, 'change', { value: change });
+        return change
+      } },
+      'value': { configurable: true, get () {
+        const value = $settings.value;
+        Object.defineProperty(this, 'value', { value: value });
+        return value
+      } },
+      'path': { configurable: true, get () {
+        const path = $settings.path;
+        Object.defineProperty(this, 'path', { value: path });
+        return path
+      } },
+      'detail': { configurable: true, get () {
+        const detail = $settings.detail;
+        Object.defineProperty(this, 'detail', { value: detail });
+        return detail
+      } },
+    });
   }
-  get model() { return this.#model }
-  get key() {
-    if(this.#key !== undefined) { return this.#key }
-    if(this.path) { this.#key = this.path.split('.').pop(); }
-    else { this.#key = null; }
-    return this.#key
-  }
-  get change() { return this.#settings.change }
-  get value() { return this.#settings.value }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
 }
 
 class Change {
@@ -2084,36 +2095,31 @@ class Change {
 }
 
 let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
-  #settings
-  #model
-  #key
-  #path
-  #value
-  #valid
   constructor($type, $settings, $model) {
     super($type);
-    this.#settings = $settings;
-    this.#model = $model;
-  }
-  get key() {
-    if(this.#key !== undefined) { return this.#key }
-    this.#key = this.#settings.key;
-    return this.#key
-  }
-  get path() {
-    if(this.#path !== undefined) { return this.#path }
-    this.#path = this.#settings.path;
-    return this.#path
-  }
-  get value() {
-    if(this.#value !== undefined) { return this.#value }
-    this.#value = this.#settings.value;
-    return this.#value
-  }
-  get valid() {
-    if(this.#valid !== undefined) { return this.#valid }
-    this.#valid = this.#settings.valid;
-    return this.#valid
+    Object.defineProperties(this, {
+      'key': { configurable: true, enumerable: true, get () {
+        const key = $settings.key;
+        Object.defineProperty(this, 'key', { enumerable: true, value: key });
+        return key
+      } },
+      'path': { configurable: true, enumerable: true, get () {
+        const path = $settings.path;
+        Object.defineProperty(this, 'path', { enumerable: true, value: path });
+        return path
+      } },
+      'value': { configurable: true, enumerable: true, get () {
+        const value = $settings.value;
+        Object.defineProperty(this, 'value', { enumerable: true, value: value, });
+        return value
+      } },
+      'valid': { configurable: true, enumerable: true, get () {
+        const valid = $settings.valid;
+        Object.defineProperty(this, 'valid', { enumerable: true, value: valid });
+        return valid
+      } },
+
+    });
   }
 };
 
@@ -3835,13 +3841,11 @@ function Methods($model) {
           delete methodOptions.mutatorEvents;
           methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents;
           Object.defineProperty($model, $methodName, {
-            enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName, $model, methodOptions),
           });
         }
         else {
           Object.defineProperty($model, $methodName, {
-            enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName,  $model),
           });
         }
@@ -3883,7 +3887,6 @@ let Model$1 = class Model extends Core {
   }])
   constructor($properties = {}, $schema = null, $options = {}) {
     super({ accessors: Model.accessors });
-    const $this = this;
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options);
@@ -3896,17 +3899,17 @@ let Model$1 = class Model extends Core {
         if(typeofEnableEvents === 'boolean') { this.enableEvents(); }
         else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents); }
       }
-      Object.defineProperty(this, 'options', { enumerable: false, writable: false, value: options });
+      Object.defineProperty(this, 'options', { value: options });
       return options
     } });
     Object.defineProperty(this, 'target', { configurable: true, get() {
       const target = typedObjectLiteral(properties);
-      Object.defineProperty(this, 'target', { enumerable: false, configurable: false, value: target });
+      Object.defineProperty(this, 'target', { value: target });
       return target
     } });
     Object.defineProperty(this, 'type', { configurable: true, get() {
       const type = typeOf(this.target);
-      Object.defineProperty(this, 'type', { enumerable: false, configurable: false, value: type });
+      Object.defineProperty(this, 'type', { value: type });
       return type
     } });
     Object.defineProperty(this, 'schema', { configurable: true, get() {
@@ -3916,33 +3919,29 @@ let Model$1 = class Model extends Core {
       else if($schema instanceof Schema) { schema = $schema; }
       else if(typeOfSchema === 'array') { schema = new Schema(...arguments); }
       else if(typeOfSchema === 'object') { schema = new Schema($schema); }
-      Object.defineProperty($this, 'schema', { value: schema });
+      Object.defineProperty(this, 'schema', { value: schema });
       return schema
     } });
     Object.defineProperty(this, 'parent', { configurable: true, get() {
       const options = this.options;
       const parent = (options.parent) ? options.parent : null;
-      Object.defineProperty(this, 'parent', {
-        writable: false, enumerable: false, configurable: false, value: parent
-      });
+      Object.defineProperty(this, 'parent', { value: parent });
       return parent
     } });
-    Object.defineProperty(this, 'path', { enumerable: false, configurable: true, get() {
+    Object.defineProperty(this, 'path', { configurable: true, get() {
       const options = this.options;
       let path = (options.path) ? String(options.path) : null;
-      Object.defineProperty(this, 'path', {
-        writable: false, enumerable: false, configurable: false, value: path
-      });
+      Object.defineProperty(this, 'path', { value: path });
       return path
     } });
-    Object.defineProperty(this, 'key', { enumerable: false, configurable: true, get() {
+    Object.defineProperty(this, 'key', { configurable: true, get() {
       let key = (this.path) ? this.path.split('.').pop() : null;
       Object.defineProperty(this, 'key', {
-        writable: false, enumerable: false, configurable: false, value: key
+         value: key
       });
       return key
     } });
-    Object.defineProperty(this, 'root', { enumerable: false, configurable: false, get() {
+    Object.defineProperty(this, 'root', { get() {
       let root = this;
       iterateParents: 
       while(root) {

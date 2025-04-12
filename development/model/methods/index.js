@@ -89,13 +89,11 @@ export default function Methods($model) {
           delete methodOptions.mutatorEvents
           methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents
           Object.defineProperty($model, $methodName, {
-            enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName, $model, methodOptions),
           })
         }
         else {
           Object.defineProperty($model, $methodName, {
-            enumerable: false, writable: false, configurable: false, 
             value: createMethod($methodName,  $model),
           })
         }

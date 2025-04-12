@@ -1,22 +1,33 @@
 export default class ModelEvent extends CustomEvent {
-  #settings
-  #model
-  #key
   constructor($type, $settings, $model) {
     super($type, $settings)
-    this.#settings = $settings
-    this.#model = $model
-    if(!this.model.parent) return this
+    Object.defineProperties(this, {
+      'model': { get () { return $model } },
+      'key': { configurable: true, get () {
+        const key = (this.path) ? this.path.split('.').pop() : null
+        Object.defineProperty(this, 'key', { value: key })
+        return key
+      } },
+      'change': { configurable: true, get () {
+        const change = $settings.change
+        Object.defineProperty(this, 'change', { value: change })
+        return change
+      } },
+      'value': { configurable: true, get () {
+        const value = $settings.value
+        Object.defineProperty(this, 'value', { value: value })
+        return value
+      } },
+      'path': { configurable: true, get () {
+        const path = $settings.path
+        Object.defineProperty(this, 'path', { value: path })
+        return path
+      } },
+      'detail': { configurable: true, get () {
+        const detail = $settings.detail
+        Object.defineProperty(this, 'detail', { value: detail })
+        return detail
+      } },
+    })
   }
-  get model() { return this.#model }
-  get key() {
-    if(this.#key !== undefined) { return this.#key }
-    if(this.path) { this.#key = this.path.split('.').pop() }
-    else { this.#key = null }
-    return this.#key
-  }
-  get change() { return this.#settings.change }
-  get value() { return this.#settings.value }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
 }
