@@ -1,9 +1,12 @@
+import { Coutil } from 'core-plex'
+const { recursiveAssign, typedObjectLiteral, typeOf } = Coutil
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options)
   const assignArray = 'unshift'
   const assignObject = options.assignObject
   const { enableValidation, mutatorEvents, validationEvents } = options
+  const { target, path, schema } = $model
   const elements = []
   const elementsLength = $elements.length
   let elementIndex = elementsLength - 1
@@ -53,22 +56,27 @@ export default function unshift($model, $options, ...$elements) {
     // }
     // Element: Object Type
     if($element && typeof $element === 'object') {
-      const subschema = schema?.context[0] || null
       const modelPath = (path)
         ? path.concat('.', elementCoindex)
         : String(elementCoindex)
-      element = new $model.constructor($element, subschema, {
+      const subschema = schema?.context[0] || null
+      const subproperties = typedObjectLiteral(typeOf($element))
+      const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
       })
-      if(element.type === 'array') { element[assignArray](...$value) }
-      else if(element.type === 'object') { element[assignObject]($value) }
+      element = new $model.constructor(subproperties, subschema, submodelOptions)
+      if(element.type === 'array') { element[assignArray](...$element) }
+      else if(element.type === 'object') { element[assignObject]($element) }
     }
     // Element: Primitive Type
     else {
       element = $element
       elements.unshift(element)
       Array.prototype.unshift.call(target, $element)
+      $model.retroReenableEvents()
+      if(element.type === 'array') { element[assignArray](...$element) }
+      else if(element.type === 'object') { element[assignObject]($element) }
     }
     // change.anter.value = element
     // change.conter = (targetElementIsModelInstance)
