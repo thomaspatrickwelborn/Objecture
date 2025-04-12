@@ -7,7 +7,7 @@ export default [{
   // treeshake: {
   //   correctVarValueBeforeDeclaration: true,
   // },
-  treeshake: false,
+  treeshake: true,
   output: [
     {
       file: '../distributement/objecture.js',
@@ -30,7 +30,7 @@ export default [{
   // treeshake: {
   //   // correctVarValueBeforeDeclaration: true,
   // },
-  treeshake: false,
+  treeshake: true,
   output: [
     {
       file: '../distributement/objecture.min.js',

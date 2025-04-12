@@ -1,5 +1,3 @@
-import { Coutil } from '../../../../../dependencies/core-plex.js';
-
 const defaultAccessor = ($target, $property) => {
   if($property === undefined) { return $target }
   else { return $target[$property] }
@@ -16,7 +14,6 @@ var accessors = {
 function impandEvents($propEvents) {
   if(!Array.isArray($propEvents)) { return $propEvents }
   const propEvents = {};
-  iteratePropEvents: 
   for(const $propEvent of $propEvents) {
     const { path, type, listener, options } = $propEvent;
     const propEventSettings = `${$path} ${$type}`;
@@ -36,12 +33,11 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
     $propEvents === undefined
   ) { return $propEvents }
   const propEvents = [];
-  iteratePropEvents:
   for(const [
     $propEventSettings, $propEventListener
   ] of Object.entries($propEvents)) {
     const propEventSettings = $propEventSettings.trim().split(' ');
-    let path, type, listener, options;
+    let path, type, listener;
     if(propEventSettings.length === 1) {
       path = $scopeKey;
       type = propEventSettings[0];
@@ -52,7 +48,7 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
     }
     if(Array.isArray($propEventListener)) {
       listener = $propEventListener[0];
-      options = $propEventListener[1];
+      $propEventListener[1];
     }
     else {
       listener = $propEventListener;
@@ -100,7 +96,6 @@ function propertyDirectory($object, $options) {
   for(const $accessor of options.accessors) {
     const object = $accessor($object);
     if(!object) continue iterateAccessors
-    iterateObjectProperties: 
     for(const [$key, $value] of Object.entries(object)) {
       _propertyDirectory.push($key);
       if(
@@ -135,7 +130,6 @@ function recursiveAssign$c($target, ...$sources) {
   iterateSources: 
   for(const $source of $sources) {
     if(!$source) continue iterateSources
-    iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
@@ -160,7 +154,6 @@ function recursiveAssignConcat($target, ...$sources) {
   iterateSources: 
   for(const $source of $sources) {
     if(!$source) continue iterateSources
-    iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
@@ -922,7 +915,7 @@ class EventDefinition {
     iterateTargetElements: 
     for(const $targetElement of targets) {
       const { path, target, enable } = $targetElement;
-      const settings = this.settings;
+      this.settings;
       if(enable === $enable) { continue iterateTargetElements }
       if($enable === true) {
         try {
@@ -983,7 +976,6 @@ class EventDefinition {
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          iteratePropertyPaths: 
           for(const $propertyPath of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
             if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
@@ -995,7 +987,6 @@ class EventDefinition {
         else {
           targetPaths.push(this.path);
         }
-        iterateTargetPaths: 
         for(const $targetPath of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
@@ -1065,7 +1056,6 @@ class EventDefinition {
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
-    iterateTargetElements: 
     for(const $targetElement of targets) {
       const { target } = $targetElement;
       try {
@@ -1090,9 +1080,7 @@ class Core extends EventTarget {
           if(!arguments[0]) { return events }
           const getEvents = [];
           const $filterEvents = [].concat(arguments[0]);
-          iterateFilterEvents: 
           for(const $filterEvent of $filterEvents) {
-            iterateEvents: 
             for(const $event of events) {
               let match;
               iterateEventFilterProperties: 
@@ -1124,7 +1112,6 @@ class Core extends EventTarget {
         value: function addEvents() {
           if(!arguments.length) { return $target }
           let $addEvents = expandEvents(arguments[0], settings.scopeKey);
-          iterateAddEvents: 
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
@@ -1162,7 +1149,7 @@ class Core extends EventTarget {
         value: function enableEvents() {
           const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
           if($events.length === 0) return $target
-          iterateEvents: for(const $event of $events) { $event.enable = true; }
+          for(const $event of $events) { $event.enable = true; }
           return $target
         },
       },
@@ -1171,7 +1158,7 @@ class Core extends EventTarget {
         value: function disableEvents() {
           const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
           if($events.length === 0) return $target
-          iterateEvents: for(const $event of $events) { $event.enable = false; }
+          for(const $event of $events) { $event.enable = false; }
           return $target
         },
       },
@@ -1287,7 +1274,7 @@ class RequiredValidator extends Validator {
     super(Object.assign($definition, {
       type: 'required',
       validate: ($key, $value, $source, $target) => {
-        const definition = this.definition;
+        this.definition;
         let pass;
         const { requiredProperties, requiredPropertiesSize, type } = this.schema;
         if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true; }
@@ -1460,7 +1447,7 @@ class MatchValidator extends Validator {
         ].includes(typeof $value)) { pass = false;}
         else {
           const match = definition;
-          const valueMatch = (match.value.exec($value) !== null);
+          (match.value.exec($value) !== null);
         }
         return pass ? true : false
       },
@@ -1523,7 +1510,6 @@ class Context extends EventTarget {
     else if(this.type === 'object') {
       properties = this.#properties;
     }
-    iterateProperties: 
     for(const [
       $propertyKey, $propertyDefinition
     ] of Object.entries(properties)) {
@@ -1581,7 +1567,6 @@ class Context extends EventTarget {
             propertyDefinition[$propertyValidatorName] = propertyValidator;
           }
           $propertyDefinition.validators = $propertyDefinition.validators || [];
-          iterateAlterPropertyValidators: 
           for(const $propertyDefinitionValidator of $propertyDefinition.validators) {
             for(const $Validator of [
               RequiredValidator, TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
@@ -1761,7 +1746,6 @@ class Schema extends EventTarget {
   get requiredProperties() {
     if(this.#requiredProperties !== undefined) return this.#requiredProperties
     let requiredProperties = typedObjectLiteral$7(this.type);
-    iterateContextEntries: 
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
       if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
     }
@@ -2143,7 +2127,6 @@ function assign($model, $options, ...$sources) {
   const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
-  iterateAssignSources: 
   for(let $source of $sources) {
     let assignedSource;
     const assignSourceChange = new Change({ preter: $model });
@@ -2159,7 +2142,6 @@ function assign($model, $options, ...$sources) {
         );
         if(validationEvents) {
           let type, propertyType;
-          const validatorEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey);
           if(validSourceProperty.valid) {
             type = 'validProperty';
             propertyType = ['validProperty', $sourceKey].join(':');
@@ -2289,9 +2271,8 @@ function defineProperties($model, $options, $propertyDescriptors) {
   const { mutatorEvents } = $options;
   const { path } = $model;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
-  let properties = typedObjectLiteral$5($model.valueOf());
+  typedObjectLiteral$5($model.valueOf());
   const definePropertiesChange = new Change({ preter: $model });
-  iteratePropertyDescriptors: 
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
@@ -2335,9 +2316,6 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
     const validProperty = schema.validateProperty($propertyKey, propertyValue, $model);
     if(validationEvents) {
       let type, propertyType;
-      const validatorPath = (path)
-        ? [path, $propertyKey].join('.')
-        : String($propertyKey);
       if(validProperty.valid) {
         type = 'validProperty';
         propertyType = ['validProperty', $propertyKey].join(':');
@@ -2436,7 +2414,6 @@ function freeze($model, $options) {
   const { recursive, mutatorEvents } = $options;
   const { target } = $model;
   if(recursive === true) {
-    iterateProperties: 
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
@@ -2471,7 +2448,6 @@ function seal($model, $options) {
   const { recursive, mutatorEvents } = $options;
   const { target } = $model;
   if(recursive === true) {
-    iterateProperties: 
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
@@ -2525,9 +2501,6 @@ function concat($model, $options) {
       const validValue = schema.validateProperty(valueIndex, $subvalue, {}, $model);
       if(schema &&validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, valueIndex].join('.')
-          : String(valueIndex);
         if(validValue.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', valueIndex].join(':');
@@ -2577,7 +2550,6 @@ function concat($model, $options) {
         );
       }
       if(mutatorEvents['concatValue:$index']) {
-        const type = ['concatValue', valueIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent('concatValue', {
             path: modelEventPath,
@@ -2609,7 +2581,6 @@ function concat($model, $options) {
 function copyWithin($model, $options) {
   const { target, path } = $model;
   const { enableValidation, validationEvents, mutatorEvents } = $options;
-  const $arguments = [...arguments];
   const copyTarget = (
     arguments[0] >= 0
   ) ? arguments[0]
@@ -2628,7 +2599,6 @@ function copyWithin($model, $options) {
   const copiedItems = [];
   let copyIndex = start;
   let targetIndex = copyTarget;
-  iterateCopyIndex: 
   while(copyIndex < end) {
     const copyItem = target[copyIndex];
     copiedItems.push(copyItem);
@@ -2733,9 +2703,6 @@ function fill($model, $options) {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, fillIndex].join('.')
-          : String(fillIndex);
         if(validValue.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', fillIndex].join('');
@@ -2854,16 +2821,12 @@ function push($model, $options, ...$elements) {
   const { target, path, schema } = $model;
   const elements = [];
   let elementsIndex = 0;
-  iterateElements:
   for(let $element of $elements) {
     let element;
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element, {}, $model);
       if(validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, elementsIndex].join('.')
-          : String(elementsIndex);
         if(validElement.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', elementsIndex].join('');
@@ -3015,7 +2978,6 @@ function splice($model, $options) {
   const addCount = $addItems.length;
   const deleteItems = [];
   let deleteItemsIndex = 0;
-  spliceDelete:
   while(deleteItemsIndex < $deleteCount) {
     const deleteItem = Array.prototype.splice.call(target, $start, 1)[0];
     // $model.enableEvents({ enable: true })
@@ -3064,9 +3026,6 @@ function splice($model, $options) {
       const validAddItem = schema.validateProperty(elementIndex, element, {}, $model);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, addItemsIndex].join('.')
-          : String(addItemsIndex);
         // $model.enableEvents({ enable: true })
         if(validAddItem.valid) {
           type = 'validProperty';
@@ -3162,21 +3121,17 @@ function unshift($model, $options, ...$elements) {
   const elementsLength = $elements.length;
   let elementIndex = elementsLength - 1;
   let elementCoindex = 0;
-  iterateElements:
   while(elementIndex > -1) {
-    const elementsLength = $elements.length;
+    $elements.length;
     let $element = $elements[elementIndex];
     let element;
-    const targetElement = target[elementIndex];
-    const targetElementIsModelInstance = (
-      targetElement instanceof Model
-    ) ? true : false;
+    target[elementIndex];
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element, {}, $model);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
+        (path)
           ? [path, '.', elementCoindex].join('')
           : elementCoindex;
         if(validElement.valid) {
@@ -3372,7 +3327,6 @@ function getProperty($model, $options, ...$arguments) {
 }
 
 function setContent($model, $options, $properties) {
-  iterateProperties: 
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $model.set($propertyKey, $propertyValue, $options);
   }
@@ -3443,9 +3397,6 @@ function setContentProperty($model, $options, $path, $value) {
       const validTargetProp = schema.validateProperty(propertyKey, $value, source, $model);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, propertyKey].join('.')
-          : String(propertyKey);
         if(validTargetProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', propertyKey].join('');
@@ -3716,9 +3667,6 @@ function deleteContentProperty($model, $options, $path) {
       const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $model, $model);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, propertyKey].join('.')
-          : String(propertyKey);
         if(validTargetProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', propertyKey].join(':');
@@ -3792,7 +3740,7 @@ var AccessorProperty = {
   delete: deleteProperty,
 };
 
-const { recursiveAssign: recursiveAssign$1, recursiveFreeze } = Coutil;
+const { recursiveAssign: recursiveAssign$1, recursiveFreeze } = index;
 const Defaults = Object.freeze({
   object: [{
     keys: ['valueOf'],
@@ -3867,9 +3815,8 @@ const Defaults = Object.freeze({
   }]
 });
 function Methods($model) {
-  iterateDefaultPropertyClasses: // Object, Array, Accessor
+  // Object, Array, Accessor
   for(const [$propertyClassName, $propertyClasses] of Object.entries(Defaults)) {
-    iteratePropertyClasses: 
     for(const $propertyClass of $propertyClasses) {
       const { keys, createMethod, type } = $propertyClass;
       for(const $methodName of keys) {
