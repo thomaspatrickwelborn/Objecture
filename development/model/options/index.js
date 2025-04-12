@@ -14,7 +14,7 @@ export default ($options) => {
     pathkey: true,
     subpathError: false,
     assignObject: 'set', 
-    assignArray: 'set',
+    assignArray: null,
     methods: {
       accessor: {
         get: {

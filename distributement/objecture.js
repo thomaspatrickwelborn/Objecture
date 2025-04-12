@@ -1898,7 +1898,7 @@ var Options = ($options) => {
     pathkey: true,
     subpathError: false,
     assignObject: 'set', 
-    assignArray: 'set',
+    assignArray: null,
     methods: {
       accessor: {
         get: {
@@ -2123,6 +2123,7 @@ const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiter
 function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
   options.assignObject = 'assign';
+  options.assignArray = options.assignArray || 'assign';
   const { path, target, schema } = $model;
   const { assignArray, assignObject, mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
   const assignedSources = [];
@@ -2303,8 +2304,8 @@ function defineProperties($model, $options, $propertyDescriptors) {
 const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
-  // options.assignArray = 'defineProperties'
   options.assignObject = 'defineProperties';
+  options.assignArray = options.assignArray || 'defineProperties';
   const {
     assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
   } = options;
@@ -3353,6 +3354,7 @@ const { recursiveAssign: recursiveAssign$4, regularExpressions: regularExpressio
 function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options);
   options.assignObject = 'set';
+  options.assignArray = options.assignArray || 'set';
   const { target, path, schema } = $model;
   const {
     assignArray, assignObject, enableValidation, mutatorEvents, pathkey, 

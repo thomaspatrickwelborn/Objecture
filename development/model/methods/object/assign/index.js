@@ -6,6 +6,7 @@ import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)
   options.assignObject = 'assign'
+  options.assignArray = options.assignArray || 'assign'
   const { path, target, schema } = $model
   const { assignArray, assignObject, mutatorEvents, sourceTree, enableValidation, validationEvents } = options
   const assignedSources = []

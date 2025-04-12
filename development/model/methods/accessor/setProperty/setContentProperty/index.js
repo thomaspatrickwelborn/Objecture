@@ -6,6 +6,7 @@ import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options)
   options.assignObject = 'set'
+  options.assignArray = options.assignArray || 'set'
   const { target, path, schema } = $model
   const {
     assignArray, assignObject, enableValidation, mutatorEvents, pathkey, 
