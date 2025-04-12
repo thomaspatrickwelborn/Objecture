@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { recursiveAssign, typedObjectLiteral } = Coutil
-import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
@@ -44,7 +43,7 @@ export default function assign($model, $options, ...$sources) {
       }
       let sourceValue
       if($sourceValue && typeof $sourceValue === 'object') {
-        if($sourceValue instanceof Model) {
+        if($sourceValue instanceof $model.constructor) {
           sourceValue = $sourceValue.valueOf()
         }
         let subschema
@@ -66,7 +65,7 @@ export default function assign($model, $options, ...$sources) {
           Object.assign(assignedSource, assignment)
         }
         else {
-          if(target[$sourceKey] instanceof Model) {
+          if(target[$sourceKey] instanceof $model.constructor) {
             sourceValue = target[$sourceKey]
           }
           else {

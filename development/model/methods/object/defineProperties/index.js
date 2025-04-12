@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { impandTree, typedObjectLiteral } = Coutil
-import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function defineProperties($model, $options, $propertyDescriptors) {

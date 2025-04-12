@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral } = Coutil
-import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
   const { target, path, schema } = $model
@@ -37,7 +36,7 @@ export default function concat($model, $options) {
       ? [path, valueIndex].join('.')
       : String(valueIndex)
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf() }
+      if($value instanceof $model.constructor) { $value = $value.valueOf() }
       let subschema = schema?.context[0] || null
       const submodel = typedObjectLiteral($value)
       let value = new $model.constructor(submodel, subschema, {

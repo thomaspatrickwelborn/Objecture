@@ -1,5 +1,4 @@
 import { ModelEvent } from '../../../../events/index.js'
-import Model from '../../../../index.js'
 import Change from '../../../../change/index.js'
 export default function setContent($model, $options, $properties) {
   iterateProperties: 

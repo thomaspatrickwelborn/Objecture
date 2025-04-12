@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { recursiveAssign, typedObjectLiteral } = Coutil
-import Model from '../../../index.js'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
@@ -16,7 +15,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
   const targetPropertyValue = targetPropertyDescriptor.value
   const definePropertyChange = new Change({ preter: targetPropertyValue })
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
-  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof Model) ? true : false
+  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof $model.constructor) ? true : false
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty($propertyKey, propertyValue, $model)
     if(validationEvents) {

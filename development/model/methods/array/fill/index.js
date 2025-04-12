@@ -1,4 +1,3 @@
-import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function fill($model, $options) {
   const { target, path, schema } = $model
@@ -49,7 +48,7 @@ export default function fill($model, $options) {
       : String(fillIndex)
     let value = $arguments[0]
     if(value && typeof value === 'object') {
-      if(value instanceof Model) { value = value.valueOf() }
+      if(value instanceof $model.constructor) { value = value.valueOf() }
       const subschema = schema?.context[0] || null
       value = new $model.constructor(value, subschema, {
         path: modelPath,

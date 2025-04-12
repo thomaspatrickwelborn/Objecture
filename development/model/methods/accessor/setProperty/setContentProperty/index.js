@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { recursiveAssign, regularExpressions, typeOf } = Coutil
-import Model from '../../../../index.js'
 import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
@@ -72,7 +71,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       if(!validTargetProp.valid) { return }
     }
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf() }
+      if($value instanceof $model.constructor) { $value = $value.valueOf() }
       const typeOfPropertyValue= typeOf($value)
       let subschema
       let submodel
@@ -140,7 +139,7 @@ export default function setContentProperty($model, $options, $path, $value) {
   else if(pathkey === false) {
     let propertyKey = $path
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf() }
+      if($value instanceof $model.constructor) { $value = $value.valueOf() }
       const typeOfPropertyValue = typeOf($value)
       let subschema
       let submodel

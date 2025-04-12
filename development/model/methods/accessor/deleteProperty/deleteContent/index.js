@@ -1,5 +1,4 @@
 import { ModelEvent } from '../../../../events/index.js'
-import Model from '../../../../index.js'
 export default function deleteContent($model, $options) {
   const { target } = $model
   for(const [$targetPropertyKey, $targetPropertyValue] of Object.entries(target)) {

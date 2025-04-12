@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { regularExpressions} = Coutil
-import Model from '../../../../index.js'
 import { ModelEvent } from '../../../../events/index.js'
 export default function getContentProperty($model, $options, $path) {
   const { target, path } = $model

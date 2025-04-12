@@ -1,4 +1,3 @@
-import Model from '../index.js'
 export default class Change {
   #_keyter = false 
   #_preter = false 
@@ -14,15 +13,13 @@ export default class Change {
   get preter() { return this.#preter }
   set preter($preter) {
     if(this.#_preter === true) { return this.#preter }
-    if($preter instanceof Model) { this.#preter = $preter.valueOf() }
-    else { this.#preter = $preter }
+    this.#preter = $preter?.valueOf()
     this.#_preter = true
   }
   get anter() { return this.#anter }
   set anter($anter) {
     if(this.#_anter === true) { return this.#anter }
-    if($anter instanceof Model) { this.#anter = $anter.valueOf() }
-    else { this.#anter = $anter }
+    this.#anter = $anter?.valueOf()
     this.#_anter = true
   }
   get conter() {

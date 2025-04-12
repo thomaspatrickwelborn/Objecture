@@ -2058,15 +2058,13 @@ class Change {
   get preter() { return this.#preter }
   set preter($preter) {
     if(this.#_preter === true) { return this.#preter }
-    if($preter instanceof Model) { this.#preter = $preter.valueOf(); }
-    else { this.#preter = $preter; }
+    this.#preter = $preter?.valueOf();
     this.#_preter = true;
   }
   get anter() { return this.#anter }
   set anter($anter) {
     if(this.#_anter === true) { return this.#anter }
-    if($anter instanceof Model) { this.#anter = $anter.valueOf(); }
-    else { this.#anter = $anter; }
+    this.#anter = $anter?.valueOf();
     this.#_anter = true;
   }
   get conter() {
@@ -2159,7 +2157,7 @@ function assign($model, $options, ...$sources) {
       }
       let sourceValue;
       if($sourceValue && typeof $sourceValue === 'object') {
-        if($sourceValue instanceof Model) {
+        if($sourceValue instanceof $model.constructor) {
           sourceValue = $sourceValue.valueOf();
         }
         let subschema;
@@ -2181,7 +2179,7 @@ function assign($model, $options, ...$sources) {
           Object.assign(assignedSource, assignment);
         }
         else {
-          if(target[$sourceKey] instanceof Model) {
+          if(target[$sourceKey] instanceof $model.constructor) {
             sourceValue = target[$sourceKey];
           }
           else {
@@ -2315,7 +2313,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const targetPropertyValue = targetPropertyDescriptor.value;
   const definePropertyChange = new Change({ preter: targetPropertyValue });
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue });
-  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof Model) ? true : false;
+  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof $model.constructor) ? true : false;
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty($propertyKey, propertyValue, $model);
     if(validationEvents) {
@@ -2422,7 +2420,7 @@ function freeze($model, $options) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
-      if($propertyValue instanceof Model) {
+      if($propertyValue instanceof $model.constructor) {
         $propertyValue.freeze();
         if(mutatorEvents && mutatorEvents['freezeProperty']) {
           $model.dispatchEvent(
@@ -2456,7 +2454,7 @@ function seal($model, $options) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
-      if($propertyValue instanceof Model) {
+      if($propertyValue instanceof $model.constructor) {
         $propertyValue.seal();
         if(mutatorEvents && mutatorEvents['sealProperty']) {
           $model.dispatchEvent(
@@ -2524,7 +2522,7 @@ function concat($model, $options) {
       ? [path, valueIndex].join('.')
       : String(valueIndex);
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf(); }
+      if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       let subschema = schema?.context[0] || null;
       const submodel = typedObjectLiteral$3($value);
       let value = new $model.constructor(submodel, subschema, {
@@ -2727,7 +2725,7 @@ function fill($model, $options) {
       : String(fillIndex);
     let value = $arguments[0];
     if(value && typeof value === 'object') {
-      if(value instanceof Model) { value = value.valueOf(); }
+      if(value instanceof $model.constructor) { value = value.valueOf(); }
       const subschema = schema?.context[0] || null;
       value = new $model.constructor(value, subschema, {
         path: modelPath,
@@ -3053,7 +3051,7 @@ function splice($model, $options) {
     let startIndex = $start + addItemsIndex;
     // Add Item: Object Type
     if(addItem && typeof addItem === 'object') {
-      if(addItem instanceof Model) { addItem = addItem.valueOf(); }
+      if(addItem instanceof $model.constructor) { addItem = addItem.valueOf(); }
       const subschema = schema?.context[0] || null;
       addItem = new $model.constructor(addItem, subschema, {
         path: modelPath,
@@ -3132,7 +3130,10 @@ function unshift($model, $options, ...$elements) {
     $elements.length;
     let $element = $elements[elementIndex];
     let element;
-    target[elementIndex];
+    const targetElement = target[elementIndex];
+    (
+      targetElement instanceof $model.constructor
+    ) ? true : false;
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element, {}, $model);
@@ -3420,7 +3421,7 @@ function setContentProperty($model, $options, $path, $value) {
       if(!validTargetProp.valid) { return }
     }
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf(); }
+      if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       const typeOfPropertyValue= typeOf$1($value);
       let subschema;
       let submodel;
@@ -3488,7 +3489,7 @@ function setContentProperty($model, $options, $path, $value) {
   else if(pathkey === false) {
     let propertyKey = $path;
     if($value && typeof $value === 'object') {
-      if($value instanceof Model) { $value = $value.valueOf(); }
+      if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       const typeOfPropertyValue = typeOf$1($value);
       let subschema;
       let submodel;
@@ -3692,7 +3693,7 @@ function deleteContentProperty($model, $options, $path) {
       if(!validTargetProp.valid) { return }
     }
   
-    if(propertyValue instanceof Model) {
+    if(propertyValue instanceof $model.constructor) {
       propertyValue.delete($options);
     }
     delete target[propertyKey];
@@ -3872,7 +3873,7 @@ function Assign($model, $properties, $options) {
 
 const { typedObjectLiteral, typeOf } = index;
 
-class Model extends Core {
+let Model$1 = class Model extends Core {
   static accessors = Object.freeze([($target, $property) => {
     if($property === undefined) { return $target.target }
     else { return $target.get($property) }
@@ -3985,7 +3986,7 @@ class Model extends Core {
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
   }
-}
+};
 
-export { Model, Schema, Validation, Validator, Verification };
+export { Model$1 as Model, Schema, Validation, Validator, Verification };
 //# sourceMappingURL=objecture.js.map

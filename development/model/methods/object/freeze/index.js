@@ -1,4 +1,3 @@
-import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function freeze($model, $options) {
   const { recursive, mutatorEvents } = $options
@@ -8,7 +7,7 @@ export default function freeze($model, $options) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
-      if($propertyValue instanceof Model) {
+      if($propertyValue instanceof $model.constructor) {
         $propertyValue.freeze()
         if(mutatorEvents && mutatorEvents['freezeProperty']) {
           $model.dispatchEvent(

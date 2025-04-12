@@ -1,4 +1,3 @@
-import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function splice($model, $options) {
   const { mutatorEvents } = $options
@@ -92,7 +91,7 @@ export default function splice($model, $options) {
     let startIndex = $start + addItemsIndex
     // Add Item: Object Type
     if(addItem && typeof addItem === 'object') {
-      if(addItem instanceof Model) { addItem = addItem.valueOf() }
+      if(addItem instanceof $model.constructor) { addItem = addItem.valueOf() }
       const subschema = schema?.context[0] || null
       addItem = new $model.constructor(addItem, subschema, {
         path: modelPath,

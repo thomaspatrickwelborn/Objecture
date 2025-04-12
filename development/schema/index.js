@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral, typeOf } = Coutil
-import Model from '../model/index.js'
 import Context from './context/index.js'
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'

@@ -1,6 +1,5 @@
 import { Coutil } from 'core-plex'
 const { regularExpressions} = Coutil
-import Model from '../../../../index.js'
 import { ModelEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model
@@ -103,7 +102,7 @@ export default function deleteContentProperty($model, $options, $path) {
       if(!validTargetProp.valid) { return }
     }
   
-    if(propertyValue instanceof Model) {
+    if(propertyValue instanceof $model.constructor) {
       propertyValue.delete($options)
     }
     delete target[propertyKey]

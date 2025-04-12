@@ -1,4 +1,3 @@
-import Model from '../../../index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options)
@@ -16,7 +15,7 @@ export default function unshift($model, $options, ...$elements) {
     let element
     const targetElement = target[elementIndex]
     const targetElementIsModelInstance = (
-      targetElement instanceof Model
+      targetElement instanceof $model.constructor
     ) ? true : false
     // Validation
     if(schema && enableValidation) {
