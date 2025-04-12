@@ -3136,53 +3136,32 @@ function unshift($model, $options, ...$elements) {
   const { enableValidation, mutatorEvents, validationEvents } = options;
   const { target, path, schema } = $model;
   const elements = [];
-  const elementsLength = $elements.length;
-  let elementIndex = elementsLength - 1;
-  let elementCoindex = 0;
-  while(elementIndex > -1) {
-    $elements.length;
-    let $element = $elements[elementIndex];
+  let elementsIndex = 0;
+  for(let $element of $elements) {
     let element;
-    const targetElement = target[elementIndex];
-    (
-      targetElement instanceof $model.constructor
-    ) ? true : false;
-    // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, $element, {}, $model);
+      const validElement = schema.validateProperty(elementsIndex, $element, {}, $model);
       if(validationEvents) {
         let type, propertyType;
         if(validElement.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', elementCoindex].join('');
+          propertyType = ['validProperty', ':', elementsIndex].join('');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', elementCoindex].join('');
+          propertyType = ['nonvalidProperty', ':', elementsIndex].join('');
         }
-        // $model.enableEvents({ enable: true })
         for(const $eventType of [type, propertyType]) {
-          $model.dispatchEvent(new ValidatorEvent$1($eventType, validElement, $model));
+          $model.dispatchEvent(new ValidatorEvent($eventType, validElement, $model));
         }
       }
-      if(!validElement.valid) { return $model.length }
+      if(!validElement.valid) { return target.length }
     }
-    // const change = {
-    //   preter: {
-    //     key: elementCoindex,
-    //     value: target[elementCoindex],
-    //   },
-    //   anter: {
-    //     key: elementCoindex,
-    //     value: undefined,
-    //   },
-    //   conter: undefined,
-    // }
-    // Element: Object Type
+    const modelPath = (path)
+      ? [path, elementsIndex].join('.')
+      : String(elementsIndex);
     if($element && typeof $element === 'object') {
-      const modelPath = (path)
-        ? path.concat('.', elementCoindex)
-        : String(elementCoindex);
+      $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.context[0] || null;
       const subproperties = typedObjectLiteral$2(typeOf$2($element));
       const submodelOptions = Object.assign({}, options, {
@@ -3190,73 +3169,59 @@ function unshift($model, $options, ...$elements) {
         parent: $model,
       });
       element = new $model.constructor(subproperties, subschema, submodelOptions);
-      if(element.type === 'array') { element[assignArray](...$element); }
-      else if(element.type === 'object') { element[assignObject]($element); }
-    }
-    // Element: Primitive Type
-    else {
-      element = $element;
-      elements.unshift(element);
-      Array.prototype.unshift.call(target, $element);
+      Array.prototype.unshift.call(target, element);
       $model.retroReenableEvents();
       if(element.type === 'array') { element[assignArray](...$element); }
       else if(element.type === 'object') { element[assignObject]($element); }
     }
-    // change.anter.value = element
-    // change.conter = (targetElementIsModelInstance)
-    //   ? (targetElement.toString() !== JSON.stringify(element))
-    //   : (JSON.stringify(targetElement) !== JSON.stringify(element))
-    // Array Unshift Prop Event
-    // $model.enableEvents({ enable: true })
+    else {
+      element = $element;
+      Array.prototype.unshift.call(target, element);
+    }
+    elements.unshift(element);
     if(mutatorEvents) {
-      const type = ['unshiftProp', elementCoindex].join(':');
       const modelEventPath = (path)
-        ? [path, elementCoindex].join('.')
-        : String(elementCoindex);
+        ? [path, '.', elementsIndex].join('')
+        : String(elementsIndex);
       if(mutatorEvents['unshiftProp']) {
         $model.dispatchEvent(
           new ModelEvent('unshiftProp', {
             path: modelEventPath,
-            value: element,
-            // change,
+            value: elements[elementsIndex],
             detail: {
-              elementIndex: elementCoindex, 
-              element: element,
+              elementsIndex,
+              element: elements[elementsIndex],
             },
           }, $model)
         );
       }
       if(mutatorEvents['unshiftProp:$index']) {
+        const type = ['unshiftProp', ':', elementsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
-            value: element,
-            // change,
+            value: elements[elementsIndex],
             detail: {
-              elementIndex: elementCoindex, 
-              element: element,
+              elementsIndex,
+              element: elements[elementsIndex],
             },
           }, $model)
         );
       }
-
     }
-    elementIndex--;
-    elementCoindex++;
+    elementsIndex++;
   }
-  // Array Unshift Event
-  if(mutatorEvents && mutatorEvents['unshift'] && elements.length) {
+  if(mutatorEvents && mutatorEvents['unshift']) {
     $model.dispatchEvent(
       new ModelEvent('unshift', {
         path,
         detail: {
           elements,
         },
-      },
-      $model)
+      }, $model)
     );
   }
-  return $model.length
+  return target.length
 }
 
 var ArrayProperty = {
