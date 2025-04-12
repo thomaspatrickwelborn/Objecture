@@ -5,10 +5,10 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options)
-  options.assignObject = 'defineProperties'
-  options.assignArray = options.assignArray || 'defineProperties'
+  const assignObject = 'defineProperties'
+  const assignArray = options.assignArray || 'defineProperties'
   const {
-    assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, validationEvents
   } = options
   const { target, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
@@ -55,14 +55,15 @@ export default function defineProperty($model, $options, $propertyKey, $property
       if(schema) {
         if(schema.type === 'array') { subschema = schema.context[0] }
         else if(schema.type === 'object') { subschema = schema.context[$propertyKey] }
-        else { subschema = undefined}
+        else { subschema = undefined }
       }
       let subtarget = typedObjectLiteral(propertyValue)
+      const suboptions = recursiveAssign({}, options, {
+        path: modelPath,
+        parent: $model,
+      })
       const submodel = new $model.constructor(
-        subtarget, subschema, recursiveAssign({}, options, {
-          path: modelPath,
-          parent: $model,
-        })
+        subtarget, subschema, suboptions
       )
       if(descriptorTree === true) {
         target[$propertyKey] = submodel

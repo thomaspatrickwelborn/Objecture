@@ -2122,10 +2122,10 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$6 } = index;
 function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
-  options.assignObject = 'assign';
-  options.assignArray = options.assignArray || 'assign';
+  const assignObject = 'assign';
+  const assignArray = options.assignArray || 'assign';
   const { path, target, schema } = $model;
-  const { assignArray, assignObject, mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
+  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
   for(let $source of $sources) {
@@ -2304,10 +2304,10 @@ function defineProperties($model, $options, $propertyDescriptors) {
 const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$4 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
-  options.assignObject = 'defineProperties';
-  options.assignArray = options.assignArray || 'defineProperties';
+  const assignObject = 'defineProperties';
+  const assignArray = options.assignArray || 'defineProperties';
   const {
-    assignArray, assignObject, descriptorTree, enableValidation, mutatorEvents, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, validationEvents
   } = options;
   const { target, path, schema } = $model;
   const propertyValue = $propertyDescriptor.value;
@@ -2351,14 +2351,15 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
       if(schema) {
         if(schema.type === 'array') { subschema = schema.context[0]; }
         else if(schema.type === 'object') { subschema = schema.context[$propertyKey]; }
-        else { subschema = undefined;}
+        else { subschema = undefined; }
       }
       let subtarget = typedObjectLiteral$4(propertyValue);
+      const suboptions = recursiveAssign$7({}, options, {
+        path: modelPath,
+        parent: $model,
+      });
       const submodel = new $model.constructor(
-        subtarget, subschema, recursiveAssign$7({}, options, {
-          path: modelPath,
-          parent: $model,
-        })
+        subtarget, subschema, suboptions
       );
       if(descriptorTree === true) {
         target[$propertyKey] = submodel;
@@ -2820,8 +2821,9 @@ function pop($model, $options) {
 const { recursiveAssign: recursiveAssign$6, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$2 } = index;
 function push($model, $options, ...$elements) {
   const options = Object.assign({}, $options);
-  options.assignArray = 'push';
-  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options;
+  const assignArray = 'push';
+  const assignObject = options.assignObject;
+  const { enableValidation, mutatorEvents, validationEvents } = options;
   const { target, path, schema } = $model;
   const elements = [];
   let elementsIndex = 0;
@@ -3119,8 +3121,9 @@ function splice($model, $options) {
 
 function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options);
-  options.assignArray = 'unshift';
-  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options;
+  const assignArray = 'unshift';
+  const assignObject = options.assignObject;
+  const { enableValidation, mutatorEvents, validationEvents } = options;
   const elements = [];
   const elementsLength = $elements.length;
   let elementIndex = elementsLength - 1;
@@ -3353,11 +3356,11 @@ function setContent($model, $options, $properties) {
 const { recursiveAssign: recursiveAssign$4, regularExpressions: regularExpressions$1, typeOf: typeOf$1 } = index;
 function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options);
-  options.assignObject = 'set';
-  options.assignArray = options.assignArray || 'set';
+  const assignObject = 'set';
+  const assignArray = options.assignArray || 'set';
   const { target, path, schema } = $model;
   const {
-    assignArray, assignObject, enableValidation, mutatorEvents, pathkey, 
+    enableValidation, mutatorEvents, pathkey, 
     recursive, source, subpathError, validationEvents,
   } = options;
   if(pathkey === true) {

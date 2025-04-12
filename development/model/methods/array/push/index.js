@@ -4,8 +4,9 @@ import Model from '../../../index.js'
 import { ModelEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
   const options = Object.assign({}, $options)
-  options.assignArray = 'push'
-  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options
+  const assignArray = 'push'
+  const assignObject = options.assignObject
+  const { enableValidation, mutatorEvents, validationEvents } = options
   const { target, path, schema } = $model
   const elements = []
   let elementsIndex = 0

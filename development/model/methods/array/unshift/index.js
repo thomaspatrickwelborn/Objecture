@@ -2,8 +2,9 @@ import Model from '../../../index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options)
-  options.assignArray = 'unshift'
-  const { assignArray, assignObject, enableValidation, mutatorEvents, validationEvents } = options
+  const assignArray = 'unshift'
+  const assignObject = options.assignObject
+  const { enableValidation, mutatorEvents, validationEvents } = options
   const elements = []
   const elementsLength = $elements.length
   let elementIndex = elementsLength - 1
