@@ -1,4 +1,7 @@
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import { ModelEvent } from '../../../events/index.js'
+
 export default function fill($model, $options) {
   const { target, path, schema } = $model
   const { enableValidation, validationEvents, mutatorEvents } = $options
@@ -46,14 +49,20 @@ export default function fill($model, $options) {
     const modelPath = (path)
       ? [path, fillIndex].join('.')
       : String(fillIndex)
-    let value = $arguments[0]
-    if(value && typeof value === 'object') {
-      if(value instanceof $model.constructor) { value = value.valueOf() }
+    const $value = $arguments[0]
+    let value
+    if($value && typeof $value === 'object') {
+      if($value instanceof $model.constructor) { $value = $value.valueOf() }
       const subschema = schema?.context[0] || null
-      value = new $model.constructor(value, subschema, {
+      const subproperties = typedObjectLiteral($value)
+      const suboptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
       })
+      value = new $model.constructor(subproperties, subschema, suboptions)
+      $model.retroReenableEvents()
+      if(value.type === 'array') { value[assignArray](...$value) }
+      else if(value.type === 'object') { value[assignObject]($value) }
     }
     Array.prototype.fill.call(
       target, value, fillIndex, fillIndex + 1
