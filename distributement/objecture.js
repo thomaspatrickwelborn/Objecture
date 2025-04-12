@@ -2214,7 +2214,8 @@ function assign($model, $options, ...$sources) {
           Object.assign(target, assignment);
           Object.assign(assignedSource, assignment);
           $model.retroReenableEvents();
-          sourceValue.assign($sourceValue);
+          if(sourceValue.type === 'array') { sourceValue[assignArray](...$sourceValue); }
+          else if(sourceValue.type === 'object') { sourceValue[assignObject]($sourceValue); }
         }
       }
       else {
@@ -2380,7 +2381,10 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
       if(descriptorTree === true) {
         target[$propertyKey] = submodel;
         $model.retroReenableEvents();
-        if(submodel.type === 'array') { submodel[assignArray](propertyValue); }
+        if(submodel.type === 'array') {
+          if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...propertyValue); }
+          else { propertyValue[assignArray](propertyValue); }
+        }
         else if(submodel.type === 'object') { submodel[assignObject](propertyValue); }
       }
       else if(descriptorTree === false) {
@@ -2888,10 +2892,7 @@ function push($model, $options, ...$elements) {
       element = new $model.constructor(subproperties, subschema, submodelOptions);
       Array.prototype.push.call(target, element);
       $model.retroReenableEvents();
-      if(element.type === 'array') {
-        console.log('...$element',...$element);
-        element[assignArray](...$element);
-      }
+      if(element.type === 'array') { element[assignArray](...$element); }
       else if(element.type === 'object') { element[assignObject]($element); }
     }
     else {
@@ -3431,7 +3432,10 @@ function setContentProperty($model, $options, $path, $value) {
         propertyValue = target[propertyKey];
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
+      if(propertyValue.type === 'array') {
+        if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value); }
+        else { propertyValue[assignArray]($value); }
+      }
       else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options); }
       return propertyValue
     }
@@ -3481,7 +3485,10 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
+      if(propertyValue.type === 'array') {
+        if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value); }
+        else { propertyValue[assignArray]($value); }
+      }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {
@@ -3549,7 +3556,10 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions);
       target[propertyKey] = propertyValue;
       $model.retroReenableEvents();
-      if(propertyValue.type === 'array') { propertyValue[assignArray]($value); }
+      if(propertyValue.type === 'array') {
+        if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value); }
+        else { propertyValue[assignArray]($value); }
+      }
       else if(propertyValue.type === 'object') { propertyValue[assignObject]($value); }
     }
     else {
@@ -4016,9 +4026,6 @@ class Model extends Core {
       }
     }
     let { type, replacer, space } = $settings;
-    if(!replacer) { replacer = (
-      key, value
-    ) => typeof value === 'bigint' ? value.toString() : value; }
     if(type === 'object') { return parsement }
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }

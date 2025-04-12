@@ -81,7 +81,8 @@ export default function assign($model, $options, ...$sources) {
           Object.assign(target, assignment)
           Object.assign(assignedSource, assignment)
           $model.retroReenableEvents()
-          sourceValue.assign($sourceValue)
+          if(sourceValue.type === 'array') { sourceValue[assignArray](...$sourceValue) }
+          else if(sourceValue.type === 'object') { sourceValue[assignObject]($sourceValue) }
         }
       }
       else {

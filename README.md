@@ -23,7 +23,7 @@ Capture property changes for object, array mutator methods.
 
 ## Impact
  - Manage structured content for primitive/non-primitive data types: 
-   - `string`, `number`, `bigint`, `boolean`, `undefined`, `null` primitives; 
+   - `string`, `number`, `boolean`, `undefined`, `null` primitives; 
    - `object`, `array` non-primitives. 
  - Schematize content with property definitions validators.  
    - `type`, `required`, `match`, `enum`, `range`, `length` and custom validators.  

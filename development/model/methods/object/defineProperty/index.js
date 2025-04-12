@@ -67,7 +67,10 @@ export default function defineProperty($model, $options, $propertyKey, $property
       if(descriptorTree === true) {
         target[$propertyKey] = submodel
         $model.retroReenableEvents()
-        if(submodel.type === 'array') { submodel[assignArray](propertyValue) }
+        if(submodel.type === 'array') {
+          if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...propertyValue) }
+          else { propertyValue[assignArray](propertyValue) }
+        }
         else if(submodel.type === 'object') { submodel[assignObject](propertyValue) }
       }
       else if(descriptorTree === false) {

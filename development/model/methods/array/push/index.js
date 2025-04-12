@@ -47,10 +47,7 @@ export default function push($model, $options, ...$elements) {
       element = new $model.constructor(subproperties, subschema, submodelOptions)
       Array.prototype.push.call(target, element)
       $model.retroReenableEvents()
-      if(element.type === 'array') {
-        console.log('...$element',...$element)
-        element[assignArray](...$element)
-      }
+      if(element.type === 'array') { element[assignArray](...$element) }
       else if(element.type === 'object') { element[assignObject]($element) }
     }
     else {

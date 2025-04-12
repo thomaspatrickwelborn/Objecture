@@ -115,9 +115,6 @@ export default class Model extends Core {
       }
     }
     let { type, replacer, space } = $settings
-    if(!replacer) { replacer = (
-      key, value
-    ) => typeof value === 'bigint' ? value.toString() : value }
     if(type === 'object') { return parsement }
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
