@@ -63,20 +63,17 @@ export default class Context extends EventTarget {
         propertyDefinition = $propertyDefinition
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
-      else if(Variables.TypeValues.includes($propertyDefinition)) {
+      else if(variables.TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value')
       }
       // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
-      else if(Variables.TypeKeys.includes($propertyDefinition)) {
-        propertyDefinition = expandTree(Variables.TypeValues[
-          Variables.TypeKeys.indexOf($propertyDefinition)
+      else if(variables.TypeKeys.includes($propertyDefinition)) {
+        propertyDefinition = expandTree(variables.TypeValues[
+          variables.TypeKeys.indexOf($propertyDefinition)
         ], 'type.value')
       }
       // Property Definition: Object Literal
-      else if(
-        typeOfPropertyDefinition === 'object' || 
-        typeOfPropertyDefinition === 'array'
-      ) {
+      else if(['array', 'object'].includes(typeOfPropertyDefinition)) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
         if(propertyDefinitionIsPropertyDefinition === false) {
           const { path } = this.schema

@@ -1,3 +1,4 @@
+import Model from '../model/index.js'
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral, typeOf } = Coutil
 import Context from './context/index.js'

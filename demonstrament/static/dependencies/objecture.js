@@ -64,6 +64,156 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
   return propEvents
 }
 
+const typeOf$7 = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
+function typedObjectLiteral$d($value) {
+  let _typedObjectLiteral;
+  const typeOfValue = typeOf$7($value);
+  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
+  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
+  else if(typeOfValue === 'string') {
+    if($value === 'object') { _typedObjectLiteral = {}; }
+    else if($value === 'array') { _typedObjectLiteral = []; }
+  }
+  else { _typedObjectLiteral = undefined; }
+  return _typedObjectLiteral
+}
+
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys$1 = Object.keys(Primitives);
+const PrimitiveValues = Object.values(Primitives);
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys$1 = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
+const TypeKeys = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
+];
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys$1,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys$1,
+  PrimitiveValues: PrimitiveValues,
+  Primitives: Primitives,
+  TypeKeys: TypeKeys,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
+var regularExpressions$3 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
+function subpaths($path) {
+  return $path.split(
+    new RegExp(regularExpressions$3.quotationEscape)
+  )
+}
+function keypaths($path) {
+  const _subpaths = subpaths($path);
+  _subpaths.pop();
+  return _subpaths
+}
+function key($path) {
+  return subpaths($path).pop()
+}
+function root($path) {
+  return subpaths($path).shift()
+}
+function typeofRoot($path) {
+  return (Number(root($path))) ? 'array' : 'object'
+}
+function parse($path) {
+  return {
+    subpaths: subpaths($path),
+    keypaths: keypaths($path),
+    key: key($path),
+    root: root($path),
+    typeofRoot: typeofRoot($path),
+  }
+}
+
+function get($path, $value) {
+  const subpaths = $path.split(new RegExp(regularExpressions$3.quotationEscape));
+  const key = subpaths.pop();
+  const tree = $value;
+  let treeNode = tree;
+  for(const $subpath of subpaths) {
+    treeNode = treeNode[$subpath];
+  }
+  return treeNode[key]
+}
+function set($path, $value) {
+  const {
+    keypaths, key, typeofRoot
+  } = parse($path);
+  const tree = typedObjectLiteral$d(typeofRoot);
+  let treeNode = tree;
+  for(const $subpath of keypaths) {
+    if(Number($subpath)) { treeNode[$subpath] = []; }
+    else { treeNode[$subpath] = {}; }
+    treeNode = treeNode[$subpath];
+  }
+  treeNode[key] = $value;
+  return tree
+}
+
+function impandTree$1($root, $tree) {
+  const typeofTree = typeof $tree;
+  const typeofRoot = typeof $root;
+  if(
+    !['string', 'function'].includes(typeofTree) ||
+    typeofRoot && typeofRoot !== 'object'
+  ) { return undefined /*$root*/ }
+  let tree = typedObjectLiteral$d($root);
+  if(typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    }
+  }
+  return tree
+}
+
+function expandTree$1($root, $tree) {
+  const typeofRoot = typeof $root;
+  const typeofTree = typeof $tree;
+  if(
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
+  let tree;
+  if($root && typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    }
+  }
+  else {
+    if(typeofTree === 'string') { tree = set($tree, $root); }
+    else if(typeofTree === 'function') { tree = $tree($root); }
+  }
+  return tree
+}
+
 function isPropertyDefinition$1($propertyDefinition) {
   if(
     Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
@@ -120,11 +270,6 @@ function propertyDirectory($object, $options) {
   return _propertyDirectory
 }
 
-const typeOf$7 = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
 function recursiveAssign$e($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
@@ -179,10 +324,6 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
-var index$2 = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
 function recursiveFreeze$1($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -192,67 +333,19 @@ function recursiveFreeze$1($target) {
   return Object.freeze($target)
 }
 
-function typedObjectLiteral$d($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf$7($value);
-  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
-  }
-  else { _typedObjectLiteral = undefined; }
-  return _typedObjectLiteral
-}
-
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys$1 = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys$1 = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
-const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
- Primitives.String, Primitives.Number, Primitives.Boolean, 
- Objects.Object, Objects.Array
-];
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys$1,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys$1,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
   accessors: accessors,
   expandEvents: expandEvents,
+  expandTree: expandTree$1,
   impandEvents: impandEvents,
+  impandTree: impandTree$1,
   isPropertyDefinition: isPropertyDefinition$1,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign$e,
   recursiveAssignConcat: recursiveAssignConcat,
   recursiveFreeze: recursiveFreeze$1,
-  regularExpressions: index$2,
+  regularExpressions: regularExpressions$3,
   typeOf: typeOf$7,
   typedObjectLiteral: typedObjectLiteral$d,
   variables: index$1
@@ -1520,20 +1613,17 @@ class Context extends EventTarget {
         propertyDefinition = $propertyDefinition;
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
-      else if(Variables.TypeValues.includes($propertyDefinition)) {
+      else if(variables.TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value');
       }
       // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
-      else if(Variables.TypeKeys.includes($propertyDefinition)) {
-        propertyDefinition = expandTree(Variables.TypeValues[
-          Variables.TypeKeys.indexOf($propertyDefinition)
+      else if(variables.TypeKeys.includes($propertyDefinition)) {
+        propertyDefinition = expandTree(variables.TypeValues[
+          variables.TypeKeys.indexOf($propertyDefinition)
         ], 'type.value');
       }
       // Property Definition: Object Literal
-      else if(
-        typeOfPropertyDefinition === 'object' || 
-        typeOfPropertyDefinition === 'array'
-      ) {
+      else if(['array', 'object'].includes(typeOfPropertyDefinition)) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition);
         if(propertyDefinitionIsPropertyDefinition === false) {
           const { path } = this.schema;
@@ -3874,7 +3964,7 @@ function Assign($model, $properties, $options) {
 
 const { typedObjectLiteral, typeOf } = index;
 
-let Model$1 = class Model extends Core {
+class Model extends Core {
   static accessors = Object.freeze([($target, $property) => {
     if($property === undefined) { return $target.target }
     else { return $target.get($property) }
@@ -3982,7 +4072,7 @@ let Model$1 = class Model extends Core {
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
   }
-};
+}
 
-export { Model$1 as Model, Schema, Validation, Validator, Verification };
+export { Model, Schema, Validation, Validator, Verification };
 //# sourceMappingURL=objecture.js.map
