@@ -1,11 +1,14 @@
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral } = Coutil
 import { ModelEvent } from '../../../events/index.js'
-
 export default function fill($model, $options) {
+  const options = Object.assign({}, $options)
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, mutatorEvents } = $options
+  const assignObject = options.assignObject
+  const assignArray = options.assignArray || assignObject
+  const { enableValidation, validationEvents, mutatorEvents } = options
   const $arguments = [...arguments]
+  const filled = []
   let $start
   if(typeof $arguments[1] === 'number') {
     $start = ($arguments[1] >= 0)
@@ -49,7 +52,7 @@ export default function fill($model, $options) {
     const modelPath = (path)
       ? [path, fillIndex].join('.')
       : String(fillIndex)
-    const $value = $arguments[0]
+    let $value = $arguments[0]
     let value
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf() }
@@ -60,15 +63,15 @@ export default function fill($model, $options) {
         parent: $model,
       })
       value = new $model.constructor(subproperties, subschema, suboptions)
-      $model.retroReenableEvents()
-      if(value.type === 'array') { value[assignArray](...$value) }
-      else if(value.type === 'object') { value[assignObject]($value) }
     }
-    Array.prototype.fill.call(
-      target, value, fillIndex, fillIndex + 1
-    )
-    // $model.enableEvents({ enable: true })
-    // Array Fill Index Event
+    Array.prototype.fill.call(target, value, fillIndex, fillIndex + 1)
+    $model.retroReenableEvents()
+    if(value.type === 'array') {
+      if(['push', 'unshift'].includes(assignArray)) { value[assignArray](...$value) }
+      else { value[assignArray]($value) }
+    }
+    else if(value.type === 'object') { value[assignObject]($value) }
+    filled.push(value)
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, fillIndex].join('.')
@@ -102,7 +105,6 @@ export default function fill($model, $options) {
     }
     fillIndex++
   }
-  // Array Fill Event
   if(mutatorEvents && mutatorEvents['fill']) {
     $model.dispatchEvent(
       new ModelEvent('fill', {
@@ -110,7 +112,7 @@ export default function fill($model, $options) {
         detail: {
           start: $start,
           end: $end,
-          value,
+          filled,
         },
       },
       $model)

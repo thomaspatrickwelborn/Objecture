@@ -54,12 +54,11 @@ export default function assign($model, $options, ...$sources) {
           ? [path, $sourceKey].join('.')
           : String($sourceKey)
         if(sourceTree === false) {
-          sourceValue = new $model.constructor($sourceValue, subschema, 
-            recursiveAssign({}, options, {
-              path: modelPath,
-              parent: $model,
-            })
-          )
+          const suboptions = recursiveAssign({}, options, {
+            path: modelPath,
+            parent: $model,
+          })
+          sourceValue = new $model.constructor($sourceValue, subschema, suboptions)
           const assignment = { [$sourceKey]: sourceValue }
           Object.assign(target, assignment)
           Object.assign(assignedSource, assignment)
@@ -69,13 +68,12 @@ export default function assign($model, $options, ...$sources) {
             sourceValue = target[$sourceKey]
           }
           else {
-            let modelTypedLiteral = typedObjectLiteral($sourceValue)
-            sourceValue = new $model.constructor(modelTypedLiteral, subschema, 
-              recursiveAssign({}, options, {
-                path: modelPath,
-                parent: $model,
-              })
-            )
+            const subproperties = typedObjectLiteral($sourceValue)
+            const suboptions = recursiveAssign({}, options, {
+              path: modelPath,
+              parent: $model,
+            })
+            sourceValue = new $model.constructor(subproperties, subschema, suboptions)
           }
           const assignment = { [$sourceKey]: sourceValue }
           Object.assign(target, assignment)

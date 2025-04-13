@@ -1,8 +1,13 @@
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import { ModelEvent } from '../../../events/index.js'
 export default function splice($model, $options) {
-  const { mutatorEvents } = $options
+  const options = Object.assign({}, $options)
+  const assignObject = options.assignObject
+  const assignArray = options.assignArray || assignObject
+  const { mutatorEvents } = options
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents } = $options
+  const { enableValidation, validationEvents } = options
   const $arguments = [...arguments]
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
@@ -21,9 +26,7 @@ export default function splice($model, $options) {
   spliceDelete:
   while(deleteItemsIndex < $deleteCount) {
     const deleteItem = Array.prototype.splice.call(target, $start, 1)[0]
-    // $model.enableEvents({ enable: true })
     deleteItems.push(deleteItem)
-    // Array Splice Delete Event
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
@@ -62,7 +65,6 @@ export default function splice($model, $options) {
   spliceAdd: 
   while(addItemsIndex < addCount) {
     let addItem = $addItems[addItemsIndex]
-    // Validation
     if(schema && enableValidation) {
       const validAddItem = schema.validateProperty(elementIndex, element, {}, $model)
       if(validationEvents) {
@@ -70,7 +72,6 @@ export default function splice($model, $options) {
         const validatorEventPath = (path)
           ? [path, addItemsIndex].join('.')
           : String(addItemsIndex)
-        // $model.enableEvents({ enable: true })
         if(validAddItem.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', addItemsIndex].join('')
@@ -89,22 +90,26 @@ export default function splice($model, $options) {
       ? [path, addItemsIndex].join('.')
       : String(addItemsIndex)
     let startIndex = $start + addItemsIndex
-    // Add Item: Object Type
     if(addItem && typeof addItem === 'object') {
       if(addItem instanceof $model.constructor) { addItem = addItem.valueOf() }
       const subschema = schema?.context[0] || null
-      addItem = new $model.constructor(addItem, subschema, {
+      const subproperties = typedObjectLiteral(addItem)
+      const suboptions = recursiveAssign({}, options, {
         path: modelPath,
         parent: $model,
       })
+      addItem = new $model.constructor(subproperties, subschema, suboptions)
       Array.prototype.splice.call(target, startIndex, 0, addItem)
+      $model.retroReenableEvents()
+      if(addItem.type === 'array') {
+        if(['push', 'unshift'].includes(assignArray)) { addItem[assignArray](...$value) }
+        else { addItem[assignArray]($value) }
+      }
+      else if(addItem.type === 'object') { addItem[assignObject]($value) }
     }
-    // Add Item: Primitive Type
     else {
       Array.prototype.splice.call(target, startIndex, 0, addItem)
     }
-    // $model.enableEvents({ enable: true })
-    // Array Splice Add Event
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, addItemsIndex].join('.')
@@ -139,7 +144,6 @@ export default function splice($model, $options) {
     }
     addItemsIndex++
   }
-  // Array Splice Event
   if(mutatorEvents && mutatorEvents['splice']) {
     $model.dispatchEvent(
       new ModelEvent('splice', {
