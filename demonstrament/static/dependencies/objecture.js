@@ -1945,6 +1945,7 @@ var Options = ($options) => {
           }
         },
         fill: {
+          lengthen: true,
           mutatorEvents: {
             'fillIndex:$index': true,
             'fillIndex': true,
@@ -2689,13 +2690,12 @@ function copyWithin($model, $options) {
 }
 
 const { typedObjectLiteral: typedObjectLiteral$5 } = index;
-function fill($model, $options) {
+function fill($model, $options, ...$arguments) {
   const options = Object.assign({}, $options);
   const { target, path, schema } = $model;
   const assignObject = options.assignObject;
   const assignArray = options.assignArray || assignObject;
-  const { enableValidation, validationEvents, mutatorEvents } = options;
-  const $arguments = [...arguments];
+  const { enableValidation, lengthen, mutatorEvents, validationEvents } = options;
   const filled = [];
   let $start;
   if(typeof $arguments[1] === 'number') {
@@ -2710,6 +2710,8 @@ function fill($model, $options) {
       ? $arguments[2]
       : target.length + $arguments[2];
   } else { $end = target.length; }
+  console.log($start, $end);
+  if(lengthen && target.length < $end) { target.length = $end; }
   let fillIndex = $start;
   iterateFillIndexes: 
   while(

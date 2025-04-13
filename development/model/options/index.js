@@ -56,6 +56,7 @@ export default ($options) => {
           }
         },
         fill: {
+          lengthen: true,
           mutatorEvents: {
             'fillIndex:$index': true,
             'fillIndex': true,

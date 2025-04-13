@@ -9,6 +9,5 @@ const array = new Model([], null, {
   events: { '** fillIndex': eventLog },
   enableEvents: true,
 })
-array.length = 3
-array.fill(object)
+array.fill(object, 0, 3)
 console.log(array)
