@@ -31,8 +31,7 @@ export default function copyWithin($model, $options) {
       copyIndex,
       copyIndex + 1
     )
-    // $model.enableEvents({ enable: true })
-    // Array Copy Within Index Event Data
+    $model.retroReenableEvents()
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')

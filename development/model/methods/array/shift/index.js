@@ -3,9 +3,8 @@ export default function shift($model, $options) {
   const { mutatorEvents } = $options
   const { target, path } = $model
   const shiftElement = Array.prototype.shift.call(target)
-  // $model.enableEvents({ enable: true })
   const shiftElementIndex = 0
-  // Array Shift Event
+  $model.retroReenableEvents()
   if(mutatorEvents && mutatorEvents['shift']) {
     const modelEventPath = (path)
       ? [path, shiftElementIndex].join('.')

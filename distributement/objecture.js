@@ -2621,8 +2621,7 @@ function copyWithin($model, $options) {
       copyIndex,
       copyIndex + 1
     );
-    // $model.enableEvents({ enable: true })
-    // Array Copy Within Index Event Data
+    $model.retroReenableEvents();
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')
@@ -2813,11 +2812,12 @@ function pop($model, $options) {
   const { target, path } = $model;
   const popElement = Array.prototype.pop.call(target);
   const popElementIndex = target.length - 1;
+  $model.retroReenableEvents();
   if(mutatorEvents && mutatorEvents['pop']) {
     const modelEventPath = (path)
       ? [path, popElementIndex].join('.')
       : String(popElementIndex);
-    $model.dispatchEvent(
+      $model.dispatchEvent(
       new ModelEvent(
         'pop',
         {
@@ -2938,7 +2938,7 @@ function reverse($model, $options) {
   const { mutatorEvents } = $options;
   const { target, path } = $model;
   Array.prototype.reverse.call(target, ...arguments);
-  // $model.enableEvents({ enable: true })
+  $model.retroReenableEvents();
   if(mutatorEvents && mutatorEvents['reverse']) {
     $model.dispatchEvent(
       new ModelEvent(
@@ -2960,9 +2960,8 @@ function shift($model, $options) {
   const { mutatorEvents } = $options;
   const { target, path } = $model;
   const shiftElement = Array.prototype.shift.call(target);
-  // $model.enableEvents({ enable: true })
   const shiftElementIndex = 0;
-  // Array Shift Event
+  $model.retroReenableEvents();
   if(mutatorEvents && mutatorEvents['shift']) {
     const modelEventPath = (path)
       ? [path, shiftElementIndex].join('.')

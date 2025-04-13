@@ -3,7 +3,7 @@ export default function reverse($model, $options) {
   const { mutatorEvents } = $options
   const { target, path } = $model
   Array.prototype.reverse.call(target, ...arguments)
-  // $model.enableEvents({ enable: true })
+  $model.retroReenableEvents()
   if(mutatorEvents && mutatorEvents['reverse']) {
     $model.dispatchEvent(
       new ModelEvent(
