@@ -29,7 +29,7 @@ export default class Context extends EventTarget {
   }
   get type() {
     if(this.#type !== undefined) return this.#type
-    this.#type = typeOf(typedObjectLiteral(this.#properties))
+    this.#type = typeOf(this.#properties)
     return this.#type
   }
   get proxy() {
@@ -58,21 +58,17 @@ export default class Context extends EventTarget {
     ] of Object.entries(properties)) {
       const typeOfPropertyDefinition = typeOf($propertyDefinition)
       let propertyDefinition
-      // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
         propertyDefinition = $propertyDefinition
       }
-      // Property Definition: String, Number, Boolean, Object, Array, null, undefined
       else if(variables.TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value')
       }
-      // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
       else if(variables.TypeKeys.includes($propertyDefinition)) {
         propertyDefinition = expandTree(variables.TypeValues[
           variables.TypeKeys.indexOf($propertyDefinition)
         ], 'type.value')
       }
-      // Property Definition: Object Literal
       else if(['array', 'object'].includes(typeOfPropertyDefinition)) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
         if(propertyDefinitionIsPropertyDefinition === false) {
@@ -81,14 +77,14 @@ export default class Context extends EventTarget {
             ? [path, $propertyKey].join('.')
             : String($propertyKey)
           const parent = this.schema
-          propertyDefinition = new Schema($propertyDefinition, Object.assign({}, this.schema.options, {
+          const schemaOptions = Object.assign({}, this.schema.options, {
             path: schemaPath,
             parent: parent,
-          }))
+          })
+          propertyDefinition = new Schema($propertyDefinition, schemaOptions)
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
           propertyDefinition = { validators: [] }
-          // Property Definition: 
           iteratePropertyValidators: 
           for(const [
             $propertyValidatorName, $propertyValidator
@@ -119,6 +115,7 @@ export default class Context extends EventTarget {
           }
         }
       }
+      // throw "Objecture"
       if(propertyDefinition instanceof Schema === false) {
         propertyDefinition = this.#parsePropertyDefinition(propertyDefinition)
       }
@@ -139,7 +136,6 @@ export default class Context extends EventTarget {
       length, minLength, maxLength, 
       match,
     } = propertyDefinition
-    // Required
     if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
       type: 'required', value: true, validator: RequiredValidator 
     })) }
@@ -149,32 +145,27 @@ export default class Context extends EventTarget {
     else { validators.set('required', Object.assign({}, propertyDefinition.required, {
       type: 'required', value: false, validator: RequiredValidator 
     })) }
-    // Type
     if(type) { validators.set('type', Object.assign({}, type, {
       type: 'type', validator: TypeValidator
     })) }
     else { validators.set('type', Object.assign({}, type, {
       type: 'type', value: undefined, validator: TypeValidator
     })) }
-    // Range
     if(range) { validators.set('range', Object.assign({}, range, {
       type: 'range', validator: RangeValidator
     })) }
     else if(min || max) { validators.set('range', Object.assign({}, {
       type: 'range', min, max, validator: RangeValidator
     })) }
-    // Length
     if(length) { validators.set('length', Object.assign({}, length, {
       type: 'length', validator: LengthValidator
     })) }
     else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
       type: 'length', min: minLength, max: maxLength, validator: LengthValidator
     })) }
-    // Enum
     if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
       type: 'enum', validator: EnumValidator
     })) }
-    // Match
     if(match) { validators.set('match', Object.assign({}, match, {
       type: 'match', validator: MatchValidator
     })) }

@@ -21,7 +21,6 @@ export default function fill($model, $options, ...$arguments) {
       ? $arguments[2]
       : target.length + $arguments[2]
   } else { $end = target.length }
-  console.log($start, $end)
   if(lengthen && target.length < $end) { target.length = $end }
   let fillIndex = $start
   iterateFillIndexes: 

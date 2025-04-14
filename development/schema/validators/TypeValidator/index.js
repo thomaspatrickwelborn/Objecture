@@ -11,14 +11,14 @@ export default class TypeValidator extends Validator {
         const definition = this.definition
         const typeOfDefinitionValue = (typeOf(definition.value) === 'function')
           ? typeOf(definition.value())
-          : typeOfDefinitionValue
-        if(!PrimitiveKeys.concat(ObjectKeys).includes(typeOfDefinitionValue)) { pass = false }
-        else {
+          : typeOf(definition.value)
+        if(PrimitiveKeys.concat(ObjectKeys).includes(typeOfDefinitionValue)) {
           const typeOfModelValue = typeOf($value)
           if(typeOfModelValue === 'undefined') { pass = false }
           else if(typeOfDefinitionValue === 'undefined') { pass = true }
           else { pass = (typeOfDefinitionValue === typeOfModelValue) }
         }
+        else { pass = false }
         return pass
       },
     }), $schema)

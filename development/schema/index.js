@@ -17,7 +17,7 @@ export default class Schema extends EventTarget {
     }})
     Object.defineProperty(this, 'type', { configurable: true, get() { 
       const type = typeOf($properties)
-      Object.defineProperty(this, 'options', { value: type })
+      Object.defineProperty(this, 'type', { value: type })
       return type
     }})
     Object.defineProperty(this, 'parent', { configurable: true, get() {
@@ -47,7 +47,7 @@ export default class Schema extends EventTarget {
       return path
     } })
     Object.defineProperty(this, 'required', { configurable: true, get() {
-      const required = (this.options.required) ? this.options.required : null
+      const required = this.options.required
       Object.defineProperty(this, 'required', { value: required })
       return required
     } })
@@ -91,7 +91,6 @@ export default class Schema extends EventTarget {
       const sourceProperties = Object.entries($source)
       let sourcePropertyIndex = 0
       let deadvancedRequiredProperties = []
-      // Iterate Model Properties 
       while(sourcePropertyIndex < sourceProperties.length) {
         const [$sourceKey, $sourceValue] = sourceProperties[sourcePropertyIndex]
         const propertyValidation = this.validateProperty($sourceKey, $sourceValue, $source, $target)
@@ -120,7 +119,6 @@ export default class Schema extends EventTarget {
       }
       return validation
     } })
-
     Object.defineProperty(this, 'validateProperty', { value: function() {
       const { $key, $value, $source, $target } = this.#parseValidatePropertyArguments(...arguments)
       let propertyDefinition
@@ -135,7 +133,6 @@ export default class Schema extends EventTarget {
         key: $key,
         value: $value,
       })
-      // Context Value: Undefined
       if(propertyDefinition === undefined) {
         const verification = new Verification({
           type: null,
@@ -146,7 +143,6 @@ export default class Schema extends EventTarget {
         verification.pass = false
         propertyValidation.unadvance.push(verification)
       }
-      // Context Value: Object
       else if(propertyDefinition instanceof Schema) {
         let validation
         if($target && $target[$key]) { validation = propertyDefinition.validate($key, $value, $target[$key]) }
@@ -155,7 +151,6 @@ export default class Schema extends EventTarget {
         else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
         else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
       }
-      // Context Value: Primitive
       else {
         iterateContextValueValidators:
         for(const [$validatorIndex, $validator] of Object.entries(propertyDefinition.validators)) {
@@ -172,8 +167,7 @@ export default class Schema extends EventTarget {
       return propertyValidation
     } })
   }
-  #parseValidateArguments() {
-    let $arguments = [...arguments]
+  #parseValidateArguments(...$arguments) {
     let $sourceName, $source, $target
     if($arguments.length === 1) {
       $sourceName = null; $source = $arguments.shift(); $target = null
@@ -189,10 +183,8 @@ export default class Schema extends EventTarget {
     }
     return { $sourceName, $source, $target }
   }
-  #parseValidatePropertyArguments() {
-    let $arguments = [...arguments]
+  #parseValidatePropertyArguments(...$arguments) {
     let [$key, $value, $source, $target] = $arguments
-    // const ModelClassString = Model.toString()
     const sourceIsModelClassInstance = ($source instanceof Model)
     $source = (sourceIsModelClassInstance) ? $source.valueOf() : $source
     const $targetIsModelClassInstance = ($target instanceof Model)
