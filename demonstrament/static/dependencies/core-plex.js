@@ -11,23 +11,6 @@ var accessors = {
   get: getAccessor,
 };
 
-function impandEvents($propEvents) {
-  if(!Array.isArray($propEvents)) { return $propEvents }
-  const propEvents = {};
-  iteratePropEvents: 
-  for(const $propEvent of $propEvents) {
-    const { path, type, listener, options } = $propEvent;
-    const propEventSettings = `${$path} ${$type}`;
-    if(options !== undefined) {
-      propEvents[propEventSettings] = [listener, options];
-    }
-    else {
-      propEvents[propEventSettings] = listener;
-    }
-  }
-  return propEvents
-}
-
 function expandEvents($propEvents, $scopeKey = ':scope') {
   if(
     Array.isArray($propEvents) ||
@@ -84,138 +67,48 @@ function typedObjectLiteral($value) {
   return _typedObjectLiteral
 }
 
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
-const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
- Primitives.String, Primitives.Number, Primitives.Boolean, 
- Objects.Object, Objects.Array
-];
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
-function subpaths($path) {
-  return $path.split(
-    new RegExp(regularExpressions.quotationEscape)
-  )
-}
-function keypaths($path) {
-  const _subpaths = subpaths($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key($path) {
-  return subpaths($path).pop()
-}
-function root($path) {
-  return subpaths($path).shift()
-}
-function typeofRoot($path) {
-  return (Number(root($path))) ? 'array' : 'object'
-}
-function parse($path) {
-  return {
-    subpaths: subpaths($path),
-    keypaths: keypaths($path),
-    key: key($path),
-    root: root($path),
-    typeofRoot: typeofRoot($path),
-  }
-}
-
-function get($path, $value) {
-  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
-  const key = subpaths.pop();
-  const tree = $value;
-  let treeNode = tree;
+function createSubtarget($sourceValue, $path) {
+  const subpaths = $path.split('.');
+  let subpathIndex = 0;
+  const subtarget = {};
+  let subtargetTerminal = subtarget;
   for(const $subpath of subpaths) {
-    treeNode = treeNode[$subpath];
-  }
-  return treeNode[key]
-}
-function set($path, $value) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse($path);
-  const tree = typedObjectLiteral(typeofRoot);
-  let treeNode = tree;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { treeNode[$subpath] = []; }
-    else { treeNode[$subpath] = {}; }
-    treeNode = treeNode[$subpath];
-  }
-  treeNode[key] = $value;
-  return tree
-}
-
-function impandTree($root, $tree) {
-  const typeofTree = typeof $tree;
-  const typeofRoot = typeof $root;
-  if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
-  ) { return undefined /*$root*/ }
-  let tree = typedObjectLiteral($root);
-  if(typeofRoot === 'object') {
-    iterateRootEntries: 
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    if(subpathIndex === subpaths.length - 1) {
+      if($sourceValue && typeof $sourceValue === 'object') {
+        subtargetTerminal[$subpath] = expandTree($sourceValue, $path);
+      }
+      else {
+        subtargetTerminal[$subpath] = $sourceValue;
+      }
     }
+    else {
+      subtargetTerminal[$subpath] = {};
+      subtargetTerminal = subtargetTerminal[$subpath];
+    }
+    subpathIndex++;
   }
-  return tree
+  return subtarget
 }
 
-function expandTree($root, $tree) {
-  const typeofRoot = typeof $root;
-  const typeofTree = typeof $tree;
-  if(
-    !['string', 'function'].includes(typeofTree)
-  ) { return undefined }
-  let tree;
-  if($root && typeofRoot === 'object') {
-    iterateRootEntries: 
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+function expandTree($source, $path) {
+  const target = {};
+  const typeofSource = typeof $source;
+  const typeofPath = typeof $path;
+  if($source && typeofSource === 'object') {
+    for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+      if(typeofPath === 'function') {
+        $path(target, $sourceKey, $sourceValue);
+      }
+      else {
+        const subtarget = createSubtarget($sourceValue, $path);
+        target[$sourceKey] = subtarget;
+      }
     }
   }
   else {
-    if(typeofTree === 'string') { tree = set($tree, $root); }
-    else if(typeofTree === 'function') { tree = $tree($root); }
+    Object.assign(target, createSubtarget($source, $path));
   }
-  return tree
+  return target
 }
 
 function isPropertyDefinition($propertyDefinition) {
@@ -331,6 +224,10 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
+var index$2 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
 function recursiveFreeze($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -340,19 +237,54 @@ function recursiveFreeze($target) {
   return Object.freeze($target)
 }
 
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys = Object.keys(Primitives);
+const PrimitiveValues = Object.values(Primitives);
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
+const TypeKeys = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
+];
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys,
+  PrimitiveValues: PrimitiveValues,
+  Primitives: Primitives,
+  TypeKeys: TypeKeys,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
   accessors: accessors,
   expandEvents: expandEvents,
   expandTree: expandTree,
-  impandEvents: impandEvents,
-  impandTree: impandTree,
   isPropertyDefinition: isPropertyDefinition,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign,
   recursiveAssignConcat: recursiveAssignConcat,
   recursiveFreeze: recursiveFreeze,
-  regularExpressions: regularExpressions,
+  regularExpressions: index$2,
   typeOf: typeOf,
   typedObjectLiteral: typedObjectLiteral,
   variables: index$1

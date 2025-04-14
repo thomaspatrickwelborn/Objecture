@@ -1,6 +1,11 @@
-import { Model, Schema } from '/dependencies/objecture.js'
-import complexObjectA from '../../sets/complex-object-a/index.js'
-import complexObjectSchemaA from '../../sets/complex-object-a/schema.js'
+import { Coutil } from '/dependencies/core-plex.js'
+const { expandTree } = Coutil
+// import { ModelProperties, SchemaProperties } from '../../sets/complex-object-c/index.js'
+// console.log(expandTree(SchemaProperties, 'type.value'))
 
-const schema = new Schema(complexObjectSchemaA)
-console.log(schema.validate(complexObjectA))
+import { Model, Schema } from '/dependencies/objecture.js'
+import { ModelProperties, SchemaProperties } from '../../sets/complex-object-c/index.js'
+const schema = new Schema(SchemaProperties)
+console.log(schema)
+// console.log(schema.context)
+console.log(schema.validate(ModelProperties))
