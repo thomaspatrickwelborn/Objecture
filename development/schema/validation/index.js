@@ -3,34 +3,30 @@ const Messages = {
   'false': ($validation) => `${$validation.valid}`,
 }
 export default class Validation extends EventTarget {
-  #settings
-  #properties
-  #valid
-  #advance = []
-  #deadvance = []
-  #unadvance = []
   constructor($settings = {}) {
     super()
-    this.#settings = Object.assign({ messages: Messages }, $settings)
+    const settings = Object.assign({ messages: Messages }, $settings)
+    let valid, properties
+    const advance = []
+    const deadvance = []
+    const unadvance = []
+    Object.defineProperties(this, {
+      // get type() { return settings.type }
+      'definition': { value: settings.definition },
+      'path': { value: settings.path },
+      'key': { value: settings.key },
+      'value': { value: settings.value },
+      'properties': { value: settings.properties },
+      'advance': { value: advance },
+      'deadvance': { value: deadvance },
+      'unadvance': { value: unadvance },
+      'valid': {
+        writable: true,
+        get valid() { return valid },
+        set valid($valid) {
+          Object.defineProperty(this, 'valid', { value: $valid })
+        }
+      },
+    })
   }
-  // get type() { return this.#settings.type }
-  get definition() { return this.#settings.definition }
-  get path() { return this.#settings.path }
-  get key() { return this.#settings.key }
-  get value() { return this.#settings.value }
-  get properties() {
-    if(this.#properties !== undefined) return this.#properties
-    this.#properties = this.#settings.properties
-    return this.#properties
-  }
-  get advance() { return this.#advance }
-  get deadvance() { return this.#deadvance }
-  get unadvance() { return this.#unadvance }
-  get valid() { return this.#valid }
-  set valid($valid) {
-    if(this.#valid === undefined) {
-      this.#valid = $valid
-    }
-  }
-  
 }

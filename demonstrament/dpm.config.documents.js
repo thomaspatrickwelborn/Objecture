@@ -31,10 +31,10 @@ export default {
     proxy: {
       ws: true,
     },
-    reloadDelay: 500,
-    reloadDebounce: 500,
-    reloadThrottle: 0,
-    // injectChanges: true,
+    // reloadDelay: 1000,
+    // reloadDebounce: 1000,
+    // reloadThrottle: 1000,
+    injectChanges: true,
   },
   sockets: {
     host: "demonstrament.objecture",
