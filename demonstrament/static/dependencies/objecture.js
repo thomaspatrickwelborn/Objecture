@@ -1702,6 +1702,7 @@ class Validation extends EventTarget {
       this.#valid = $valid;
     }
   }
+  
 }
 
 var Options$1 = (...$options) => Object.assign({

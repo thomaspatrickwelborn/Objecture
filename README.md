@@ -11,6 +11,9 @@
 # Objecture
 **Object Watcher, Property Manager**  
 Capture property changes for object, array mutator methods.  
+
+Used by [**MVC Framework**](https://www.npmjs.com/package/mvc-framework).    
+
 ## Introduction
  - Manage structured content using familiar JS `Object`, `Array`, `EventTarget` APIs.  
  - Schematize data structures with property validators.  
