@@ -1223,32 +1223,29 @@ class Core extends EventTarget {
 }
 
 class Verification extends EventTarget {
-  #settings
-  #message
-  #pass
   constructor($settings) {
     super();
-    this.#settings = $settings;
-  }
-  get type() { return this.#settings.type }
-  get definition() { return this.#settings.definition }
-  get key() { return this.#settings.key }
-  get value() { return this.#settings.value }
-  get message() {
-    if(this.#message !== undefined) return this.#message
-    if(
-      this.pass !== undefined &&
-      this.#message === undefined
-    ) {
-      this.#message = this.#settings.messages[String(this.pass)](this);
-    }
-    return this.#message
-  }
-  get pass() { return this.#pass }
-  set pass($pass) {
-    if(this.#pass === undefined) {
-      this.#pass = $pass;
-    }
+    const settings = Object.assign({}, $settings);
+    Object.defineProperties(this, {
+      'type': { value: settings.type },
+      'definition': { value: settings.definition },
+      'key': { value: settings.key },
+      'value': { value: settings.value },
+      'path': { value: settings.path },
+      'message': { configurable: true, get() {
+        let message;
+        if(this.pass !== undefined) {
+          message = settings.messages[String(this.pass)](this);
+          Object.defineProperty(this, 'message', { value: message });
+        }
+        return message
+      } },
+      'pass': { writable: true, 
+        set pass($pass) {
+          Object.defineProperty(this, 'pass', { value: $pass });
+        },
+      },
+    });
   }
 }
 
@@ -1668,7 +1665,7 @@ const Messages = {
   'false': ($validation) => `${$validation.valid}`,
 };
 class Validation extends EventTarget {
-  constructor($settings = {}) {
+  constructor($settings = {}, $schema) {
     super();
     const settings = Object.assign({ messages: Messages }, $settings);
     let valid;
@@ -1692,6 +1689,23 @@ class Validation extends EventTarget {
           Object.defineProperty(this, 'valid', { value: $valid });
         }
       },
+      'report': { value: function() {
+        const report = {};
+        for(const [$consevanceName, $consevance] of Object.entries({
+          advance, deadvance, unadvance
+        })) {
+          for(const $sevance of $consevance) {
+            if($sevance instanceof Verification) {
+              console.log($sevance.path, $sevance);
+              // console.log("Verification", $sevance)
+            }
+            else { $sevance.report(); }
+          }
+        }
+        // const { pass, type, message } = $sevance
+        // typedObjectLiteral(this.type)
+        return report
+      } },
     });
   }
 }

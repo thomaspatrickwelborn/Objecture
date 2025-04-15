@@ -1,9 +1,10 @@
+import Verification from '../verification/index.js'
 const Messages = {
   'true': ($validation) => `${$validation.valid}`,
   'false': ($validation) => `${$validation.valid}`,
 }
 export default class Validation extends EventTarget {
-  constructor($settings = {}) {
+  constructor($settings = {}, $schema) {
     super()
     const settings = Object.assign({ messages: Messages }, $settings)
     let valid, properties
@@ -27,6 +28,25 @@ export default class Validation extends EventTarget {
           Object.defineProperty(this, 'valid', { value: $valid })
         }
       },
+      'report': { value: function() {
+        const report = {}
+        iterateConsevance: 
+        for(const [$consevanceName, $consevance] of Object.entries({
+          advance, deadvance, unadvance
+        })) {
+          iterateSevance: 
+          for(const $sevance of $consevance) {
+            if($sevance instanceof Verification) {
+              console.log($sevance.path, $sevance)
+              // console.log("Verification", $sevance)
+            }
+            else { $sevance.report() }
+          }
+        }
+        // const { pass, type, message } = $sevance
+        // typedObjectLiteral(this.type)
+        return report
+      } },
     })
   }
 }
