@@ -46,8 +46,8 @@ export default class Model extends Core {
       let schema
       if(['undefined', 'null'].includes(typeOfSchema)) { schema = null }
       else if($schema instanceof Schema) { schema = $schema }
-      else if(typeOfSchema === 'array') { schema = new Schema(...arguments) }
-      else if(typeOfSchema === 'object') { schema = new Schema($schema) }
+      else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema) }
+      console.log(this)
       Object.defineProperty(this, 'schema', { value: schema })
       return schema
     } })

@@ -52,12 +52,11 @@ export default class RequiredValidator extends Validator {
               const corequiredModelPropertyName = $corequiredContextPropertyName
               const corequiredModelProperty = corequiredModelProperties[corequiredModelPropertyName]
               const coschemaPropertyValidation = coschema.validateProperty(
-                $corequiredContextPropertyName, corequiredModelProperty,
-                $source, $target
+                $corequiredContextPropertyName, corequiredModelProperty, $source, $target
               )
               validations.push(coschemaPropertyValidation)
             }
-            const nonvalidValidation = (validations.find(($validation) => $validation.valid === false))
+            const nonvalidValidation = (validations.find(($validation) => $validation.pass === false))
             if(nonvalidValidation) { pass = false }
             else { pass = true }
           }

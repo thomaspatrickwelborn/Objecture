@@ -29,7 +29,7 @@ export default function fill($model, $options, ...$arguments) {
     fillIndex < $end
   ) {
     if(schema && enableValidation) {
-      let validValue = schema.validate(validValue)
+      let validValue = schema.validate(validValue, $model)
       if(validationEvents) {
         let type, propertyType
         const validatorPath = (path)

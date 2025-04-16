@@ -7,17 +7,16 @@ export default class Validation extends EventTarget {
   constructor($settings = {}, $schema) {
     super()
     const settings = Object.assign({ messages: Messages }, $settings)
-    let valid, properties
+    let valid
     const advance = []
     const deadvance = []
     const unadvance = []
     Object.defineProperties(this, {
-      // get type() { return settings.type }
+      'verificationType': { value: settings.verificationType },
+      'required': { value: settings.required },
       'definition': { value: settings.definition },
-      'path': { value: settings.path },
       'key': { value: settings.key },
       'value': { value: settings.value },
-      'properties': { value: settings.properties },
       'advance': { value: advance },
       'deadvance': { value: deadvance },
       'unadvance': { value: unadvance },
@@ -36,17 +35,40 @@ export default class Validation extends EventTarget {
         })) {
           iterateSevance: 
           for(const $sevance of $consevance) {
+            const { type, key, value } = $sevance
             if($sevance instanceof Verification) {
-              console.log($sevance.path, $sevance)
-              // console.log("Verification", $sevance)
+              // console.log($sevance.type, $sevance.key, $sevance.value, $sevance.pass)
             }
-            else { $sevance.report() }
+            else if($sevance instanceof Validation) {
+              $sevance.report()
+              console.log(/*$sevance.verificationType, $sevance.required, */$sevance.valid, $sevance.key, $sevance.value)
+            }
           }
         }
-        // const { pass, type, message } = $sevance
-        // typedObjectLiteral(this.type)
         return report
       } },
     })
   }
 }
+/*
+{
+  "directory": {
+    'propertyA': {},
+    'propertyA.propertyB': {},
+    'propertyA.propertyB.propertyC': {},
+    'propertyA.propertyB.propertyH': {},
+    'propertyD': {},
+    'propertyD.0': {},
+    'propertyD.0.0': {},
+    'propertyD.0.0.propertyE': {},
+    'propertyD.0.0.propertyF': {},
+    'propertyD.0.1': {},
+    'propertyD.0.1.propertyE': {},
+    'propertyD.0.1.propertyF': {},
+    'propertyD.1.0': {},
+    'propertyD.1.0.propertyE': {},
+    'propertyD.1.0.propertyF': {},
+    'propertyG': {},
+  },
+}
+*/

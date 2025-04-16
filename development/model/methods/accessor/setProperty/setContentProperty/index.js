@@ -9,7 +9,8 @@ export default function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model
   const {
     enableValidation, mutatorEvents, pathkey, 
-    recursive, source, subpathError, validationEvents,
+    recursive, subpathError, validationEvents,
+    source, 
   } = options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
@@ -50,7 +51,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       return propertyValue
     }
     if(schema && enableValidation) {
-      const validTargetProp = schema.validateProperty(propertyKey, $value, source, $model)
+      const validTargetProp = schema.validateProperty(propertyKey, $value, {}, $model)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

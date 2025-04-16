@@ -63,16 +63,16 @@
  - Validates `$source` properties through `this.validateProperty` invocations.  
  - Assigns source property validations to `validation.properties`, `validation.advance`, `validation.deadvance`, and `validation.advance` properties.  
  - When `this.required` is `true`:  
-   - *Any* `validation.deadvance` properties result in `validation.valid` being `false`.  
-   - Absent deadvanced properties *any* `validation.advance` properties result in `validation.valid` being `true`.  
-   - Absent deadvanced, advanced properties *any* `validation.unadvanced` properties result in `validation.valid` being `undefined. `
-   - Absent deadvanced, advanced, unadvanced properties `validation.valid` is `false`.   
+   - *Any* `validation.deadvance` properties result in `validation.pass` being `false`.  
+   - Absent deadvanced properties *any* `validation.advance` properties result in `validation.pass` being `true`.  
+   - Absent deadvanced, advanced properties *any* `validation.unadvanced` properties result in `validation.pass` being `undefined. `
+   - Absent deadvanced, advanced, unadvanced properties `validation.pass` is `false`.   
  - When `this.required` is `false`:  
-   - *Any* **deadvanced required properties** result in `validation.valid` being `false`.  
-   - *Any* advanced properties result in `validation.valid` being `true`.  
-   - Absent advanced properties *any* deadvanced properties result in `validation.valid` being `false`.  
-   - Absent advanced, deadvanced properties *any* unadvanced properties result in `validation.valid` being `undefined`.  
-   - Absent advanced, deadvanced properties, unadvanced properties `validation.valid` is `false`.  
+   - *Any* **deadvanced required properties** result in `validation.pass` being `false`.  
+   - *Any* advanced properties result in `validation.pass` being `true`.  
+   - Absent advanced properties *any* deadvanced properties result in `validation.pass` being `false`.  
+   - Absent advanced, deadvanced properties *any* unadvanced properties result in `validation.pass` being `undefined`.  
+   - Absent advanced, deadvanced properties, unadvanced properties `validation.pass` is `false`.  
 ### `validateProperty` Method
 **Type**: `function`  
 

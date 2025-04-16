@@ -12,19 +12,24 @@ const parseValidateArguments = function(...$arguments) {
   if($arguments.length === 1) {
     $sourceName = null; $source = $arguments.shift(); $target = null
   }
-  else if($arguments.length === 2 && typeof $arguments[0] === 'string') {
-    $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
+  else if($arguments.length === 2) {
+    if(typeof $arguments[0] === 'string') {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
+    }
+    else if($arguments[0] && typeof $arguments[0] === 'object') {
+      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
+    }
   }
-  else if($arguments.length === 2 && $arguments[0] && typeof $arguments[0] === 'object') {
-    $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
-  }
-  else if($arguments.length === 3 && typeof $arguments[0] === 'string') {
-    $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
+  else if($arguments.length === 3) {
+    if(typeof $arguments[0] === 'string') {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
+    }
   }
   return { $sourceName, $source, $target }
 }
 const parseValidatePropertyArguments = function(...$arguments) {
   let [$key, $value, $source, $target] = $arguments
+  throw [$key, $value, $source, $target]
   const sourceIsModelClassInstance = ($source instanceof Model)
   $source = (sourceIsModelClassInstance) ? $source.valueOf() : $source
   const $targetIsModelClassInstance = ($target instanceof Model)
@@ -35,16 +40,8 @@ export default class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super()
     Object.defineProperties(this, {
-      'options': { configurable: true, get() {
-        const options = Options($options)
-        Object.defineProperty(this, 'options', { value: options })
-        return options
-      } },
-      'type': { configurable: true, get() { 
-        const type = typeOf($properties)
-        Object.defineProperty(this, 'type', { value: type })
-        return type
-      } },
+      'options': { value: Options($options) },
+      'type': { value: typeOf($properties) },
       'parent': { configurable: true, get() {
         const { options } = this
         const parent = (options.parent) ? options.parent : null
@@ -106,15 +103,14 @@ export default class Schema extends EventTarget {
         Object.defineProperty(this, 'context', { value: context })
         return context
       } },
-      'validate': { value: function() {
-        const { $sourceName, $source, $target } = parseValidateArguments(...arguments)
-        const { context, path, required, type } = this
+      'validate': { value: function(...$arguments) {
+        const { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
+        const { context, path, required, type, verificationType } = this
         const validation = new Validation({
+          required, verificationType,
           definition: context,
-          path: path,
           key: $sourceName, 
           value: $source,
-          properties: typedObjectLiteral(type),
         })
         const sourceProperties = Object.entries($source)
         let sourcePropertyIndex = 0
@@ -125,7 +121,6 @@ export default class Schema extends EventTarget {
           const deadvancedRequiredPropertyValidation = propertyValidation.deadvance.filter(
             ($verification) => $verification.type === 'required'
           )
-          validation.properties[$sourceKey] = propertyValidation
           if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
           else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation) } 
           else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation )}
@@ -153,11 +148,9 @@ export default class Schema extends EventTarget {
         let propertyDefinition
         if(type === 'array') { propertyDefinition = context[0] }
         else if(type === 'object') { propertyDefinition = context[$key] }
-        const propertyValidationPath = (path) ? [path, $key].join('.') : $key
         const propertyValidation = new Validation({
           required, verificationType,
           definition: propertyDefinition,
-          path: propertyValidationPath,
           key: $key,
           value: $value,
         })
@@ -173,7 +166,7 @@ export default class Schema extends EventTarget {
         }
         else if(propertyDefinition instanceof Schema) {
           let validation
-          if($target && $target[$key]) { validation = propertyDefinition.validate($key, $value, $target[$key]) }
+          if($target && $target.get($key)) { validation = propertyDefinition.validate($key, $value, $target.get[$key]) }
           else { validation = propertyDefinition.validate($key, $value) }
           if(validation.valid === true) { propertyValidation.advance.push(validation) }
           else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
