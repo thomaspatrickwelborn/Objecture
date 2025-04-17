@@ -37,7 +37,7 @@ export default class Validation extends EventTarget {
           for(const $sevance of $consevance) {
             const { type, key, value } = $sevance
             if($sevance instanceof Verification) {
-              // console.log($sevance.type, $sevance.key, $sevance.value, $sevance.pass)
+              console.log($sevance.pass, $sevance.key, $sevance.value, `(${$sevance.type})`)
             }
             else if($sevance instanceof Validation) {
               $sevance.report()
@@ -50,25 +50,3 @@ export default class Validation extends EventTarget {
     })
   }
 }
-/*
-{
-  "directory": {
-    'propertyA': {},
-    'propertyA.propertyB': {},
-    'propertyA.propertyB.propertyC': {},
-    'propertyA.propertyB.propertyH': {},
-    'propertyD': {},
-    'propertyD.0': {},
-    'propertyD.0.0': {},
-    'propertyD.0.0.propertyE': {},
-    'propertyD.0.0.propertyF': {},
-    'propertyD.0.1': {},
-    'propertyD.0.1.propertyE': {},
-    'propertyD.0.1.propertyF': {},
-    'propertyD.1.0': {},
-    'propertyD.1.0.propertyE': {},
-    'propertyD.1.0.propertyF': {},
-    'propertyG': {},
-  },
-}
-*/

@@ -4,7 +4,7 @@ const { typedObjectLiteral, typeOf } = Coutil
 import Context from './context/index.js'
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'
-import { RequiredValidator } from './validators/index.js'
+// import { RequiredValidator } from './validators/index.js'
 import Options from './options/index.js' 
 
 const parseValidateArguments = function(...$arguments) {
@@ -29,7 +29,6 @@ const parseValidateArguments = function(...$arguments) {
 }
 const parseValidatePropertyArguments = function(...$arguments) {
   let [$key, $value, $source, $target] = $arguments
-  throw [$key, $value, $source, $target]
   const sourceIsModelClassInstance = ($source instanceof Model)
   $source = (sourceIsModelClassInstance) ? $source.valueOf() : $source
   const $targetIsModelClassInstance = ($target instanceof Model)
@@ -91,7 +90,6 @@ export default class Schema extends EventTarget {
         Object.defineProperty(this, 'requiredPropertiesSize', { value: requiredPropertiesSize })
         return requiredPropertiesSize
       } },
-
       'verificationType': { configurable: true, get() {
         const verificationType = this.options.verificationType
         Object.defineProperty(this, 'verificationType', { value: verificationType })
@@ -104,7 +102,8 @@ export default class Schema extends EventTarget {
         return context
       } },
       'validate': { value: function(...$arguments) {
-        const { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
+        let { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
+        $target = $target || $source
         const { context, path, required, type, verificationType } = this
         const validation = new Validation({
           required, verificationType,
@@ -139,7 +138,7 @@ export default class Schema extends EventTarget {
           else if(validation.deadvance.length) { validation.valid = false }
           else if(validation.unadvance.length) { validation.valid = undefined }
           else { validation.valid = false }
-        }
+         } 
         return validation
       } },
       'validateProperty': { value: function() {
@@ -149,7 +148,8 @@ export default class Schema extends EventTarget {
         if(type === 'array') { propertyDefinition = context[0] }
         else if(type === 'object') { propertyDefinition = context[$key] }
         const propertyValidation = new Validation({
-          required, verificationType,
+          required,
+          verificationType,
           definition: propertyDefinition,
           key: $key,
           value: $value,
@@ -166,7 +166,7 @@ export default class Schema extends EventTarget {
         }
         else if(propertyDefinition instanceof Schema) {
           let validation
-          if($target && $target.get($key)) { validation = propertyDefinition.validate($key, $value, $target.get[$key]) }
+          if($target && $target[$key]) { validation = propertyDefinition.validate($key, $value, $target[$key]) }
           else { validation = propertyDefinition.validate($key, $value) }
           if(validation.valid === true) { propertyValidation.advance.push(validation) }
           else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
