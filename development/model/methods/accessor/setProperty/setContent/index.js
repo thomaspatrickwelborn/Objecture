@@ -3,7 +3,9 @@ import Change from '../../../../change/index.js'
 export default function setContent($model, $options, $properties) {
   iterateProperties: 
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
-    $model.set($propertyKey, $propertyValue, $options)
+    $model.set($propertyKey, $propertyValue, Object.assign($options, {
+      source: $properties
+    }))
   }
   const { path } = $model
   const { mutatorEvents  } = $options

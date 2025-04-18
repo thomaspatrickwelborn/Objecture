@@ -15,7 +15,7 @@ export default function deleteContentProperty($model, $options, $path) {
     if(schema && enableValidation) {
       const differedPropertyProxy = $model.valueOf()
       delete differedPropertyProxy[propertyKey]
-      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, $model)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, $model.valueOf())
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
@@ -79,7 +79,7 @@ export default function deleteContentProperty($model, $options, $path) {
     if(schema && enableValidation) {
       const differedPropertyProxy = $model.valueOf()
       delete differedPropertyProxy[propertyKey]
-      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $model)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $model.valueOf())
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

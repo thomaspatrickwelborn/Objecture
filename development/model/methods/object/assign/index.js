@@ -6,7 +6,7 @@ export default function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)
   const assignObject = 'assign'
   const assignArray = options.assignArray || 'assign'
-  const { path, target, schema } = $model
+  const { path, source, target, schema } = $model
   const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
@@ -21,9 +21,9 @@ export default function assign($model, $options, ...$sources) {
       const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })
       const assignSourcePropertyKeyChange = new Change({ preter: target[$sourceKey] })
       if(schema && enableValidation) {
-        const validSourceProperty = schema.validateProperty(
-          $sourceKey, $sourceValue, $source, $model
-        )
+        const validatorTarget = $model.valueOf()
+        const validatorSource = $source
+        const validSourceProperty = schema.validateProperty($sourceKey, $sourceValue, validatorSource, validatorTarget)
         if(validationEvents) {
           let type, propertyType
           const validatorEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)

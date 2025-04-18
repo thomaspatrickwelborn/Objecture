@@ -13,7 +13,7 @@ const parseValidateArguments = function(...$arguments) {
     $sourceName = null; $source = $arguments.shift(); $target = null
   }
   else if($arguments.length === 2) {
-    if(typeof $arguments[0] === 'string') {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
       $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
     }
     else if($arguments[0] && typeof $arguments[0] === 'object') {
@@ -21,18 +21,18 @@ const parseValidateArguments = function(...$arguments) {
     }
   }
   else if($arguments.length === 3) {
-    if(typeof $arguments[0] === 'string') {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
       $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
     }
   }
+  $source = ($source instanceof Model) ? $source.valueOf() : $source
+  $target = ($target instanceof Model) ? $target.valueOf() : $target
   return { $sourceName, $source, $target }
 }
 const parseValidatePropertyArguments = function(...$arguments) {
   let [$key, $value, $source, $target] = $arguments
-  const sourceIsModelClassInstance = ($source instanceof Model)
-  $source = (sourceIsModelClassInstance) ? $source.valueOf() : $source
-  const $targetIsModelClassInstance = ($target instanceof Model)
-  $target = ($targetIsModelClassInstance) ? $target.valueOf() : $target
+  $source = ($source instanceof Model) ? $source.valueOf() : $source
+  $target = ($target instanceof Model) ? $target.valueOf() : $target
   return { $key, $value, $source, $target }
 }
 export default class Schema extends EventTarget {
@@ -103,7 +103,7 @@ export default class Schema extends EventTarget {
       } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
-        $target = $target || $source
+        $target = $target || typedObjectLiteral($source)
         const { context, path, required, type, verificationType } = this
         const validation = new Validation({
           required, verificationType,

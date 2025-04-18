@@ -5,7 +5,7 @@ export default function splice($model, $options) {
   const options = Object.assign({}, $options)
   const assignObject = options.assignObject
   const assignArray = options.assignArray || assignObject
-  const { mutatorEvents } = options
+  const { mutatorEvents, source } = options
   const { target, path, schema } = $model
   const { enableValidation, validationEvents } = options
   const $arguments = [...arguments]
@@ -66,7 +66,9 @@ export default function splice($model, $options) {
   while(addItemsIndex < addCount) {
     let addItem = $addItems[addItemsIndex]
     if(schema && enableValidation) {
-      const validAddItem = schema.validateProperty(elementIndex, element, {}, $model)
+      const validatorTarget = $model.valueOf()
+      const validatorSource = source || typedObjectLiteral(validatorTarget)
+      const validAddItem = schema.validateProperty(elementIndex, element, validatorSource, validatorTarget)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

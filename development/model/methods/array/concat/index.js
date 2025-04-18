@@ -3,7 +3,7 @@ const { typedObjectLiteral } = Coutil
 import { ModelEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
   const { target, path, schema } = $model
-  const { enableValidation, validationEvents, mutatorEvents } = $options
+  const { enableValidation, mutatorEvents, source, validationEvents } = $options
   const $arguments = [].concat(...arguments)
   let valueIndex = target.length
   const values = []
@@ -12,7 +12,9 @@ export default function concat($model, $options) {
   iterateValues: 
   for(let $value of $arguments) {
     if(schema && enableValidation) {
-      const validValue = schema.validateProperty(valueIndex, $subvalue, {}, $model)
+      const validatorTarget = $model.valueOf()
+      const validatorSource = source || typedObjectLiteral(validatorTarget)
+      const validValue = schema.validateProperty(valueIndex, $subvalue, validatorSource, validatorTarget)
       if(schema &&validationEvents) {
         let type, propertyType
         const validatorPath = (path)

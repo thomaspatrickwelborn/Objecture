@@ -17,7 +17,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
   const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof $model.constructor) ? true : false
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, {}, $model)
+    const validProperty = schema.validateProperty($propertyKey, propertyValue, {}, $model.valueOf())
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)

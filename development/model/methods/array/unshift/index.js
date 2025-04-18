@@ -5,7 +5,7 @@ export default function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options)
   const assignArray = 'unshift'
   const assignObject = options.assignObject
-  const { enableValidation, mutatorEvents, validationEvents } = options
+  const { enableValidation, mutatorEvents, source, validationEvents } = options
   const { target, path, schema } = $model
   const elements = []
   let elementsIndex = 0
@@ -13,7 +13,9 @@ export default function unshift($model, $options, ...$elements) {
   for(let $element of $elements) {
     let element
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementsIndex, $element, {}, $model)
+      const validatorTarget = $model.valueOf()
+      const validatorSource = source || typedObjectLiteral(validatorTarget)
+      const validElement = schema.validateProperty(elementsIndex, $element, validatorSource, validatorTarget)
       if(validationEvents) {
         let type, propertyType
         const validatorPath = (path)
