@@ -1,32 +1,41 @@
-# &nbsp;❂&nbsp;Objecture
-**Object Watcher, Property Manager**  
-Capture property changes for object, array mutator methods.  
+# ❂&ensp;Objecture
+&ensp;⏣&ensp;**Object Watcher, Property Manager**  
+&ensp;&ensp;&ensp;&ensp;⊚&ensp;**Capture property changes for object, array mutator methods.**  
+&ensp;&ensp;&ensp;&ensp;⊚&ensp;**Schematize and validate object, array properties.**  
+&ensp;&ensp;&ensp;&ensp;⊚&ensp;**Browser, NodeJS compatible.**  
 
-Used by [**MVC Framework**](https://www.npmjs.com/package/mvc-framework).    
+&ensp;⁘&ensp;Uses [**Core-Plex**](https://www.npmjs.com/package/core-plex) - Event Listener Management System.  
+&ensp;⁜&ensp;Used by [**MVC Framework**](https://www.npmjs.com/package/mvc-framework) - Presentation Abtraction Control (PAC) Pattern.  
+
+[**Guide**](./document/guide/index.md) |
+| :-- |
 
 ## Introduction
- - Manage structured content using familiar JS `Object`, `Array`, `EventTarget` APIs.  
+ - Manage structured content using *familiar* JS `Object`, `Array`, `EventTarget` APIs.  
  - Schematize data structures with property validators.  
- - Capture **content *and* validation events** for property changes (includes **nested** property events).  
+ - Capture **content *and* validation events** for property changes (including **nested** property events).  
 
 ## Impetus
- - Frontend, backend applications often require or benefit from structured content with validatable schema.  
- - Changes to structured content often result in some futher change to a visual interface or database, including changes to nested properties.  
- - There are limited libraries with both browser and Node compatibility that manage schematized content with validators or capture nested property change events.  
+ - Frontend, backend applications require or benefit from structured content with validatable schema.  
+ - Detecting changes to structured content in objects/arrays through property events promotes event-driven application architecture.  
+ - There are limited libraries with *both* **browser** *and* **Node** *compatibility* that manage **schematized content** with **validators** or that capture **nested property change events**.  
 
 ## Impact
  - **Manage content** for primitive/non-primitive data types: 
-   - `string`, `number`, `boolean`, `undefined`, `null` primitives; 
+   - `string`, `number`, `boolean`, `null` primitives; 
    - `object`, `array` non-primitives. 
  - **Schematize content** with property validators.  
-   - `type`, `required`, `match`, `enum`, `range`, `length` and custom validators.  
- - **Capture content events** and **validation events** for any any methods that modify content.  
+   - `type`, `required`, `match`, `enum`, `range`, `length` and *custom* validators.  
+ - **Capture content events** for *any* methods that modify content.  
    - `Object` Events:  
-     - `assign`, `defineProperties`, `defineProperty`, `freeze`, and `seal` events.  
+     - `assign` events, `defineProperties`/`defineProperty` events, `freeze` events, and `seal` events.  
    - `Array` Events:  
      - `concat`, `copyWithin`, `fill`, `pop`, `push`, `reverse`, `shift`, `splice`, and `unshift` events.  
    - `Property Accessor` Events: 
      - `get`, `set`, `delete`  
+ - **Capture validation events/data** for array/object properties.    
+   - `valid`, `nonvalid` `validProperty`, `nonvalidProperty` events.  
+   - Schema validation object with `report` method.  
 
 ## Illustrations
 ### Importation

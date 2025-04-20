@@ -110,24 +110,6 @@ function expandTree($source, $path) {
   return target
 }
 
-function isPropertyDefinition($propertyDefinition) {
-  if(
-    Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
-    (
-      TypeValues.includes($propertyDefinition.type) ||
-      TypeKeys.includes($propertyDefinition.type)
-    ) || (
-      typeof $propertyDefinition.type === 'object' &&
-      Object.getOwnPropertyDescriptor($propertyDefinition.type, 'value') &&
-      (
-        TypeValues.includes($propertyDefinition.type.value) ||
-        TypeKeys.includes($propertyDefinition.type.value)
-      )
-    )
-  ) { return true } 
-  else { return false }
-}
-
 const Options$2 = {
   depth: 0,
   maxDepth: 10,
@@ -275,7 +257,6 @@ var index = /*#__PURE__*/Object.freeze({
   accessors: accessors,
   expandEvents: expandEvents,
   expandTree: expandTree,
-  isPropertyDefinition: isPropertyDefinition,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign$f,
   recursiveAssignConcat: recursiveAssignConcat,
