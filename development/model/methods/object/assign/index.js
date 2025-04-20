@@ -8,17 +8,6 @@ export default function assign($model, $options, ...$sources) {
   const assignArray = options.assignArray || 'assign'
   const { path, schema, source, target } = $model
   const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options
-  if(schema && enableValidation) {
-    let validObject = schema.validate(Object.assign({}, $properties), $model.valueOf())
-    if(validationEvents) {
-      let type, propertyType
-      const validatorPath = path
-      if(validObject.valid) { type = 'valid' }
-      else { type = 'nonvalid' }
-      $model.dispatchEvent(new ValidatorEvent(type, validObject, $model))
-    }
-    if(!validObject.valid) { return }
-  }
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
   iterateAssignSources: 
@@ -27,6 +16,17 @@ export default function assign($model, $options, ...$sources) {
     const assignSourceChange = new Change({ preter: $model })
     if(Array.isArray($source)) { assignedSource = [] }
     else if($source && typeof $source === 'object') { assignedSource = {} }
+    if(schema && enableValidation) {
+      let validObject = schema.validate($source, $model.valueOf())
+      if(validationEvents) {
+        let type, propertyType
+        const validatorPath = path
+        if(validObject.valid) { type = 'valid' }
+        else { type = 'nonvalid' }
+        $model.dispatchEvent(new ValidatorEvent(type, validObject, $model))
+      }
+      if(!validObject.valid) { return }
+    }
     iterateSourceProperties:
     for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
       const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })

@@ -1,5 +1,0 @@
-@use "../coutil/reset/index.scss" as reset;
-@use "./application/index.scss" as application;
-
-@include application.layout;
-@include application.style;

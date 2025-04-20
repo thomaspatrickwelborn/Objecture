@@ -4,6 +4,7 @@ export default ($options) => {
   const Options = recursiveAssign({
     path: null, 
     parent: null, 
+    enableEvents: false,
     enableValidation: true, 
     validationEvents: {
       'validProperty:$key': true,
