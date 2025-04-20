@@ -21,14 +21,14 @@
  - There are limited libraries with *both* **browser** *and* **Node** *compatibility* that manage **schematized content** with **validators** or that capture **nested property change events**.  
 
 ## Impact
- - **Manage content** for primitive/non-primitive data types: 
+ - **Manage content** for primitive/object data types: 
    - `string`, `number`, `boolean`, `null` primitives; 
-   - `object`, `array` non-primitives. 
+   - `object`, `array`. 
  - **Schematize content** with property validators.  
    - `type`, `required`, `match`, `enum`, `range`, `length` and *custom* validators.  
- - **Capture content events** for *any* methods that modify content.  
+ - [**Capture content events**](./document/guide/model/events/index.md) for *any* methods that modify content.  
    - `Object` Events:  
-     - `assign` events, `defineProperties`/`defineProperty` events, `freeze` events, and `seal` events.  
+     - `assign`, `defineProperties`/`defineProperty`, `freeze`, and `seal` events.  
    - `Array` Events:  
      - `concat`, `copyWithin`, `fill`, `pop`, `push`, `reverse`, `shift`, `splice`, and `unshift` events.  
    - `Property Accessor` Events: 
@@ -38,34 +38,20 @@
    - Schema validation object with `report` method.  
 
 ## Illustrations
-### Importation
 ```
 import { Model, Schema } from 'objecture'
 ```
-
-### Instantiation
-
-
-### Objecture Model
+### Objecture Events
+#### Example \| Object Set Events
 ```
-const object = new Model({
-  propertyA: {
-    propertyB: {
-      propertyC: true,
-      propertyD: false,
-    }
-  },
-  propertyE: [{
-    propertyF: 1,
-    propertyG: 0
-  }],
-  propertyH: {
-    propertyI: "1",
-    propertyJ: null
-  }
-}, {
-  events: { 'assign' },
-  enableEvents: true,
+function eventLog($event) {
+  console.log($event.type, $event.value)
+}
+const object = new Model({})
+object.addEvents({ 'setProperty': eventLog, 'set': eventLog })
+object.set({
+  propertyA: true,
+  propertyB: 1,
 })
 ```
 

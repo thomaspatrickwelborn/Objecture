@@ -1130,6 +1130,7 @@ class Core extends EventTarget {
         value: function addEvents() {
           if(!arguments.length) { return $target }
           let $addEvents = expandEvents(arguments[0], settings.scopeKey);
+          let $enableEvents = arguments[1] || false;
           iterateAddEvents: 
           for(let $addEvent of $addEvents) {
             const event = {};
@@ -1141,6 +1142,7 @@ class Core extends EventTarget {
             }
             recursiveAssign(event, $addEvent);
             const eventDefinition = new EventDefinition(event, $target);
+            if($enableEvents) { eventDefinition.enable = true; }
             events.push(eventDefinition);
           }
           return $target
