@@ -71,6 +71,7 @@ export default function setContentProperty($model, $options, $path, $value) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validTargetProp, $model))
         }
       }
+      console.log(validTargetProp)
       if(!validTargetProp.valid) { return }
     }
     if($value && typeof $value === 'object') {

@@ -1,41 +1,11 @@
-import Model from '../model/index.js'
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral, typeOf } = Coutil
 import Context from './context/index.js'
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'
-// import { RequiredValidator } from './validators/index.js'
 import Options from './options/index.js' 
 
-const parseValidateArguments = function(...$arguments) {
-  let $sourceName, $source, $target
-  if($arguments.length === 1) {
-    $sourceName = null; $source = $arguments.shift(); $target = null
-  }
-  else if($arguments.length === 2) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
-    }
-    else if($arguments[0] && typeof $arguments[0] === 'object') {
-      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
-    }
-  }
-  else if($arguments.length === 3) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
-    }
-  }
-  $source = ($source instanceof Model) ? $source.valueOf() : $source
-  $target = ($target instanceof Model) ? $target.valueOf() : $target
-  return { $sourceName, $source, $target }
-}
-const parseValidatePropertyArguments = function(...$arguments) {
-  let [$key, $value, $source, $target] = $arguments
-  $source = ($source instanceof Model) ? $source.valueOf() : $source
-  $target = ($target instanceof Model) ? $target.valueOf() : $target
-  return { $key, $value, $source, $target }
-}
-export default class Schema extends EventTarget {
+class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super()
     Object.defineProperties(this, {
@@ -84,7 +54,6 @@ export default class Schema extends EventTarget {
         Object.defineProperty(this, 'requiredProperties', { value: requiredProperties })
         return requiredProperties
       } },
-
       'requiredPropertiesSize': { configurable: true, get() {
         const requiredPropertiesSize = Object.keys(this.requiredProperties).length
         Object.defineProperty(this, 'requiredPropertiesSize', { value: requiredPropertiesSize })
@@ -95,7 +64,6 @@ export default class Schema extends EventTarget {
         Object.defineProperty(this, 'verificationType', { value: verificationType })
         return verificationType
       } },
-
       'context': { configurable: true, get() {
         const context = new Context($properties, this)
         Object.defineProperty(this, 'context', { value: context })
@@ -110,7 +78,7 @@ export default class Schema extends EventTarget {
           definition: context,
           key: $sourceName, 
           value: $source,
-        })
+        }, this)
         const sourceProperties = Object.entries($source)
         let sourcePropertyIndex = 0
         let deadvancedRequiredProperties = []
@@ -153,7 +121,7 @@ export default class Schema extends EventTarget {
           definition: propertyDefinition,
           key: $key,
           value: $value,
-        })
+        }, this)
         if(propertyDefinition === undefined) {
           const verification = new Verification({
             type: null,
@@ -190,3 +158,30 @@ export default class Schema extends EventTarget {
     })
   }
 }
+
+function parseValidateArguments(...$arguments) {
+  let $sourceName, $source, $target
+  if($arguments.length === 1) {
+    $sourceName = null; $source = $arguments.shift(); $target = null
+  }
+  else if($arguments.length === 2) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
+    }
+    else if($arguments[0] && typeof $arguments[0] === 'object') {
+      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
+    }
+  }
+  else if($arguments.length === 3) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
+    }
+  }
+  return { $sourceName, $source, $target }
+}
+function parseValidatePropertyArguments(...$arguments) {
+  let [$key, $value, $source, $target] = $arguments
+  return { $key, $value, $source, $target }
+}
+
+export default Schema

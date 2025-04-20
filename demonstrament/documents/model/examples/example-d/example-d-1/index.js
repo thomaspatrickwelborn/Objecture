@@ -25,12 +25,10 @@ const schema = new Schema({
     propertyE: { required: true, type: Boolean },
     propertyF: { required: true, type: Boolean }
   }],
-})
-// console.log(schema)
+}, { required: true })
 const contentAValidation = schema.validate(contentA)
-console.log(contentAValidation.valid, "contentAValidation",contentAValidation)
 contentAValidation.report()
-const modelA = new Model(contentA, schema, { assignArray: 'set', assignObject: 'set' })
-console.log(modelA.valueOf().propertyD[0])
-// const modelB = new Model(contentB, schema)
-// console.log(modelB.valueOf())
+// const modelA = new Model(contentA, schema, { assignArray: 'set', assignObject: 'set' })
+// console.log(modelA.valueOf())
+const modelB = new Model(contentB, schema, { assignObject: 'set' })
+console.log(modelB.valueOf())

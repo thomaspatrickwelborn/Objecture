@@ -53,7 +53,7 @@ const typeOf$7 = ($data) => Object
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
-function typedObjectLiteral$e($value) {
+function typedObjectLiteral$f($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$7($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
@@ -282,7 +282,7 @@ var index = /*#__PURE__*/Object.freeze({
   recursiveFreeze: recursiveFreeze$1,
   regularExpressions: index$2,
   typeOf: typeOf$7,
-  typedObjectLiteral: typedObjectLiteral$e,
+  typedObjectLiteral: typedObjectLiteral$f,
   variables: index$1
 });
 
@@ -1288,7 +1288,7 @@ class Validator extends EventTarget {
   }
 }
 
-const { recursiveAssign: recursiveAssign$d, typedObjectLiteral: typedObjectLiteral$d } = index;
+const { recursiveAssign: recursiveAssign$d, typedObjectLiteral: typedObjectLiteral$e } = index;
 class RequiredValidator extends Validator {
   constructor($definition, $schema) {
     super(Object.assign($definition, {
@@ -1299,8 +1299,8 @@ class RequiredValidator extends Validator {
         const { requiredProperties, requiredPropertiesSize, type } = this.schema;
         if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true; }
         else if(type === 'object') {
-          const corequiredContextProperties = typedObjectLiteral$d(type);
-          const corequiredModelProperties = typedObjectLiteral$d(type);
+          const corequiredContextProperties = typedObjectLiteral$e(type);
+          const corequiredModelProperties = typedObjectLiteral$e(type);
           iterateRequiredProperties: 
           for(const [
             $requiredPropertyName, $requiredProperty
@@ -1474,7 +1474,7 @@ class MatchValidator extends Validator {
   }
 }
 
-const { typedObjectLiteral: typedObjectLiteral$c, typeOf: typeOf$5, variables } = index;
+const { typedObjectLiteral: typedObjectLiteral$d, typeOf: typeOf$5, variables } = index;
 class Context extends EventTarget {
   constructor($properties, $schema) {
     super();
@@ -1501,7 +1501,7 @@ class Context extends EventTarget {
   }
 }
 function parseProperties($properties, $schema) {
-  const properties = typedObjectLiteral$c($properties);
+  const properties = typedObjectLiteral$d($properties);
   iterateProperties: 
   for(const [
     $propertyKey, $propertyValue
@@ -1595,6 +1595,7 @@ function _isValidatorDefinition($object, $schema) {
   return Object.hasOwn($object, valueKey)
 }
 
+const { typedObjectLiteral: typedObjectLiteral$c } = index;
 const Messages = {
   'true': ($validation) => `${$validation.valid}`,
   'false': ($validation) => `${$validation.valid}`,
@@ -1624,21 +1625,26 @@ class Validation extends EventTarget {
         }
       },
       'report': { value: function() {
-        const report = {};
+        const report = { value: typedObjectLiteral$c($schema.type) };
         for(const [$consevanceName, $consevance] of Object.entries({
           advance, deadvance, unadvance
         })) {
           for(const $sevance of $consevance) {
-            const { type, key, value } = $sevance;
+            console.log("$sevance", $sevance);
+            const { key, value } = $sevance;
             if($sevance instanceof Verification) {
-              console.log($sevance.pass, $sevance.key, $sevance.value, `(${$sevance.type})`);
+              const { message, pass, type } = $sevance;
+              report.value[key] = { key, message, pass, type, value };
             }
             else if($sevance instanceof Validation) {
-              $sevance.report();
-              console.log(/*$sevance.verificationType, $sevance.required, */$sevance.valid, $sevance.key, $sevance.value);
+              const { required } = $sevance;
+              report.value[key] = $sevance.report();
+              report.valid = this.valid;
+              report.required = required;
             }
           }
         }
+        console.log("report", report);
         return report
       } },
     });
@@ -1660,34 +1666,6 @@ var Options$1 = (...$options) => Object.assign({
 
 const { typedObjectLiteral: typedObjectLiteral$b, typeOf: typeOf$4 } = index;
 
-const parseValidateArguments = function(...$arguments) {
-  let $sourceName, $source, $target;
-  if($arguments.length === 1) {
-    $sourceName = null; $source = $arguments.shift(); $target = null;
-  }
-  else if($arguments.length === 2) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null;
-    }
-    else if($arguments[0] && typeof $arguments[0] === 'object') {
-      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift();
-    }
-  }
-  else if($arguments.length === 3) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift();
-    }
-  }
-  $source = ($source instanceof Model) ? $source.valueOf() : $source;
-  $target = ($target instanceof Model) ? $target.valueOf() : $target;
-  return { $sourceName, $source, $target }
-};
-const parseValidatePropertyArguments = function(...$arguments) {
-  let [$key, $value, $source, $target] = $arguments;
-  $source = ($source instanceof Model) ? $source.valueOf() : $source;
-  $target = ($target instanceof Model) ? $target.valueOf() : $target;
-  return { $key, $value, $source, $target }
-};
 class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super();
@@ -1736,7 +1714,6 @@ class Schema extends EventTarget {
         Object.defineProperty(this, 'requiredProperties', { value: requiredProperties });
         return requiredProperties
       } },
-
       'requiredPropertiesSize': { configurable: true, get() {
         const requiredPropertiesSize = Object.keys(this.requiredProperties).length;
         Object.defineProperty(this, 'requiredPropertiesSize', { value: requiredPropertiesSize });
@@ -1747,7 +1724,6 @@ class Schema extends EventTarget {
         Object.defineProperty(this, 'verificationType', { value: verificationType });
         return verificationType
       } },
-
       'context': { configurable: true, get() {
         const context = new Context($properties, this);
         Object.defineProperty(this, 'context', { value: context });
@@ -1762,7 +1738,7 @@ class Schema extends EventTarget {
           definition: context,
           key: $sourceName, 
           value: $source,
-        });
+        }, this);
         const sourceProperties = Object.entries($source);
         let sourcePropertyIndex = 0;
         let deadvancedRequiredProperties = [];
@@ -1805,7 +1781,7 @@ class Schema extends EventTarget {
           definition: propertyDefinition,
           key: $key,
           value: $value,
-        });
+        }, this);
         if(propertyDefinition === undefined) {
           const verification = new Verification({
             type: null,
@@ -1841,6 +1817,31 @@ class Schema extends EventTarget {
       } },
     });
   }
+}
+
+function parseValidateArguments(...$arguments) {
+  let $sourceName, $source, $target;
+  if($arguments.length === 1) {
+    $sourceName = null; $source = $arguments.shift(); $target = null;
+  }
+  else if($arguments.length === 2) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null;
+    }
+    else if($arguments[0] && typeof $arguments[0] === 'object') {
+      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift();
+    }
+  }
+  else if($arguments.length === 3) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift();
+    }
+  }
+  return { $sourceName, $source, $target }
+}
+function parseValidatePropertyArguments(...$arguments) {
+  let [$key, $value, $source, $target] = $arguments;
+  return { $key, $value, $source, $target }
 }
 
 const { recursiveAssign: recursiveAssign$b } = index;
@@ -3378,6 +3379,7 @@ function setContentProperty($model, $options, $path, $value) {
           $model.dispatchEvent(new ValidatorEvent$1($eventType, validTargetProp, $model));
         }
       }
+      console.log(validTargetProp);
       if(!validTargetProp.valid) { return }
     }
     if($value && typeof $value === 'object') {

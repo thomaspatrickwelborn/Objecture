@@ -1,3 +1,5 @@
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import Verification from '../verification/index.js'
 const Messages = {
   'true': ($validation) => `${$validation.valid}`,
@@ -28,23 +30,28 @@ export default class Validation extends EventTarget {
         }
       },
       'report': { value: function() {
-        const report = {}
+        const report = { value: typedObjectLiteral($schema.type) }
         iterateConsevance: 
         for(const [$consevanceName, $consevance] of Object.entries({
           advance, deadvance, unadvance
         })) {
           iterateSevance: 
           for(const $sevance of $consevance) {
-            const { type, key, value } = $sevance
+            console.log("$sevance", $sevance)
+            const { key, value } = $sevance
             if($sevance instanceof Verification) {
-              console.log($sevance.pass, $sevance.key, $sevance.value, `(${$sevance.type})`)
+              const { message, pass, type } = $sevance
+              report.value[key] = { key, message, pass, type, value }
             }
             else if($sevance instanceof Validation) {
-              $sevance.report()
-              console.log(/*$sevance.verificationType, $sevance.required, */$sevance.valid, $sevance.key, $sevance.value)
+              const { required } = $sevance
+              report.value[key] = $sevance.report()
+              report.valid = this.valid
+              report.required = required
             }
           }
         }
+        console.log("report", report)
         return report
       } },
     })
