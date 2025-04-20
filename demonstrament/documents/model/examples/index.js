@@ -12,5 +12,6 @@ import './example-c/example-c-1/index.js'
 import './example-c/example-c-2/index.js'
 import './example-c/example-c-3/index.js'
 import './example-c/example-c-4/index.js'
-*/
 import './example-d/example-d-1/index.js'
+*/
+import './example-d/example-d-2/index.js'

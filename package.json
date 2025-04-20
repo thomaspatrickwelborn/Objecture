@@ -1,6 +1,6 @@
 {
   "name": "objecture",
-  "version": "1.5.4",
+  "version": "1.5.6",
   "description": "",
   "license": "ISC",
   "author": "Thomas Patrick Welborn",
@@ -33,7 +33,20 @@
     "./distributement/objecture.min.js": "./distributement/objecture.min.js" 
   },
   "keywords": [
-    "property manager", "object watcher", "object observer",
-    "schema validator", "object schema", "object events", "array events"
+    "object watcher", "object observer", "object events", "array events", "object event manager",
+    "object property watcher", "object property observer", "object property events",
+    "object subproperty watcher", "object subproperty observer", "object subproperty events", 
+
+    "object manager", "object schema", "object validator", "schema validator", 
+    "object property manager", "object property validator", "schema property validator", 
+    
+    "object path", "object property path", "object string path", "object get/set/delete path",
+
+    "recursive object assign", "recursive object defineProperties", "recursive object defineProperty", 
+    "recursive object freeze", "recursive object seal", 
+    "recursive array concat", "recursive array push", "recursive array unshift", "recursive array unshift",
+
+    "object assign event", "object defineProperties event", "object defineProperty event", "object get/set/delete event",
+    "array push event", "array unshift event", "array pop event", "array splice event", "array reverse event"
   ]
 }
