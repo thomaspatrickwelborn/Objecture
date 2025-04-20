@@ -1,6 +1,6 @@
 import { Coutil } from 'core-plex'
 const { typedObjectLiteral } = Coutil
-import { ModelEvent } from '../../../events/index.js'
+import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function fill($model, $options, ...$arguments) {
   const options = Object.assign({}, $options)
   const { target, path, schema } = $model

@@ -1630,7 +1630,6 @@ class Validation extends EventTarget {
           advance, deadvance, unadvance
         })) {
           for(const $sevance of $consevance) {
-            console.log("$sevance", $sevance);
             const { key, value } = $sevance;
             if($sevance instanceof Verification) {
               const { message, pass, type } = $sevance;
@@ -1644,7 +1643,6 @@ class Validation extends EventTarget {
             }
           }
         }
-        console.log("report", report);
         return report
       } },
     });
@@ -1855,6 +1853,8 @@ var Options = ($options) => {
       'validProperty': true,
       'nonvalidProperty:$key': true,
       'nonvalidProperty': true,
+      'valid': true,
+      'nonvalid': true,
     },
     pathkey: true,
     subpathError: false,
@@ -2090,8 +2090,18 @@ function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
   const assignObject = 'assign';
   const assignArray = options.assignArray || 'assign';
-  const { path, source, target, schema } = $model;
-  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options;
+  const { path, schema, source, target } = $model;
+  const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options;
+  if(schema && enableValidation) {
+    let validObject = schema.validate(Object.assign({}, $properties), $model.valueOf());
+    if(validationEvents) {
+      let type;
+      if(validObject.valid) { type = 'valid'; }
+      else { type = 'nonvalid'; }
+      $model.dispatchEvent(new ValidatorEvent$1(type, validObject, $model));
+    }
+    if(!validObject.valid) { return }
+  }
   const assignedSources = [];
   const assignChange = new Change({ preter: $model });
   for(let $source of $sources) {
@@ -2236,10 +2246,20 @@ function assign($model, $options, ...$sources) {
 
 const { typedObjectLiteral: typedObjectLiteral$9 } = index;
 function defineProperties($model, $options, $propertyDescriptors) {
-  const { mutatorEvents } = $options;
-  const { path } = $model;
+  const { path, schema } = $model;
+  const { enableValidation, mutatorEvents, required, validationEvents } = $options;
+  // let properties = 
+  if(enableValidation && required && schema) {
+    let validObject = schema.validate(Object.defineProperties(typedObjectLiteral$9(schema.type), $propertyDescriptors), $model.valueOf());
+    if(validationEvents) {
+      let type;
+      if(validObject.valid) { type = 'valid'; }
+      else { type = 'nonvalid'; }
+      $model.dispatchEvent(new ValidatorEvent$1(type, validObject, $model));
+    }
+    if(!validObject.valid) { return }
+  }
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
-  typedObjectLiteral$9($model.valueOf());
   const definePropertiesChange = new Change({ preter: $model });
   for(const [
     $propertyKey, $propertyDescriptor
@@ -2481,7 +2501,7 @@ function concat($model, $options) {
           propertyType = ['nonvalidProperty', valueIndex].join(':');
         }
         for(const $eventType of [type, propertyType]) {
-          $model.dispatchEvent(new ValidatorEvent($eventType, validValue, $model));
+          $model.dispatchEvent(new ValidatorEvent$1($eventType, validValue, $model));
         }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
@@ -2687,7 +2707,7 @@ function fill($model, $options, ...$arguments) {
           propertyType = ['nonvalidProperty', ':', fillIndex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $model.dispatchEvent(new ValidatorEvent($eventType, validValue, $model));
+          $model.dispatchEvent(new ValidatorEvent$1($eventType, validValue, $model));
         }
       }
       if(!validValue.valid) { continue iterateFillIndexes }
@@ -3291,13 +3311,23 @@ function getProperty($model, $options, ...$arguments) {
 }
 
 function setContent($model, $options, $properties) {
+  const { path, schema } = $model;
+  const { enableValidation, mutatorEvents, required, validationEvents  } = $options;
+  if(required && schema && enableValidation) {
+    let validObject = schema.validate($properties, $model.valueOf());
+    if(validationEvents) {
+      let type;
+      if(validObject.valid) { type = 'valid'; }
+      else { type = 'nonvalid'; }
+      $model.dispatchEvent(new ValidatorEvent$1(type, validObject, $model));
+    }
+    if(!validObject.valid) { return }
+  }
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $model.set($propertyKey, $propertyValue, Object.assign($options, {
       source: $properties
     }));
   }
-  const { path } = $model;
-  const { mutatorEvents  } = $options;
   if(mutatorEvents && mutatorEvents['set']) {
     $model.dispatchEvent(
       new ModelEvent('set', {
@@ -3379,7 +3409,6 @@ function setContentProperty($model, $options, $path, $value) {
           $model.dispatchEvent(new ValidatorEvent$1($eventType, validTargetProp, $model));
         }
       }
-      console.log(validTargetProp);
       if(!validTargetProp.valid) { return }
     }
     if($value && typeof $value === 'object') {
@@ -3587,7 +3616,7 @@ function deleteContentProperty($model, $options, $path) {
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(
-            new ValidatorEvent($eventType, Object.assign(validTargetProp, {
+            new ValidatorEvent$1($eventType, Object.assign(validTargetProp, {
               path: validatorEventPath
             }), $model)
           );
@@ -3648,7 +3677,7 @@ function deleteContentProperty($model, $options, $path) {
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(
-            new ValidatorEvent($eventType, validTargetProp, $model)
+            new ValidatorEvent$1($eventType, validTargetProp, $model)
           );
         }
       }

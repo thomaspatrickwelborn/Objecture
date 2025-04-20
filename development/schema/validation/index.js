@@ -37,7 +37,6 @@ export default class Validation extends EventTarget {
         })) {
           iterateSevance: 
           for(const $sevance of $consevance) {
-            console.log("$sevance", $sevance)
             const { key, value } = $sevance
             if($sevance instanceof Verification) {
               const { message, pass, type } = $sevance
@@ -51,7 +50,6 @@ export default class Validation extends EventTarget {
             }
           }
         }
-        console.log("report", report)
         return report
       } },
     })

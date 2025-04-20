@@ -6,8 +6,19 @@ export default function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)
   const assignObject = 'assign'
   const assignArray = options.assignArray || 'assign'
-  const { path, source, target, schema } = $model
-  const { mutatorEvents, sourceTree, enableValidation, validationEvents } = options
+  const { path, schema, source, target } = $model
+  const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options
+  if(schema && enableValidation) {
+    let validObject = schema.validate(Object.assign({}, $properties), $model.valueOf())
+    if(validationEvents) {
+      let type, propertyType
+      const validatorPath = path
+      if(validObject.valid) { type = 'valid' }
+      else { type = 'nonvalid' }
+      $model.dispatchEvent(new ValidatorEvent(type, validObject, $model))
+    }
+    if(!validObject.valid) { return }
+  }
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
   iterateAssignSources: 
