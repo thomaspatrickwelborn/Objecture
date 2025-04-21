@@ -1,7 +1,15 @@
 {
   "name": "objecture",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "description": "",
+  "homepage": "https://github.com/thomaspatrickwelborn/Objecture#readme",
+  "bugs": {
+    "url": "https://github.com/thomaspatrickwelborn/Objecture/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomaspatrickwelborn/Objecture.git"
+  },
   "license": "ISC",
   "author": "Thomas Patrick Welborn",
   "type": "module",
