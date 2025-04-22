@@ -184,14 +184,18 @@ setProperty propertyC "TRUE"
 ```
 object
 .removeEvents({ type: 'setProperty' })
-.addEvents({ 'set': evenLog })
-.enableEvents()
+.addEvents({ 'set': evenLog }, true)
+.set({
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+})
 ```
 *logs*  
 ```
 set null {
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
 }
 ```
