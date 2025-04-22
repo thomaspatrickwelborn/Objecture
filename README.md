@@ -38,8 +38,70 @@
    - Schema validation object with `report` method.  
 
 ## Illustrations
+***Import Object Model, Schema***  
 ```
 import { Model, Schema } from 'objecture'
+```
+***Objecture Model***  
+```
+const object = new Model({
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [{
+    propertyE: 1
+  }],
+  propertyF: "TRUE"
+})
+```
+***Schematized Objecture Model***  
+```
+const schema = {
+  propertyA: {
+    propertyB: {
+      propertyC: Boolean
+    }
+  },
+  propertyD: [{
+    propertyE: Number
+  }],
+  propertyF: String
+}
+const object = new Model({
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [{
+    propertyE: 1
+  }],
+  propertyF: "TRUE"
+}, schema)
+```
+***Ventilated Objecture Model***  
+```
+const object = new Model({
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [
+    propertyE: 1
+  ],
+  propertyF: "TRUE"
+}, null, {
+  events: {
+    'propertyA.propertyB setProperty': eventLog,
+    'propertyA setProperty': eventLog,
+    'setProperty': eventLog,
+    'propertyD pushProp': eventLog,
+  },
+  enableEvents: true
+})
 ```
 ### Objecture Model Methods
 Objecture Model instances manage object/array properties with the same API as their respective classes and additional `get`/`set`/`delete` methods.  
@@ -49,8 +111,22 @@ const object = new Model({
   propertyA: true,
   propertyB: 1,
   propertyC: "TRUE",
-  propertyD: null
+  propertyD: [{
+    propertyE: 777
+  }]
 })
+console.log(array.valueOf())
+```
+***logs***
+```
+{
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+  propertyD: [{
+    propertyE: 777
+  }]
+}
 ```
 *then*  
 ```
@@ -58,8 +134,73 @@ object.set({
   propertyA: false,
   propertyB: 0,
   propertyC: "FALSE",
-  propertyD: null
+  propertyD: [{
+    propertyE: -777
+  }]
 })
+console.log(array.valueOf())
+```
+***logs***
+```
+{
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: [{
+    propertyE: -777
+  }]
+}
+```
+##### `Model.get` Method
+```
+console.log(object.get())
+```
+***logs***  
+```
+{
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: [{
+    propertyE: -777
+  }]
+}
+```
+*then*  
+```
+console.log(
+  object.get("propertyA"),
+  object.get("propertyB"),
+  object.get("propertyC"),
+  object.get("propertyD.0.propertyE"),
+)
+```
+***logs***  
+```
+false, 0, "FALSE", -777
+```
+##### `Model.delete` Method
+```
+object.delete('propertyA')
+object.delete('propertyD.0')
+console.log(object.valueOf())
+```
+***logs***  
+```
+{
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: []
+}
+```
+*then*  
+```
+object.delete()
+console.log(object.valueOf())
+```
+***logs***  
+```
+{}
 ```
 
 #### `Model.assign` Method
@@ -68,17 +209,47 @@ const object = new Model({
   propertyA: true,
   propertyB: 1,
   propertyC: "TRUE",
+  propertyD: [{
+    propertyE: 777
+  }]
 }, null, {
   assignObject: 'assign'
 })
+console.log(array.valueOf())
+```
+***logs***  
+```
+{
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+  propertyD: [{
+    propertyE: 777
+  }],
+}
 ```
 *then*  
 ```
 object.assign(
   { propertyA: false },
   { propertyB: 0 },
-  { propertyC: "FALSE" }
+  { propertyC: "FALSE" },
+  { propertyD: [{
+    propertyE: -777
+  }] }
 )
+console.log(array.valueOf())
+```
+***logs***
+```
+{
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: [{
+    propertyE: -777
+  }],
+}
 ```
 #### `Model.defineProperties` Method
 ```
@@ -86,43 +257,102 @@ const object = new Model({
   propertyA: { value: true, writable: true },
   propertyB: { value: 1, writable: true },
   propertyC: { value: "TRUE", writable: true },
+  propertyD: { value: [{
+    value: { propertyE: { value: 777 } }
+  }] },
 }, null, {
   assignObject: 'defineProperties'
 })
+console.log(object.valueOf())
+```
+***logs***  
+```
+{
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+  propertyD: [{
+    propertyE: 777
+  }],
+}
 ```
 *then*  
 ```
 object.defineProperties({
-  propertyA: { value: true },
-  propertyB: { value: 1 },
-  propertyC: { value: "TRUE" },
+  propertyA: { value: false },
+  propertyB: { value: 0 },
+  propertyC: { value: "FALSE" },
+  propertyD: { value: [{
+    value: { propertyE: { value: -777 } }
+  }] },
 })
+console.log(object.valueOf())
+```
+***logs***
+```
+{
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: [{
+    propertyE: -777
+  }],
+}
 ```
 #### `Model.push` Method
 ```
-const array = new Model([true, 1, "TRUE"], null, {
+const array = new Model([true, 1, "TRUE", [
+  false, 0, "FALSE"
+]], null, {
   assignArray: 'push'
 })
+console.log(array.valueOf())
+```
+***logs***  
+```
+[true, 1, "TRUE", [false, 0, "FALSE"]]
 ```
 *then*  
 ```
 array.length = 0
-array.push(false, 0, "FALSE")
+array.push(false, 0, "FALSE", [
+  true, 1, "TRUE"
+])
+console.log(array.valueOf())
 ```
+***logs***  
+```
+[true, 1, "TRUE", [false, 0, "FALSE"], "FALSE", 0, false,  ["TRUE", 1, true]]
+```
+
 #### `Model.unshift` Method
 ```
-const array = new Model([true, 1, "TRUE"], null, {
+const array = new Model([true, 1, "TRUE", [
+  false, 0, "FALSE" 
+]], null, {
   assignArray: 'unshift'
 })
+console.log(array.valueOf())
+```
+***logs***  
+```
+[["FALSE", 0, false], "TRUE", 1, true]
 ```
 *then*  
 ```
 array.length = 0
-array.unshift(false, 0, "FALSE")
+array.unshift(false, 0, "FALSE", [
+  true, 1, "TRUE"
+])
+console.log(array.valueOf())
+```
+***logs***  
+```
+[["true", 1, true], "FALSE", 0, false, ["FALSE", 0, false], "TRUE", 1, true]
 ```
 
 ### Objecture Model Schema
-#### Simple Model Schema
+#### Schema Type Validator
 ```
 const object = new Model({
   propertyA: true,
@@ -158,10 +388,36 @@ console.log(object.valueOf())
 ```
 *logs*  
 ```
+{
+  propertyB: true,
+}
+```
+***then***  
+```
+const object = new Model({
+  propertyA: "TRUE",
+  propertyB: "true",
+  propertyC: 1,
+}, {
+  propertyA: Boolean,
+  propertyB: Number,
+  propertyC: String,
+})
+console.log(object.valueOf())
+```
+*logs*  
+```
 {}
 ```
-
 ### Objecture Model Events
+*Event Log*  
+```
+export default function eventLog($event) {
+  console.log($event.type, $event.path, (
+    typeof $event.value === 'object'
+  ) ? $event.target : $event.value)
+}
+```
 #### `setProperty` Event
 ```
 const object = new Model({
