@@ -61,6 +61,7 @@ object.set({
   propertyD: null
 })
 ```
+
 #### `Model.assign` Method
 ```
 const object = new Model({
@@ -121,6 +122,7 @@ array.unshift(false, 0, "FALSE")
 ```
 
 ### Objecture Model Schema
+#### Simple Model Schema
 ```
 const object = new Model({
   propertyA: true,
@@ -166,6 +168,8 @@ const object = new Model({
   propertyA: true,
   propertyB: 1,
   propertyC: "TRUE",
+}, null, {
+  events: { 'setProperty': eventLog }
 })
 ```
 
@@ -173,15 +177,21 @@ const object = new Model({
 ```
 setProperty propertyA true
 setProperty propertyB 1
-setProperty propertyB 1
+setProperty propertyC "TRUE"
 ```
 
+#### `set` Event
 ```
-set object {
-  "propertyA": true,
-  "propertyB": 1,
-  "propertyC": "TRUE",
+object
+.removeEvents({ type: 'setProperty' })
+.addEvents({ 'set': evenLog })
+.enableEvents()
+```
+*logs*  
+```
+set null {
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
 }
 ```
-
-### Objecture Schema
