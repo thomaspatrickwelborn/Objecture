@@ -2,8 +2,8 @@ console.log("----------------")
 console.log("defineProperties")
 console.log("----------------")
 import { Model, Schema } from '/dependencies/objecture.js'
-import ComplexObjectA from '../../sets/complex-object-a/index.js'
-import ComplexObjectB from '../../sets/complex-object-b/index.js'
+import ComplexObjectA from '../../../sets/complex-object-a/index.js'
+import ComplexObjectB from '../../../sets/complex-object-b/index.js'
 function eventLog($event) { console.log($event.type, $event.path) }
 const model = new Model(ComplexObjectB, null, {
   events: { '** defineProperty': eventLog },

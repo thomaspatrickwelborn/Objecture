@@ -1843,7 +1843,7 @@ var Options = ($options) => {
     pathkey: true,
     subpathError: false,
     assignObject: 'set', 
-    assignArray: null,
+    assignArray: 'set', 
     methods: {
       accessor: {
         get: {

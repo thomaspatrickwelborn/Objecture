@@ -6,7 +6,7 @@ import {
   ModelAProperties, ModelBProperties, 
   ModelCProperties, ModelDProperties, 
   SchemaProperties, 
-} from '../../sets/complex-object-d/index.js'
+} from '../../../sets/complex-object-d/index.js'
 const schema = new Schema(SchemaProperties)
 
 const modelAPropertyValidation = schema.validate(ModelAProperties)

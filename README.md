@@ -41,18 +41,147 @@
 ```
 import { Model, Schema } from 'objecture'
 ```
-### Objecture Events
-#### Example \| Object Set Events
+### Objecture Model Methods
+Objecture Model instances manage object/array properties with the same API as their respective classes and additional `get`/`set`/`delete` methods.  
+#### `Model.set` Method
 ```
-function eventLog($event) {
-  console.log($event.type, $event.value)
-}
-const object = new Model({})
-object.addEvents({ 'setProperty': eventLog, 'set': eventLog })
-object.set({
+const object = new Model({
   propertyA: true,
   propertyB: 1,
+  propertyC: "TRUE",
+  propertyD: null
 })
+```
+*then*  
+```
+object.set({
+  propertyA: false,
+  propertyB: 0,
+  propertyC: "FALSE",
+  propertyD: null
+})
+```
+#### `Model.assign` Method
+```
+const object = new Model({
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+}, null, {
+  assignObject: 'assign'
+})
+```
+*then*  
+```
+object.assign(
+  { propertyA: false },
+  { propertyB: 0 },
+  { propertyC: "FALSE" }
+)
+```
+#### `Model.defineProperties` Method
+```
+const object = new Model({
+  propertyA: { value: true, writable: true },
+  propertyB: { value: 1, writable: true },
+  propertyC: { value: "TRUE", writable: true },
+}, null, {
+  assignObject: 'defineProperties'
+})
+```
+*then*  
+```
+object.defineProperties({
+  propertyA: { value: true },
+  propertyB: { value: 1 },
+  propertyC: { value: "TRUE" },
+})
+```
+#### `Model.push` Method
+```
+const array = new Model([true, 1, "TRUE"], null, {
+  assignArray: 'push'
+})
+```
+*then*  
+```
+array.length = 0
+array.push(false, 0, "FALSE")
+```
+#### `Model.unshift` Method
+```
+const array = new Model([true, 1, "TRUE"], null, {
+  assignArray: 'unshift'
+})
+```
+*then*  
+```
+array.length = 0
+array.unshift(false, 0, "FALSE")
+```
+
+### Objecture Model Schema
+```
+const object = new Model({
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+}, {
+  propertyA: Boolean,
+  propertyB: Number,
+  propertyC: String,
+})
+console.log(object.valueOf())
+```
+*logs*  
+```
+{
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+}
+```
+***then***  
+```
+const object = new Model({
+  propertyA: "TRUE",
+  propertyB: true,
+  propertyC: 1,
+}, {
+  propertyA: Boolean,
+  propertyB: Number,
+  propertyC: String,
+})
+console.log(object.valueOf())
+```
+*logs*  
+```
+{}
+```
+
+### Objecture Model Events
+#### `setProperty` Event
+```
+const object = new Model({
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
+})
+```
+
+*logs*  
+```
+setProperty propertyA true
+setProperty propertyB 1
+setProperty propertyB 1
+```
+
+```
+set object {
+  "propertyA": true,
+  "propertyB": 1,
+  "propertyC": "TRUE",
+}
 ```
 
 ### Objecture Schema
