@@ -2050,7 +2050,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
         return key
       } },
       'path': { configurable: true, get () {
-        const path = $settings.path;
+        const path = [$model.path, $settings.key].join('.');
         Object.defineProperty(this, 'path', { value: path });
         return path
       } },
@@ -2064,7 +2064,6 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
         Object.defineProperty(this, 'valid', { value: valid });
         return valid
       } },
-
     });
   }
 };

@@ -51,10 +51,29 @@ const object = new Model({
     }
   },
   propertyD: [{
-    propertyE: 1
+    propertyE: { 
+      propertyF: 1
+    }
   }],
-  propertyF: "TRUE"
+  propertyG: "TRUE"
 })
+console.log(object.valueOf())
+```
+*`valueOf` logs*:  
+```
+{
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [{
+    propertyE: { 
+      propertyF: 1
+    }
+  }],
+  propertyG: "TRUE"
+}
 ```
 ***Schematized Objecture Model***  
 ```
@@ -65,9 +84,11 @@ const schema = {
     }
   },
   propertyD: [{
-    propertyE: Number
+    propertyE: {
+      propertyF: Number
+    }
   }],
-  propertyF: String
+  propertyG: String
 }
 const object = new Model({
   propertyA: {
@@ -76,80 +97,166 @@ const object = new Model({
     }
   },
   propertyD: [{
-    propertyE: 1
+    propertyE: {
+      propertyF: 1
+    }
   }],
-  propertyF: "TRUE"
+  propertyG: true
 }, schema)
+console.log(object.toString({ space: 2, replacer: null }))
 ```
+*logs*  
+```
+{
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+    {
+      "propertyE": {
+        "propertyF": 1
+      }
+    }
+  ]
+}
+```
+(`propertyG` nonvalid)
+
 ***Ventilated Objecture Model***  
 ```
+function eventLog($event) {
+  console.log($event.type, $event.path, JSON.stringify($event.value))
+}
 const object = new Model({
   propertyA: {
     propertyB: {
       propertyC: true
     }
   },
-  propertyD: [
-    propertyE: 1
-  ],
-  propertyF: "TRUE"
+  propertyD: [{
+    propertyE: {
+      propertyF: 1
+    }
+  }],
+  propertyG: "TRUE"
 }, null, {
   events: {
     'propertyA.propertyB setProperty': eventLog,
     'propertyA setProperty': eventLog,
     'setProperty': eventLog,
     'propertyD pushProp': eventLog,
+    'propertyD.[0-9] set': eventLog,
+    '** set': eventLog,
   },
   enableEvents: true
 })
+```
+*logs*  
+```
+setProperty propertyA.propertyB.propertyC true
+set propertyA.propertyB {
+  "propertyC": true
+}
+setProperty propertyA.propertyB {}
+set propertyA {
+  "propertyB": {
+    "propertyC": true
+  }
+}
+setProperty propertyA {}
+set propertyD.0.propertyE {
+  "propertyF": 1
+}
+set propertyD.0 {
+  "propertyE": {
+    "propertyF": 1
+  }
+}
+set propertyD [
+  {
+    "propertyE": {
+      "propertyF": 1
+    }
+  }
+]
+setProperty propertyD {}
+setProperty propertyG "TRUE"
+set null {
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+  {
+      "propertyE": {
+        "propertyF": 1
+      }
+    }
+  ],
+  "propertyG": "TRUE"
+}
+```
+***Ventilated, Schematized Model***  
+```
+const schema = {
+  propertyA: {
+    propertyB: {
+      propertyC: Boolean
+    }
+  },
+  propertyD: [{
+    propertyE: {
+      propertyF: Number
+    }
+  }],
+  propertyG: String
+}
+const object = new Model({
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [{
+    propertyE: {
+      propertyF: 1
+    }
+  }],
+  propertyG: true
+}, schema, {
+  events: {
+    '** nonvalidProperty': eventLog,
+  },
+  enableEvents: true,
+})
+```
+*logs*  
+```
 ```
 ### Objecture Model Methods
 Objecture Model instances manage object/array properties with the same API as their respective classes and additional `get`/`set`/`delete` methods.  
 #### `Model.set` Method
 ```
-const object = new Model({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: 777
-  }]
+const object = new Model({}, null, {
+  events: {
+    '** set': eventLog,
+    '** setProperties': eventLog,
+  }
 })
-console.log(array.valueOf())
-```
-***logs***
-```
-{
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: 777
-  }]
-}
-```
-*then*  
-```
 object.set({
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
+  propertyA: true,
+  propertyB: 1,
+  propertyC: "TRUE",
   propertyD: [{
-    propertyE: -777
-  }]
+    propertyE: {
+      propertyF: 777
+    }
+  }],
+  propertyF: 
 })
-console.log(array.valueOf())
-```
-***logs***
-```
-{
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-  propertyD: [{
-    propertyE: -777
-  }]
-}
 ```
 ##### `Model.get` Method
 ```
@@ -410,14 +517,6 @@ console.log(object.valueOf())
 {}
 ```
 ### Objecture Model Events
-*Event Log*  
-```
-export default function eventLog($event) {
-  console.log($event.type, $event.path, (
-    typeof $event.value === 'object'
-  ) ? $event.target : $event.value)
-}
-```
 #### `setProperty` Event
 ```
 const object = new Model({
