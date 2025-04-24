@@ -29,28 +29,50 @@ export default class Validation extends EventTarget {
           Object.defineProperty(this, 'valid', { value: $valid })
         }
       },
-      'report': { value: function() {
-        const report = { value: typedObjectLiteral($schema.type) }
-        iterateConsevance: 
-        for(const [$consevanceName, $consevance] of Object.entries({
-          advance, deadvance, unadvance
-        })) {
+      'report': { value: function($format = "expand") {
+        if($format === 'expand') {
+          const report = { value: typedObjectLiteral($schema.type) }
           iterateSevance: 
-          for(const $sevance of $consevance) {
-            const { key, value } = $sevance
-            if($sevance instanceof Verification) {
-              const { message, pass, type } = $sevance
-              report.value[key] = { key, message, pass, type, value }
-            }
-            else if($sevance instanceof Validation) {
-              const { required } = $sevance
-              report.value[key] = $sevance.report()
-              report.valid = this.valid
-              report.required = required
+          for(const $sevance of Array.prototype.concat(advance)) {
+            if($sevance instanceof Validation) {
+              iterateSubsevance: 
+              for(const $subsevance of Array.prototype.concat($sevance.advance)) {
+                if($subsevance instanceof Validation) {
+                  report.value[$subsevance.key] = $subsevance.report($format)
+                }
+                else {
+                  report.value[$subsevance.key] = report.value[$subsevance.key] || {}
+                  report.value[$subsevance.key].validators = report.value[$subsevance.key].validators || {}
+                  report.value[$subsevance.key].validators[$subsevance.type] = $subsevance
+                }
+                report.value[$subsevance.key].required = $sevance.required
+                report.value[$subsevance.key].valid = $sevance.valid
+              }
             }
           }
+          report.valid = this.valid
+          report.required = this.required
+          return report
         }
-        return report
+        else if($format === 'impand') {
+          if(!this.valid) return this.valid
+          let report = typedObjectLiteral($schema.type)
+          iterateSevance: 
+          for(const $sevance of Array.prototype.concat(advance)) {
+            if($sevance instanceof Validation) {
+              iterateSubsevance: 
+              for(const $subsevance of Array.prototype.concat($sevance.advance)) {
+                if($subsevance instanceof Validation) {
+                  report[$subsevance.key] = $subsevance.report($format)
+                }
+                else if(!Object.hasOwn(report, $subsevance.key)) {
+                  report[$subsevance.key] = $sevance.valid
+                }
+              }
+            }
+          }
+          return report
+        }
       } },
     })
   }

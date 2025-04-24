@@ -7,7 +7,7 @@ export default class Verification extends EventTarget {
       'definition': { value: settings.definition },
       'key': { value: settings.key },
       'value': { value: settings.value },
-      'path': { value: settings.path },
+      // 'path': { value: settings.path },
       'message': { configurable: true, get() {
         let message
         if(this.pass !== undefined) {

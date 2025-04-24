@@ -5,7 +5,7 @@ import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) {
   console.log($event.type, $event.path, JSON.stringify($event.value, null, 2))
 }
-const schema = {
+const schema = new Schema({
   propertyA: {
     propertyB: {
       propertyC: Boolean
@@ -13,11 +13,16 @@ const schema = {
   },
   propertyD: [{
     propertyE: {
-      propertyF: Number
+      propertyF: Number,
+      propertyE: {
+        propertyFFF: Number
+      }
     }
   }],
   propertyG: String
-}
+}, {
+  required: true
+})
 const object = new Model({
   propertyA: {
     propertyB: {
@@ -26,12 +31,18 @@ const object = new Model({
   },
   propertyD: [{
     propertyE: {
-      propertyF: 1
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1
+      }
     }
   }],
-  propertyG: true
+  propertyG: "true"
 }, schema, {
   events: {
+    '** valid': eventLog,
+    '** validProperty': eventLog,
+    '** nonvalid': eventLog,
     '** nonvalidProperty': eventLog,
   },
   enableEvents: true,

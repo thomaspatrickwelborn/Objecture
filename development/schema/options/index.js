@@ -4,10 +4,8 @@ export default (...$options) => Object.assign({
   required: false,
   verificationType: 'all', 
   // verificationType: 'one',
-  context: {
-    properties: {
-      type: 'type',
-      value: 'value',
-    },
+  properties: {
+    type: 'type',
+    value: 'value',
   },
 }, ...$options)

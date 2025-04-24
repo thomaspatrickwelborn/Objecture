@@ -2,23 +2,27 @@ import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 import Change from '../../../../change/index.js'
 export default function setContent($model, $options, $properties) {
   const { path, schema } = $model
-  const { enableValidation, mutatorEvents, required, validationEvents  } = $options
-  if(required && schema && enableValidation) {
-    let validObject = schema.validate($properties, $model.valueOf())
-    if(validationEvents) {
-      let type, propertyType
-      const validatorPath = path
-      if(validObject.valid) { type = 'valid' }
-      else { type = 'nonvalid' }
-      $model.dispatchEvent(new ValidatorEvent(type, validObject, $model))
-    }
-    if(!validObject.valid) { return }
+  let { enableValidation, mutatorEvents, required, validationEvents  } = $options
+  let validation
+  if(enableValidation && schema) {
+    validation = schema.validate($properties, $model.valueOf())
   }
   iterateProperties: 
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
     $model.set($propertyKey, $propertyValue, Object.assign($options, {
-      source: $properties
+      validation,
+      source: $properties,
     }))
+  }
+  if(enableValidation && schema) {
+    if(validationEvents) {
+      let type, propertyType
+      const validatorPath = path
+      if(validation.valid) { type = 'valid' }
+      else { type = 'nonvalid' }
+      $model.dispatchEvent(new ValidatorEvent(type, validation, $model))
+    }
+    if(!validation.valid) { return }
   }
   if(mutatorEvents && mutatorEvents['set']) {
     $model.dispatchEvent(

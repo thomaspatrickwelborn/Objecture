@@ -1,8 +1,11 @@
 import { Coutil } from 'core-plex'
-const { typedObjectLiteral, typeOf } = Coutil
-import Context from './context/index.js'
+const { typedObjectLiteral, typeOf, variables } = Coutil
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'
+import {
+  RequiredValidator, TypeValidator, RangeValidator, 
+  LengthValidator, EnumValidator, MatchValidator
+} from './validators/index.js'
 import Options from './options/index.js' 
 
 class Schema extends EventTarget {
@@ -48,7 +51,7 @@ class Schema extends EventTarget {
       'requiredProperties': { configurable: true, get() {
         const requiredProperties = typedObjectLiteral(this.type)
         iterateContextEntries: 
-        for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
+        for(const [$propertyKey, $propertyDefinition] of Object.entries(this.target)) {
           if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
         }
         Object.defineProperty(this, 'requiredProperties', { value: requiredProperties })
@@ -64,18 +67,22 @@ class Schema extends EventTarget {
         Object.defineProperty(this, 'verificationType', { value: verificationType })
         return verificationType
       } },
-      'context': { configurable: true, get() {
-        const context = new Context($properties, this)
-        Object.defineProperty(this, 'context', { value: context })
-        return context
+      'target': { configurable: true, get() {
+        let properties
+        const type = this.type
+        if(type === 'array') { properties = $properties.slice(0, 1) }
+        else if(type === 'object') { properties = $properties }
+        const target = parseProperties(properties, this)
+        Object.defineProperty(this, 'target', { value: target })
+        return target
       } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
         $target = $target || typedObjectLiteral($source)
-        const { context, path, required, type, verificationType } = this
-        const validation = new Validation({
+        const { target, path, required, type, verificationType } = this
+        let validation = new Validation({
           required, verificationType,
-          definition: context,
+          definition: target,
           key: $sourceName, 
           value: $source,
         }, this)
@@ -111,10 +118,10 @@ class Schema extends EventTarget {
       } },
       'validateProperty': { value: function() {
         const { $key, $value, $source, $target } = parseValidatePropertyArguments(...arguments)
-        const { context, path, required, type, verificationType } = this
+        const { target, path, required, type, verificationType } = this
         let propertyDefinition
-        if(type === 'array') { propertyDefinition = context[0] }
-        else if(type === 'object') { propertyDefinition = context[$key] }
+        if(type === 'array') { propertyDefinition = target[0] }
+        else if(type === 'object') { propertyDefinition = target[$key] }
         const propertyValidation = new Validation({
           required,
           verificationType,
@@ -158,7 +165,6 @@ class Schema extends EventTarget {
     })
   }
 }
-
 function parseValidateArguments(...$arguments) {
   let $sourceName, $source, $target
   if($arguments.length === 1) {
@@ -183,5 +189,98 @@ function parseValidatePropertyArguments(...$arguments) {
   let [$key, $value, $source, $target] = $arguments
   return { $key, $value, $source, $target }
 }
-
+function parseProperties($properties, $schema) {
+  const properties = typedObjectLiteral($properties)
+  iterateProperties: 
+  for(const [
+    $propertyKey, $propertyValue
+  ] of Object.entries($properties)) {
+    let propertyDefinition = {}
+    const typeOfPropertyValue = typeOf($propertyValue)
+    const isPropertyDefinition = _isPropertyDefinition($propertyValue, $schema)
+    if(variables.TypeValues.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: $propertyValue } })
+    }
+    else if(variables.TypeKeys.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: variables.Types[$propertyValue] } })
+    }
+    else if(!isPropertyDefinition) {
+      const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey
+      propertyDefinition = new Schema($propertyValue, Object.assign({}, $schema.options, {
+        parent: $schema,
+        path: subpropertyPath
+      }))
+      Object.assign(properties, { [$propertyKey]: propertyDefinition })
+      continue iterateProperties
+    }
+    else if(isPropertyDefinition) {
+      for(const [$propertyValidatorName, $propertyValidator] of Object.entries($propertyValue)) {
+        const isValidatorDefinition = _isValidatorDefinition($propertyValidator, $schema)
+        if(!isValidatorDefinition) {
+          Object.assign(propertyDefinition, { [$propertyValidatorName]: { value: $propertyValidator } })
+        }
+        else if(isValidatorDefinition) {
+          Object.assign(propertyDefinition, { [$propertyValidatorName]: $propertyValidator })
+        }
+      }
+    }
+    Object.assign(propertyDefinition, { validators: [] })
+    Object.assign(properties, { [$propertyKey]: propertyDefinition })
+    const validators = new Map()
+    const contextRequired = $schema.options.required
+    if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+      type: 'required', value: true, validator: RequiredValidator 
+    })) }
+    else if(propertyDefinition.required) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+      type: 'required', value: true, validator: RequiredValidator  }))
+    }
+    else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+      type: 'required', value: false, validator: RequiredValidator  }))
+    }
+    if(propertyDefinition.type) { validators.set('type', Object.assign({}, propertyDefinition.type, {
+      type: 'type', validator: TypeValidator
+    })) }
+    else { validators.set('type', Object.assign({}, propertyDefinition.type, {
+      type: 'type', value: undefined, validator: TypeValidator
+    })) }
+    if(propertyDefinition.range) { validators.set('range', Object.assign({}, propertyDefinition.range, {
+      type: 'range', validator: RangeValidator
+    })) }
+    else if(propertyDefinition.min || propertyDefinition.max) { validators.set('range', Object.assign({}, {
+      type: 'range', min: propertyDefinition.min, max: propertyDefinition.max, validator: RangeValidator
+    })) }
+    if(propertyDefinition.length) { validators.set('length', Object.assign({}, propertyDefinition.length, {
+      type: 'length', validator: LengthValidator
+    })) }
+    else if(propertyDefinition.minLength || propertyDefinition.maxLength) { validators.set('length', Object.assign({}, {
+      type: 'length', min: propertyDefinition.minLength, max: maxLength, validator: LengthValidator
+    })) }
+    if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
+      type: 'enum', validator: EnumValidator
+    })) }
+    if(propertyDefinition.match) { validators.set('match', Object.assign({}, propertyDefinition.match, {
+      type: 'match', validator: MatchValidator
+    })) }
+    delete propertyDefinition.min
+    delete propertyDefinition.max
+    delete propertyDefinition.minLength
+    delete propertyDefinition.maxLength
+    for(const [
+      $validatorName, $validatorSettings
+    ] of validators.entries()) {
+      const ValidatorClass = $validatorSettings.validator
+      propertyDefinition[$validatorName] = $validatorSettings
+      propertyDefinition.validators.push(new ValidatorClass($validatorSettings, $schema))
+    }
+  }
+  return properties
+}
+function _isPropertyDefinition($object, $schema) {
+  const typeKey = $schema.options.properties.type
+  return Object.hasOwn($object, typeKey)
+}
+function _isValidatorDefinition($object, $schema) {
+  const valueKey = $schema.options.properties.value
+  return Object.hasOwn($object, valueKey)
+}
 export default Schema

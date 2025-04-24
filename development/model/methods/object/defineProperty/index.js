@@ -2,12 +2,12 @@ import { Coutil } from 'core-plex'
 const { recursiveAssign, typedObjectLiteral } = Coutil
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
-export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
+export default function defineProperty($model, $options, $propertyKey) {
   const options = Object.assign({}, $options)
   const assignObject = 'defineProperties'
   const assignArray = options.assignArray || 'defineProperties'
   const {
-    descriptorTree, enableValidation, mutatorEvents, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, validation, validationEvents
   } = options
   const { target, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
@@ -52,8 +52,8 @@ export default function defineProperty($model, $options, $propertyKey, $property
     else {
       let subschema
       if(schema) {
-        if(schema.type === 'array') { subschema = schema.context[0] }
-        else if(schema.type === 'object') { subschema = schema.context[$propertyKey] }
+        if(schema.type === 'array') { subschema = schema.target[0] }
+        else if(schema.type === 'object') { subschema = schema.target[$propertyKey] }
         else { subschema = undefined }
       }
       let subtarget = typedObjectLiteral(propertyValue)

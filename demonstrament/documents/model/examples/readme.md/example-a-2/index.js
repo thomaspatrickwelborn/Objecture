@@ -10,7 +10,10 @@ const schema = {
   },
   propertyD: [{
     propertyE: {
-      propertyF: Number
+      propertyF: Number,
+      propertyE: {
+        propertyFFF: Number
+      }
     }
   }],
   propertyG: String
@@ -23,9 +26,12 @@ const object = new Model({
   },
   propertyD: [{
     propertyE: {
-      propertyF: 1
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1
+      }
     }
   }],
-  propertyG: true
+  propertyG: "true"
 }, schema)
 console.log(object.toString({ space: 2, replacer: null }))

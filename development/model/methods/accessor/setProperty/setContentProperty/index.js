@@ -23,8 +23,8 @@ export default function setContentProperty($model, $options, $path, $value) {
     if(subpaths.length) {
       if(recursive && target[propertyKey] === undefined) {
         let subschema
-        if(schema?.type === 'array') { subschema = schema.context[0] }
-        else if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
+        if(schema?.type === 'array') { subschema = schema.target[0] }
+        else if(schema?.type === 'object') { subschema = schema.target[propertyKey] }
         else { subschema = undefined }
         let submodel
         if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -56,9 +56,6 @@ export default function setContentProperty($model, $options, $path, $value) {
       const validTargetProp = schema.validateProperty(propertyKey, $value, validatorSource, validatorTarget)
       if(validationEvents) {
         let type, propertyType
-        const validatorEventPath = (path)
-          ? [path, propertyKey].join('.')
-          : String(propertyKey)
         if(validTargetProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', propertyKey].join('')
@@ -79,10 +76,10 @@ export default function setContentProperty($model, $options, $path, $value) {
       let subschema
       let submodel
       if(schema?.type === 'array') {
-        subschema = schema.context[0]
+        subschema = schema.target[0]
       }
       else if(schema?.type === 'object') {
-        subschema = schema.context[propertyKey]
+        subschema = schema.target[propertyKey]
       }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -147,10 +144,10 @@ export default function setContentProperty($model, $options, $path, $value) {
       let subschema
       let submodel
       if(schema?.type === 'array') {
-        subschema = schema.context[0]
+        subschema = schema.target[0]
       }
       if(schema?.type === 'object') {
-        subschema = schema.context[propertyKey]
+        subschema = schema.target[propertyKey]
       }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }

@@ -10,17 +10,17 @@
 [**Guide**](./document/guide/index.md) |
 | :-- |
 
-## Introduction
+## ⏣&ensp;Introduction
  - Manage structured content using *familiar* JS `Object`, `Array`, `EventTarget` APIs.  
  - Schematize data structures with property validators.  
  - Capture **content *and* validation events** for property changes (including **nested** property events).  
 
-## Impetus
+## ⏣&ensp;Impetus
  - Frontend, backend applications require or benefit from structured content with validatable schema.  
  - Detecting changes to structured content in objects/arrays through property events promotes event-driven application architecture.  
  - There are limited libraries with *both* **browser** *and* **Node** *compatibility* that manage **schematized content** with **validators** or that capture **nested property change events**.  
 
-## Impact
+## ⏣&ensp;Impact
  - **Manage content** for primitive/object data types: 
    - `string`, `number`, `boolean`, `null` primitives; 
    - `object`, `array`. 
@@ -37,12 +37,12 @@
    - `valid`, `nonvalid` `validProperty`, `nonvalidProperty` events.  
    - Schema validation object with `report` method.  
 
-## Illustrations
+## ⏣&ensp;Illustrations
 ***Import Object Model, Schema***  
 ```
 import { Model, Schema } from 'objecture'
 ```
-***Objecture Model***  
+### Objecture Model
 ```
 const object = new Model({
   propertyA: {
@@ -59,7 +59,7 @@ const object = new Model({
 })
 console.log(object.valueOf())
 ```
-*`valueOf` logs*:  
+***`valueOf` logs***:  
 ```
 {
   propertyA: {
@@ -75,7 +75,7 @@ console.log(object.valueOf())
   propertyG: "TRUE"
 }
 ```
-***Schematized Objecture Model***  
+### Schematized Objecture Model
 ```
 const schema = {
   propertyA: {
@@ -105,7 +105,7 @@ const object = new Model({
 }, schema)
 console.log(object.toString({ space: 2, replacer: null }))
 ```
-*logs*  
+***`toString` logs***:  
 ```
 {
   "propertyA": {
@@ -124,7 +124,7 @@ console.log(object.toString({ space: 2, replacer: null }))
 ```
 (`propertyG` nonvalid)
 
-***Ventilated Objecture Model***  
+### Ventilated Objecture Model
 ```
 function eventLog($event) {
   console.log($event.type, $event.path, JSON.stringify($event.value))
@@ -153,7 +153,7 @@ const object = new Model({
   enableEvents: true
 })
 ```
-*logs*  
+***logs***  
 ```
 setProperty propertyA.propertyB.propertyC true
 set propertyA.propertyB {
@@ -199,7 +199,7 @@ set null {
   "propertyG": "TRUE"
 }
 ```
-***Ventilated, Schematized Model***  
+### Ventilated, Schematized Model
 ```
 const schema = {
   propertyA: {
@@ -229,11 +229,14 @@ const object = new Model({
 }, schema, {
   events: {
     '** nonvalidProperty': eventLog,
+    '** nonvalid': eventLog,
+    '** validProperty': eventLog,
+    '** valid': eventLog,
   },
   enableEvents: true,
 })
 ```
-*logs*  
+***logs***  
 ```
 ```
 ### Objecture Model Methods
@@ -472,7 +475,7 @@ const object = new Model({
 })
 console.log(object.valueOf())
 ```
-*logs*  
+***logs***  
 ```
 {
   propertyA: true,
@@ -493,7 +496,7 @@ const object = new Model({
 })
 console.log(object.valueOf())
 ```
-*logs*  
+***logs***  
 ```
 {
   propertyB: true,
@@ -512,7 +515,7 @@ const object = new Model({
 })
 console.log(object.valueOf())
 ```
-*logs*  
+***logs***  
 ```
 {}
 ```
@@ -528,7 +531,7 @@ const object = new Model({
 })
 ```
 
-*logs*  
+***logs***  
 ```
 setProperty propertyA true
 setProperty propertyB 1
@@ -546,7 +549,7 @@ object
   propertyC: "FALSE",
 })
 ```
-*logs*  
+***logs***  
 ```
 set null {
   propertyA: false,

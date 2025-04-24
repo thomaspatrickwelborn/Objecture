@@ -8,7 +8,9 @@ export default class ValidatorEvent extends CustomEvent {
         return key
       } },
       'path': { configurable: true, get () {
-        const path = [$model.path, $settings.key].join('.')
+        const path = ($model.path)
+          ? [$model.path, $settings.key].join('.')
+          : $settings.key
         Object.defineProperty(this, 'path', { value: path })
         return path
       } },
