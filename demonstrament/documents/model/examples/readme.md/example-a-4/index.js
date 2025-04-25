@@ -19,9 +19,7 @@ const schema = new Schema({
       }
     }
   }],
-  propertyG: String
-}, {
-  required: true
+  propertyG: Boolean
 })
 const object = new Model({
   propertyA: {
@@ -47,3 +45,4 @@ const object = new Model({
   },
   enableEvents: true,
 })
+console.log(object.toString({ space: 2, replacer: null }))

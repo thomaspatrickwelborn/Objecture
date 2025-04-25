@@ -43,6 +43,7 @@
 import { Model, Schema } from 'objecture'
 ```
 ### Objecture Model
+- [Example A.1.](./demonstrament/documents/model/examples/readme.md/example-a-1/index.js)
 ```
 const object = new Model({
   propertyA: {
@@ -59,7 +60,7 @@ const object = new Model({
 })
 console.log(object.valueOf())
 ```
-***`valueOf` logs***:  
+***`object.valueOf` logs***:  
 ```
 {
   propertyA: {
@@ -76,6 +77,7 @@ console.log(object.valueOf())
 }
 ```
 ### Schematized Objecture Model
+- [Example A.2.](./demonstrament/documents/model/examples/readme.md/example-a-2/index.js)
 ```
 const schema = {
   propertyA: {
@@ -85,7 +87,10 @@ const schema = {
   },
   propertyD: [{
     propertyE: {
-      propertyF: Number
+      propertyF: Number,
+      propertyE: {
+        propertyFFF: Number
+      }
     }
   }],
   propertyG: String
@@ -98,14 +103,17 @@ const object = new Model({
   },
   propertyD: [{
     propertyE: {
-      propertyF: 1
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1
+      }
     }
   }],
-  propertyG: true
+  propertyG: "true"
 }, schema)
 console.log(object.toString({ space: 2, replacer: null }))
 ```
-***`toString` logs***:  
+***`object.toString` logs***:  
 ```
 {
   "propertyA": {
@@ -116,15 +124,19 @@ console.log(object.toString({ space: 2, replacer: null }))
   "propertyD": [
     {
       "propertyE": {
-        "propertyF": 1
+        "propertyF": 1,
+        "propertyE": {
+          "propertyFFF": 1
+        }
       }
     }
-  ]
+  ],
 }
 ```
 (`propertyG` nonvalid)
 
 ### Ventilated Objecture Model
+- [Example A.3.](./demonstrament/documents/model/examples/readme.md/example-a-3/index.js)
 ```
 function eventLog($event) {
   console.log($event.type, $event.path, JSON.stringify($event.value))
@@ -200,8 +212,9 @@ set null {
 }
 ```
 ### Ventilated, Schematized Model
+- [Example A.4.](./demonstrament/documents/model/examples/readme.md/example-a-4/index.js)
 ```
-const schema = {
+const schema = new Schema({
   propertyA: {
     propertyB: {
       propertyC: Boolean
@@ -209,11 +222,14 @@ const schema = {
   },
   propertyD: [{
     propertyE: {
-      propertyF: Number
+      propertyF: Number,
+      propertyE: {
+        propertyFFF: Number
+      }
     }
   }],
   propertyG: String
-}
+})
 const object = new Model({
   propertyA: {
     propertyB: {
@@ -222,338 +238,134 @@ const object = new Model({
   },
   propertyD: [{
     propertyE: {
-      propertyF: 1
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1
+      }
     }
   }],
-  propertyG: true
+  propertyG: "true"
 }, schema, {
   events: {
-    '** nonvalidProperty': eventLog,
-    '** nonvalid': eventLog,
-    '** validProperty': eventLog,
     '** valid': eventLog,
+    '** validProperty': eventLog,
+    '** nonvalid': eventLog,
+    '** nonvalidProperty': eventLog,
   },
   enableEvents: true,
 })
+console.log(object.toString({ space: 2, replacer: null }))
+
 ```
 ***logs***  
 ```
-```
-### Objecture Model Methods
-Objecture Model instances manage object/array properties with the same API as their respective classes and additional `get`/`set`/`delete` methods.  
-#### `Model.set` Method
-```
-const object = new Model({}, null, {
-  events: {
-    '** set': eventLog,
-    '** setProperties': eventLog,
+validProperty propertyA {
+  "propertyB": {
+    "propertyC": true
   }
-})
-object.set({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: {
-      propertyF: 777
+}
+validProperty propertyA.propertyB {
+  "propertyC": true
+}
+validProperty propertyA.propertyB.propertyC true
+valid propertyA.propertyB. {
+  "propertyC": true
+}
+valid propertyA. {
+  "propertyB": {
+    "propertyC": true
+  }
+}
+validProperty propertyD [
+  {
+    "propertyE": {
+      "propertyF": 1,
+      "propertyE": {
+        "propertyFFF": 1
+      }
     }
-  }],
-  propertyF: 
-})
-```
-##### `Model.get` Method
-```
-console.log(object.get())
-```
-***logs***  
-```
-{
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-  propertyD: [{
-    propertyE: -777
-  }]
+  }
+]
+validProperty propertyD.0 {
+  "propertyE": {
+    "propertyF": 1,
+    "propertyE": {
+      "propertyFFF": 1
+    }
+  }
 }
-```
-*then*  
-```
-console.log(
-  object.get("propertyA"),
-  object.get("propertyB"),
-  object.get("propertyC"),
-  object.get("propertyD.0.propertyE"),
-)
-```
-***logs***  
-```
-false, 0, "FALSE", -777
-```
-##### `Model.delete` Method
-```
-object.delete('propertyA')
-object.delete('propertyD.0')
-console.log(object.valueOf())
-```
-***logs***  
-```
-{
-  propertyB: 0,
-  propertyC: "FALSE",
-  propertyD: []
+validProperty propertyD.0.propertyE {
+  "propertyF": 1,
+  "propertyE": {
+    "propertyFFF": 1
+  }
 }
-```
-*then*  
-```
-object.delete()
-console.log(object.valueOf())
-```
-***logs***  
-```
-{}
-```
-
-#### `Model.assign` Method
-```
-const object = new Model({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: 777
-  }]
-}, null, {
-  assignObject: 'assign'
-})
-console.log(array.valueOf())
-```
-***logs***  
-```
-{
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: 777
-  }],
+validProperty propertyD.0.propertyE.propertyF 1
+validProperty propertyD.0.propertyE.propertyE {
+  "propertyFFF": 1
 }
-```
-*then*  
-```
-object.assign(
-  { propertyA: false },
-  { propertyB: 0 },
-  { propertyC: "FALSE" },
-  { propertyD: [{
-    propertyE: -777
-  }] }
-)
-console.log(array.valueOf())
-```
-***logs***
-```
-{
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-  propertyD: [{
-    propertyE: -777
-  }],
+validProperty propertyD.0.propertyE.propertyE.propertyFFF 1
+valid propertyD.0.propertyE.propertyE. {
+  "propertyFFF": 1
 }
-```
-#### `Model.defineProperties` Method
-```
-const object = new Model({
-  propertyA: { value: true, writable: true },
-  propertyB: { value: 1, writable: true },
-  propertyC: { value: "TRUE", writable: true },
-  propertyD: { value: [{
-    value: { propertyE: { value: 777 } }
-  }] },
-}, null, {
-  assignObject: 'defineProperties'
-})
-console.log(object.valueOf())
-```
-***logs***  
-```
-{
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-  propertyD: [{
-    propertyE: 777
-  }],
+valid propertyD.0.propertyE. {
+  "propertyF": 1,
+  "propertyE": {
+    "propertyFFF": 1
+  }
 }
-```
-*then*  
-```
-object.defineProperties({
-  propertyA: { value: false },
-  propertyB: { value: 0 },
-  propertyC: { value: "FALSE" },
-  propertyD: { value: [{
-    value: { propertyE: { value: -777 } }
-  }] },
-})
-console.log(object.valueOf())
-```
-***logs***
-```
-{
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-  propertyD: [{
-    propertyE: -777
-  }],
+valid propertyD.0. {
+  "propertyE": {
+    "propertyF": 1,
+    "propertyE": {
+      "propertyFFF": 1
+    }
+  }
 }
-```
-#### `Model.push` Method
-```
-const array = new Model([true, 1, "TRUE", [
-  false, 0, "FALSE"
-]], null, {
-  assignArray: 'push'
-})
-console.log(array.valueOf())
-```
-***logs***  
-```
-[true, 1, "TRUE", [false, 0, "FALSE"]]
-```
-*then*  
-```
-array.length = 0
-array.push(false, 0, "FALSE", [
-  true, 1, "TRUE"
-])
-console.log(array.valueOf())
-```
-***logs***  
-```
-[true, 1, "TRUE", [false, 0, "FALSE"], "FALSE", 0, false,  ["TRUE", 1, true]]
-```
-
-#### `Model.unshift` Method
-```
-const array = new Model([true, 1, "TRUE", [
-  false, 0, "FALSE" 
-]], null, {
-  assignArray: 'unshift'
-})
-console.log(array.valueOf())
-```
-***logs***  
-```
-[["FALSE", 0, false], "TRUE", 1, true]
-```
-*then*  
-```
-array.length = 0
-array.unshift(false, 0, "FALSE", [
-  true, 1, "TRUE"
-])
-console.log(array.valueOf())
-```
-***logs***  
-```
-[["true", 1, true], "FALSE", 0, false, ["FALSE", 0, false], "TRUE", 1, true]
-```
-
-### Objecture Model Schema
-#### Schema Type Validator
-```
-const object = new Model({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-}, {
-  propertyA: Boolean,
-  propertyB: Number,
-  propertyC: String,
-})
-console.log(object.valueOf())
-```
-***logs***  
-```
-{
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
+valid propertyD. [
+  {
+    "propertyE": {
+      "propertyF": 1,
+      "propertyE": {
+        "propertyFFF": 1
+      }
+    }
+  }
+]
+nonvalidProperty propertyG "true"
+valid null {
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+    {
+      "propertyE": {
+        "propertyF": 1,
+        "propertyE": {
+          "propertyFFF": 1
+        }
+      }
+    }
+  ],
+  "propertyG": "true"
 }
-```
-***then***  
-```
-const object = new Model({
-  propertyA: "TRUE",
-  propertyB: true,
-  propertyC: 1,
-}, {
-  propertyA: Boolean,
-  propertyB: Number,
-  propertyC: String,
-})
-console.log(object.valueOf())
-```
-***logs***  
-```
-{
-  propertyB: true,
-}
-```
-***then***  
-```
-const object = new Model({
-  propertyA: "TRUE",
-  propertyB: "true",
-  propertyC: 1,
-}, {
-  propertyA: Boolean,
-  propertyB: Number,
-  propertyC: String,
-})
-console.log(object.valueOf())
-```
-***logs***  
-```
-{}
-```
-### Objecture Model Events
-#### `setProperty` Event
-```
-const object = new Model({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-}, null, {
-  events: { 'setProperty': eventLog }
-})
-```
-
-***logs***  
-```
-setProperty propertyA true
-setProperty propertyB 1
-setProperty propertyC "TRUE"
-```
-
-#### `set` Event
-```
-object
-.removeEvents({ type: 'setProperty' })
-.addEvents({ 'set': evenLog }, true)
-.set({
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-})
-```
-***logs***  
-```
-set null {
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
+ {
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+    {
+      "propertyE": {
+        "propertyF": 1,
+        "propertyE": {
+          "propertyFFF": 1
+        }
+      }
+    }
+  ]
 }
 ```

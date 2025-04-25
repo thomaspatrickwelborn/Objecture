@@ -3382,6 +3382,7 @@ function setContentProperty($model, $options, $path, $value) {
         if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value); }
         else { propertyValue[assignArray]($value); }
       }
+      // // 
       else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options); }
       return propertyValue
     }

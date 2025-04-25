@@ -32,6 +32,6 @@ const object = new Model({
       }
     }
   }],
-  propertyG: "true"
+  propertyG: false
 }, schema)
 console.log(object.toString({ space: 2, replacer: null }))
