@@ -1,4 +1,4 @@
-| [❂ Objecture](../../../../README.md) | [Guide](../../index.md) | [Model](../../index.md) | [Events](../index.md) | *Accessor*  
+| [❂ Objecture](../../../../../README.md) | [Guide](../../../index.md) | [Model](../../index.md) | [Events](../index.md) | *Accessor*  
 | :-- | :-- | :-- | :-- | :-- |
 
 # ⏣ Objecture Guide \| Model Accessor Events

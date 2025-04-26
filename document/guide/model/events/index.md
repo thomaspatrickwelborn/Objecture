@@ -4,59 +4,57 @@
 [**Accessor**](./accessor/index.md) | [**Array**](./array/index.md) | [**Object**](./object/index.md) |
 | :-- | :-- | :-- |
 
- - [Accessor Events](./accessor/index.md#get-events)
-   - [`get` Events](./accessor/index.md#get-event)
-     - [`get`](./accessor/index.md#get-event)
-     - [`getProperty`](./accessor/index.md#getproperty-event)
-     - [`getProperty:$key`](./accessor/index.md#getpropertykey-event)
+ - [Accessor Events](./accessor/index.md)
+   - [`get` Events](./accessor/index.md#get-events)
+     - [`get` Event](./accessor/index.md#get-event)
+     - [`getProperty` Event](./accessor/index.md#getproperty-event)
+     - [`getProperty:$key` Event](./accessor/index.md#getpropertykey-event)
    - [`set` Events](./accessor/index.md#set-event)
-     - [`set`](./accessor/index.md#set-event)
-     - [`setProperty`](./accessor/index.md#setproperty-event)
-     - [`setProperty:$key`](./accessor/index.md#setpropertykey-event)
+     - [`set` Event](./accessor/index.md#set-event)
+     - [`setProperty` Event](./accessor/index.md#setproperty-event)
+     - [`setProperty:$key` Event](./accessor/index.md#setpropertykey-event)
    - [`delete` Events](./accessor/index.md#delete-event)
-     - [`delete`](./accessor/index.md#delete-event)
-     - [`deleteProperty`](./accessor/index.md#deleteproperty-event)
-     - [`deleteProperty:$key`](./accessor/index.md#deletepropertykey-event)
- - Array Events
-   - `copyWithin`
-     - `copyWithinIndex:$index`
-     - `copyWithinIndex`
-     - `copyWithin`
-   - `fill`
-      - `fillIndex:$index`
-      - `fillIndex`
-      - `fill`
-   - `pop`
-   - `push`
-     - `pushProp:$index`
-     - `pushProp`
-     - `push`
-   - `reverse`
-   - `shift`
-   - `splice`
-     - `spliceDelete:$index`
-     - `spliceDelete`
-     - `spliceAdd:$index`
-     - `spliceAdd`
-     - `splice`
-   - `unshift`
-     - `unshiftProp:$index`
-     - `unshiftProp`
-     - `unshift`
- - Object Events
-   - assign
-     - `assignSourceProperty:$key`: true,
-     - `assignSourceProperty`: true,
-     - `assignSource`: true,
-     - `assign`: true,
-   - defineProperties
-     - `defineProperties`: true
-     - defineProperty
-     - `defineProperty`: true,
-     - `defineProperty:$key`: true,
-   - freeze
-     - `freezeProperty`: true,
-     - `freeze`: true,
-   - seal
-     - `sealProperty`: true,
-     - `seal`: true,
+     - [`delete` Event](./accessor/index.md#delete-event)
+     - [`deleteProperty` Event](./accessor/index.md#deleteproperty-event)
+     - [`deleteProperty:$key` Event](./accessor/index.md#deletepropertykey-event)
+ - [Array Events](./array/index.md)
+   - [`copyWithin` Events](./array/index.md#copyWithin-events)
+     - [`copyWithinIndex:$index` Event](./array/index.md#copywithin-event)
+     - [`copyWithinIndex` Event](./array/index.md#copywithin-event)
+     - [`copyWithin` Event](./array/index.md#copywithin-event)
+   - [`fill` Events](./array/index.md#fill-events)
+      - [`fillIndex:$index` Event](./array/index.md#fill-event)
+      - [`fillIndex` Event](./array/index.md#fill-event)
+      - [`fill` Event](./array/index.md#fill-event)
+   - [`pop` Event](./array/index.md#pop-event-event)
+   - [`push` Events](./array/index.md#push-events)
+     - [`pushProp:$index` Event](./array/index.md#pushprop-event)
+     - [`pushProp` Event](./array/index.md#pushprop-event)
+     - [`push` Event](./array/index.md#push-event)
+   - [`reverse` Event](./array/index.md#reverse-event-event)
+   - [`shift` Event](./array/index.md#shift-event-event)
+   - [`splice` Events](./array/index.md#splice-events)
+     - [`spliceDelete:$index` Event](./array/index.md#splicedelete-event)
+     - [`spliceDelete` Event](./array/index.md#splicedelete-event)
+     - [`spliceAdd:$index` Event](./array/index.md#spliceadd-event)
+     - [`spliceAdd` Event](./array/index.md#spliceadd-event)
+     - [`splice` Event](./array/index.md#splice-event)
+   - [`unshift` Events](./array/index.md#unshift-events)
+     - [`unshiftProp:$index` Event](./array/index.md#unshiftProp-event)
+     - [`unshiftProp` Event](./array/index.md#unshiftProp-event)
+     - [`unshift` Event](./array/index.md#unshift-event)
+ - [Object Events](./object/index.md)
+   - [`assign` Events](./object/index.md#assign-events)
+     - [`assignSourceProperty:$key` Event](./object/index.md#assignsourceproperty$key-event)
+     - [`assignSourceProperty` Event](./object/index.md#assignsourceproperty-event)
+     - [`assignSource` Event](./object/index.md#assignsource-event)
+     - [`assign` Event](./object/index.md#assign-event)
+   - [`defineProperties` Events](./object/index.md#defineproperties-events)
+     - [`defineProperty` Event](./object/index.md#defineproperty-event)
+     - [`defineProperty:$key` Event](./object/index.md#defineproperty$key-event)
+   - [`freeze` Events](./object/index.md#freeze-events)
+     - [`freezeProperty` Event](./object/index.md#freezeproperty-event)
+     - [`freeze` Event](./object/index.md#freeze-event)
+   - [`seal` Events](./object/index.md#seal-events)
+     - [`sealProperty` Event](./object/index.md#sealproperty-event)
+     - [`seal` Event](./object/index.md#seal-event)
