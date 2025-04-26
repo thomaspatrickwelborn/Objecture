@@ -1,129 +1,62 @@
 | [❂ Objecture](../../../README.md) | [Guide](../index.md) | [Model](../index.md) | *Events* |
 | :-- | :-- | :-- | :-- |
 # ⏣ Objecture Guide \| Model Events
-```
-{
-  accessor: {
-    get: {
-      'get': true,
-      'getProperty': true,
-      'getProperty:$key': true,
-    },
-    set: {
-      'set': true,
-      'setProperty': true,
-      'setProperty:$key': true,
-    },
-    delete: {
-      'delete': true,
-      'deleteProperty': true,
-      'deleteProperty:$key': true,
-    },
-  },
-  array: {
-    concat: {
-      'concatValue:$index': true,
-      'concatValue': true,
-      'concat': true,
-    },
-    copyWithin: {
-      'copyWithinIndex:$index': true,
-      'copyWithinIndex': true,
-      'copyWithin': true,
-    },
-    fill: {
-      'fillIndex:$index': true,
-      'fillIndex': true,
-      'fill': true,
-    },
-    pop: {
-      'pop': true,
-    },
-    push: {
-      'pushProp:$index': true,
-      'pushProp': true,
-      'push': true,
-    },
-    reverse: {
-      'reverse': true
-    },
-    shift: {
-      'shift': true
-    },
-    splice: {
-      'spliceDelete:$index': true,
-      'spliceDelete': true,
-      'spliceAdd:$index': true,
-      'spliceAdd': true,
-      'splice': true,
-    },
-    unshift: {
-      'unshiftProp:$index': true,
-      'unshiftProp': true,
-      'unshift': true,
-    },
-  },
-  object: {
-    assign: {
-      'assignSourceProperty:$key': true,
-      'assignSourceProperty': true,
-      'assignSource': true,
-      'assign': true,
-    },
-    defineProperties: {
-      'defineProperties': true,
-    },
-    defineProperty: {
-      'defineProperty': true,
-      'defineProperty:$key': true,
-    },
-    freeze: {
-      'freezeProperty': true,
-      'freeze': true,
-    },
-    seal: {
-      'sealProperty': true,
-      'seal': true,
-    },
-  },
-},
-```
+[**Accessor**](./accessor/index.md) | [**Array**](./array/index.md) | [**Object**](./object/index.md) |
+| :-- | :-- | :-- |
 
-### Objecture Model Events
-#### `setProperty` Event
-```
-const object = new Model({
-  propertyA: true,
-  propertyB: 1,
-  propertyC: "TRUE",
-}, null, {
-  events: { 'setProperty': eventLog }
-})
-```
-
-***logs***  
-```
-setProperty propertyA true
-setProperty propertyB 1
-setProperty propertyC "TRUE"
-```
-
-#### `set` Event
-```
-object
-.removeEvents({ type: 'setProperty' })
-.addEvents({ 'set': evenLog }, true)
-.set({
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-})
-```
-***logs***  
-```
-set null {
-  propertyA: false,
-  propertyB: 0,
-  propertyC: "FALSE",
-}
-```
+ - [Accessor Events](./accessor/index.md#get-events)
+   - [`get` Events](./accessor/index.md#get-event)
+     - [`get`](./accessor/index.md#get-event)
+     - [`getProperty`](./accessor/index.md#getproperty-event)
+     - [`getProperty:$key`](./accessor/index.md#getpropertykey-event)
+   - [`set` Events](./accessor/index.md#set-event)
+     - [`set`](./accessor/index.md#set-event)
+     - [`setProperty`](./accessor/index.md#setproperty-event)
+     - [`setProperty:$key`](./accessor/index.md#setpropertykey-event)
+   - [`delete` Events](./accessor/index.md#delete-event)
+     - [`delete`](./accessor/index.md#delete-event)
+     - [`deleteProperty`](./accessor/index.md#deleteproperty-event)
+     - [`deleteProperty:$key`](./accessor/index.md#deletepropertykey-event)
+ - Array Events
+   - `copyWithin`
+     - `copyWithinIndex:$index`
+     - `copyWithinIndex`
+     - `copyWithin`
+   - `fill`
+      - `fillIndex:$index`
+      - `fillIndex`
+      - `fill`
+   - `pop`
+   - `push`
+     - `pushProp:$index`
+     - `pushProp`
+     - `push`
+   - `reverse`
+   - `shift`
+   - `splice`
+     - `spliceDelete:$index`
+     - `spliceDelete`
+     - `spliceAdd:$index`
+     - `spliceAdd`
+     - `splice`
+   - `unshift`
+     - `unshiftProp:$index`
+     - `unshiftProp`
+     - `unshift`
+ - Object Events
+   - assign
+     - `assignSourceProperty:$key`: true,
+     - `assignSourceProperty`: true,
+     - `assignSource`: true,
+     - `assign`: true,
+   - defineProperties
+     - `defineProperties`: true
+     - defineProperty
+     - `defineProperty`: true,
+     - `defineProperty:$key`: true,
+   - freeze
+     - `freezeProperty`: true,
+     - `freeze`: true,
+   - seal
+     - `sealProperty`: true,
+     - `seal`: true,
