@@ -1,7 +1,7 @@
-| [❂ Objecture](../../../../../README.md) | [Guide](../../../index.md) | [Model](../../index.md) | [Methods](../index.md) | *Accessor*  
+| [❂ Objecture](../../../../../README.md) | [Guide](../../../index.md) | [Model](../../index.md) | [Methods](../index.md) | *Map*  
 | :-- | :-- | :-- | :-- | :-- |
 
-# ⏣ Objecture Guide \| Model Accessor Methods
+# ⏣ Objecture Guide \| Model Map Methods
 ## `Model.set` Method
 ```
 const object = new Model({

@@ -19,7 +19,7 @@ export default ($options) => {
     assignObject: 'set', 
     assignArray: 'set', 
     methods: {
-      accessor: {
+      map: {
         get: {
           mutatorEvents: {
             'get': true,

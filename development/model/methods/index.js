@@ -2,7 +2,7 @@ import { Coutil } from 'core-plex'
 const { recursiveAssign, recursiveFreeze } = Coutil
 import ObjectProperty from './object/index.js'
 import ArrayProperty from './array/index.js'
-import AccessorProperty from './accessor/index.js'
+import MapProperty from './map/index.js'
 const Defaults = Object.freeze({
   object: [{
     keys: ['valueOf'],
@@ -76,22 +76,22 @@ const Defaults = Object.freeze({
       return { value: ArrayProperty[$methodName].bind(null, $model, $options) }
     }
   }],
-  accessor: [{
+  map: [{
     type: 'mutators',
-    keys: Object.keys(AccessorProperty),
+    keys: Object.keys(MapProperty),
     methodDescriptor: function($methodName, $model, $options) {
-      return { value: AccessorProperty[$methodName].bind(null, $model, $options) }
+      return { value: MapProperty[$methodName].bind(null, $model, $options) }
     }
   }]
 })
 export default function Methods($model) {
-  iterateDefaultPropertyClasses: // Object, Array, Accessor
+  iterateDefaultPropertyClasses: // Object, Array, Map
   for(const [$propertyClassName, $propertyClasses] of Object.entries(Defaults)) {
     iteratePropertyClasses: 
     for(const $propertyClass of $propertyClasses) {
       const { keys, methodDescriptor, type } = $propertyClass
       for(const $methodName of keys) {
-        if($propertyClassName === 'accessor' || type === 'mutators') {
+        if($propertyClassName === 'map' || type === 'mutators') {
           const modelMethodOptions = structuredClone(
             $model.options.methods[$propertyClassName][$methodName]
           )

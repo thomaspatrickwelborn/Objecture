@@ -31,7 +31,7 @@
      - `assign`, `defineProperties`/`defineProperty`, `freeze`, and `seal` events.  
    - `Array` Events:  
      - `concat`, `copyWithin`, `fill`, `pop`, `push`, `reverse`, `shift`, `splice`, and `unshift` events.  
-   - `Property Accessor` Events: 
+   - `Property Map` Events: 
      - `get`, `set`, `delete`  
  - **Capture validation events/data** for array/object properties.    
    - `valid`, `nonvalid` `validProperty`, `nonvalidProperty` events.  
