@@ -1839,7 +1839,7 @@ var Options = ($options) => {
     assignObject: 'set', 
     assignArray: 'set', 
     methods: {
-      accessor: {
+      map: {
         get: {
           mutatorEvents: {
             'get': true,
@@ -3382,7 +3382,6 @@ function setContentProperty($model, $options, $path, $value) {
         if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value); }
         else { propertyValue[assignArray]($value); }
       }
-      // // 
       else if(propertyValue.type === 'object') { propertyValue[assignObject](subpaths.join('.'), $value, options); }
       return propertyValue
     }
@@ -3729,10 +3728,12 @@ function deleteProperty($model, $options, ...$arguments) {
   return deleteProperty
 }
 
-var AccessorProperty = {
+// import clear from './clear/index.js'
+var MapProperty = {
   get: getProperty,
   set: setProperty,
   delete: deleteProperty,
+  // clear: clearProperty,
 };
 
 const { recursiveAssign: recursiveAssign$2, recursiveFreeze } = index;
@@ -3809,21 +3810,21 @@ const Defaults = Object.freeze({
       return { value: ArrayProperty[$methodName].bind(null, $model, $options) }
     }
   }],
-  accessor: [{
+  map: [{
     type: 'mutators',
-    keys: Object.keys(AccessorProperty),
+    keys: Object.keys(MapProperty),
     methodDescriptor: function($methodName, $model, $options) {
-      return { value: AccessorProperty[$methodName].bind(null, $model, $options) }
+      return { value: MapProperty[$methodName].bind(null, $model, $options) }
     }
   }]
 });
 function Methods($model) {
-  // Object, Array, Accessor
+  // Object, Array, Map
   for(const [$propertyClassName, $propertyClasses] of Object.entries(Defaults)) {
     for(const $propertyClass of $propertyClasses) {
       const { keys, methodDescriptor, type } = $propertyClass;
       for(const $methodName of keys) {
-        if($propertyClassName === 'accessor' || type === 'mutators') {
+        if($propertyClassName === 'map' || type === 'mutators') {
           const modelMethodOptions = structuredClone(
             $model.options.methods[$propertyClassName][$methodName]
           );
@@ -3868,7 +3869,7 @@ function Assign($model, $properties, $options) {
 const { typedObjectLiteral, typeOf } = index;
 
 class Model extends Core {
-  static accessors = Object.freeze([($target, $property) => {
+  static maps = Object.freeze([($target, $property) => {
     if($property === undefined) { return $target.target }
     else { return $target.get($property) }
   }, ($target, $property) => {
@@ -3876,7 +3877,7 @@ class Model extends Core {
     else { return $target[$property] }
   }])
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ accessors: Model.accessors });
+    super({ maps: Model.maps });
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options);

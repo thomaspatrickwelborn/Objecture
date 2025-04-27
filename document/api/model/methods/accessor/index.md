@@ -1,25 +1,25 @@
-# Accessor Traps
-**MVC Framework \| Class System \| Model \| Model \| Handler \| Traps \| *Accessor***  
+# Map Traps
+**MVC Framework \| Class System \| Model \| Model \| Handler \| Traps \| *Map***  
 **Model**  
- - [Accessor Handler Trap Options]()
+ - [Map Handler Trap Options]()
    - [`set` Options]()
    - [`get` Options]()
    - [`delete` Options]()
- - [Accessor Handler Trap Methods]()
+ - [Map Handler Trap Methods]()
    - [`set` Method]()
    - [`get` Method]()
    - [`delete` Method]()
- - [Accessor Handler Trap Events]()
+ - [Map Handler Trap Events]()
 
-## Accessor Handler Trap Options
-Accessor Handler Trap Options are defined with new `Model` Instance creation.  
+## Map Handler Trap Options
+Map Handler Trap Options are defined with new `Model` Instance creation.  
 **Defaults**:  
 ```
-const accessorOptions = {
+const mapOptions = {
   pathkey: true,
   subpathError: false,
   methods: {
-    accessor: {
+    map: {
       get: {
         pathkey: true,
         subpathError: false,
@@ -50,18 +50,18 @@ const accessorOptions = {
 }
 ```
 ### `get`, `set`, `delete` Shared Options
- - Shared Accessor Options may be set as `model` options or overriden as `model.methods.accessor.get`, `model.methods.accessor.set`, and `model.methods.accessor.delete`.  
-**All Accessor Methods**:  
+ - Shared Map Options may be set as `model` options or overriden as `model.methods.map.get`, `model.methods.map.set`, and `model.methods.map.delete`.  
+**All Map Methods**:  
 ```
 const object = new Model({}, null, {
   pathkey: false,
   subpathError: false,
 })
 ```
-**Individual Accessor Methods**:  
+**Individual Map Methods**:  
 ```
 const object = new Model({}, null, {
-  methods: { accessor: {
+  methods: { map: {
     get: { pathkey: false, subpathError: false },
     set: { pathkey: false, subpathError: false },
     delete: { pathkey: false, subpathError: false },
@@ -89,7 +89,7 @@ console.log(
 // LOG: "CCC"
 ```
 ##### `pathkey`: `false`
-Path accessor notation disabled, returns `undefined`.  
+Path map notation disabled, returns `undefined`.  
 ```
 const object = new Model({
   propertyA: {
@@ -104,7 +104,7 @@ console.log(
 // LOG: undefined
 ```
 ##### `pathkey` Escape
-Quotation enclosures escape path accessor notation.  
+Quotation enclosures escape path map notation.  
 ```
 const object = new Model({
   "propertyA.propertyB.propertyC": 333,
@@ -205,7 +205,7 @@ There are two types of events:  `get` and `getProperty`.
 const object = new Model({}, null, {
   pathkey: true,
   subpathError: true,
-  methods: { accessor: { set: { recursive: true } } },
+  methods: { map: { set: { recursive: true } } },
 })
 console.log(
   object.set("propertyZ.propertyY", "YYY")
@@ -217,7 +217,7 @@ console.log(
 const object = new Model({}, null, {
   pathkey: true,
   subpathError: true,
-  methods: { accessor: { set: { recursive: false } } },
+  methods: { map: { set: { recursive: false } } },
 })
 console.log(
   object.set("propertyZ.propertyY", "YYY")
@@ -265,7 +265,7 @@ There are two types of events:  `delete` and `deleteProperty`.
  - `true`: enables event dispatch.  
  - `false`: disables event dispatch.  
 
-## Accessor Handler Trap Methods
+## Map Handler Trap Methods
 ### `get` Method
 Accepts zero, one, or two arguments:  
 ```

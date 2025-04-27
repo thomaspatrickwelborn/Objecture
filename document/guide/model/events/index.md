@@ -1,22 +1,22 @@
 | [❂ Objecture](../../../README.md) | [Guide](../index.md) | [Model](../index.md) | *Events* |
 | :-- | :-- | :-- | :-- |
 # ⏣ Objecture Guide \| Model Events
-[**Accessor**](./accessor/index.md) | [**Array**](./array/index.md) | [**Object**](./object/index.md) |
+[**Map**](./map/index.md) | [**Array**](./array/index.md) | [**Object**](./object/index.md) |
 | :-- | :-- | :-- |
 
- - [Accessor Events](./accessor/index.md)
-   - [`get` Events](./accessor/index.md#get-events)
-     - [`get` Event](./accessor/index.md#get-event)
-     - [`getProperty` Event](./accessor/index.md#getproperty-event)
-     - [`getProperty:$key` Event](./accessor/index.md#getpropertykey-event)
-   - [`set` Events](./accessor/index.md#set-event)
-     - [`set` Event](./accessor/index.md#set-event)
-     - [`setProperty` Event](./accessor/index.md#setproperty-event)
-     - [`setProperty:$key` Event](./accessor/index.md#setpropertykey-event)
-   - [`delete` Events](./accessor/index.md#delete-event)
-     - [`delete` Event](./accessor/index.md#delete-event)
-     - [`deleteProperty` Event](./accessor/index.md#deleteproperty-event)
-     - [`deleteProperty:$key` Event](./accessor/index.md#deletepropertykey-event)
+ - [Map Events](./map/index.md)
+   - [`get` Events](./map/index.md#get-events)
+     - [`get` Event](./map/index.md#get-event)
+     - [`getProperty` Event](./map/index.md#getproperty-event)
+     - [`getProperty:$key` Event](./map/index.md#getpropertykey-event)
+   - [`set` Events](./map/index.md#set-event)
+     - [`set` Event](./map/index.md#set-event)
+     - [`setProperty` Event](./map/index.md#setproperty-event)
+     - [`setProperty:$key` Event](./map/index.md#setpropertykey-event)
+   - [`delete` Events](./map/index.md#delete-event)
+     - [`delete` Event](./map/index.md#delete-event)
+     - [`deleteProperty` Event](./map/index.md#deleteproperty-event)
+     - [`deleteProperty:$key` Event](./map/index.md#deletepropertykey-event)
  - [Array Events](./array/index.md)
    - [`copyWithin` Events](./array/index.md#copyWithin-events)
      - [`copyWithinIndex:$index` Event](./array/index.md#copywithin-event)

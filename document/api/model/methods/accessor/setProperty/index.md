@@ -8,7 +8,7 @@
 ```
 const modelOptions = {
   methods: {
-    accessor: {
+    map: {
       set: {
         recursive: true,
         events: {
@@ -29,8 +29,8 @@ const modelOptions = {
 **Includes**: `setProperty`, `set`  
 **Descript**: Emit included events.  
 
-### Accessor Options
-[Model Property Accessor Method Options](../index.md#path-options)
+### Map Options
+[Model Property Map Method Options](../index.md#path-options)
 
 ## `set` "Model" Method Invocation
 ```
@@ -48,7 +48,7 @@ model.set($value, $ulteroptions)
 **Descript**: Model rooticle/root properties replaced by `$value` properties.  
 #### `$ulteroptions` Argument
 **Type**: `Object`  
-**Descript**: Ulter Model [Get Accessor Method Options](#get-method-options)
+**Descript**: Ulter Model [Get Map Method Options](#get-method-options)
 
 ## `set` "Model Property" Method Invocation
 ```
@@ -73,4 +73,4 @@ model.set($path, $value, $ulteroptions)
 **Descript**: Property value. 
 #### `$ulteroptions` Argument
 **Type**: `Object`  
-**Descript**: Ulter Model [Get Accessor Method Options](#get-method-options)
+**Descript**: Ulter Model [Get Map Method Options](#get-method-options)

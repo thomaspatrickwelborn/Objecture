@@ -4,7 +4,7 @@
 ```
 const modelOptions = {
   methods: {
-    accessor: {
+    map: {
       delete: {
         recursive: true,
         events: {
@@ -24,8 +24,8 @@ const modelOptions = {
 **Type**: `Array`  
 **Includes**: `deleteProperty`, `delete`  
 **Descript**: Emit included events.  
-### Accessor Options
-[Model Property Accessor Method Options](../index.md#path-options)
+### Map Options
+[Model Property Map Method Options](../index.md#path-options)
 
 ## "Delete Model" Invocation
 ```
@@ -41,7 +41,7 @@ model.delete($ulteroptions)
 ### Arguments
 #### `$ulteroptions` Argument
 **Type**: `Object`  
-**Descript**: Ulter Model [Get Accessor Method Options](#get-method-options)
+**Descript**: Ulter Model [Get Map Method Options](#get-method-options)
 
 ## "Delete Model Property" Invocation
 ```
@@ -60,4 +60,4 @@ model.delete($path, $ulteroptions)
 **Descript**: Property path. 
 #### `$ulteroptions` Argument
 **Type**: `Object`  
-**Descript**: Ulter Model [Get Accessor Method Options](#get-method-options)
+**Descript**: Ulter Model [Get Map Method Options](#get-method-options)

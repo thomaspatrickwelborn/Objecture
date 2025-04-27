@@ -7,7 +7,7 @@ import Methods from './methods/index.js'
 import Assign from './assign/index.js'
 
 export default class Model extends Core {
-  static accessors = Object.freeze([($target, $property) => {
+  static maps = Object.freeze([($target, $property) => {
     if($property === undefined) { return $target.target }
     else { return $target.get($property) }
   }, ($target, $property) => {
@@ -15,7 +15,7 @@ export default class Model extends Core {
     else { return $target[$property] }
   }])
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ accessors: Model.accessors })
+    super({ maps: Model.maps })
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
     Object.defineProperty(this, 'options', { configurable: true, get() {
       const options = Options($options)

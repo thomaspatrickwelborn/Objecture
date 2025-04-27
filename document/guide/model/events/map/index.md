@@ -1,7 +1,7 @@
-| [❂ Objecture](../../../../../README.md) | [Guide](../../../index.md) | [Model](../../index.md) | [Events](../index.md) | *Accessor*  
+| [❂ Objecture](../../../../../README.md) | [Guide](../../../index.md) | [Model](../../index.md) | [Events](../index.md) | *Map*  
 | :-- | :-- | :-- | :-- | :-- |
 
-# ⏣ Objecture Guide \| Model Accessor Events
+# ⏣ Objecture Guide \| Model Map Events
 ## `get` Events
 ### `get` Event
 ### `getProperty` Event

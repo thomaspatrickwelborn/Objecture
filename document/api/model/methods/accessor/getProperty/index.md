@@ -4,7 +4,7 @@
 ```
 const modelOptions = {
   methods: {
-    accessor: {
+    map: {
       get: {
         events: {
           'getProperty': true,
@@ -20,8 +20,8 @@ const modelOptions = {
 **Includes**: `getProperty`, `get`  
 **Descript**: Emit included events.  
 
-### Accessor Options
-[Model Property Accessor Method Options](../index.md#path-options)
+### Map Options
+[Model Property Map Method Options](../index.md#path-options)
 
 ## "Get Model" Invocation
 ```
@@ -48,4 +48,4 @@ model.get($path, $ulteroptions)
 **Descript**: Property path. 
 #### `$ulteroptions` Argument
 **Type**: `Object`  
-**Descript**: Ulter Model [Get Accessor Method Options](#get-method-options)
+**Descript**: Ulter Model [Get Map Method Options](#get-method-options)

@@ -3,10 +3,10 @@
 # ⏣ Objecture Guide \| Model Methods
 Objecture Model instances manage object/array properties with same API as their respective prototypal classes and additional `get`/`set`/`delete` methods with map API. Each method may be optionally configured with convenience features.  
 
- - [Model Accessor Methods](./accessor/index.md)
-   - [`Model.set` Method](./accessor/index.md#modelset-method)
-   - [`Model.get` Method](./accessor/index.md#modelget-method)
-   - [`Model.delete` Method](./accessor/index.md#modeldelete-method)
+ - [Model Map Methods](./map/index.md)
+   - [`Model.set` Method](./map/index.md#modelset-method)
+   - [`Model.get` Method](./map/index.md#modelget-method)
+   - [`Model.delete` Method](./map/index.md#modeldelete-method)
  - [Model Object Methods](./object/index.md#model-object-methods)
    - [`Model.assign` Method](./___/index.md#modelassign-method)
    - [`Model.defineProperties` Method](./___/index.md#modeldefineproperties-method)
