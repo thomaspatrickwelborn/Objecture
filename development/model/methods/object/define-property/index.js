@@ -7,7 +7,7 @@ export default function defineProperty($model, $options, $propertyKey) {
   const assignObject = 'defineProperties'
   const assignArray = options.assignArray || 'defineProperties'
   const {
-    descriptorTree, enableValidation, mutatorEvents, validation, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, validationEvents
   } = options
   const { target, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
@@ -52,8 +52,8 @@ export default function defineProperty($model, $options, $propertyKey) {
     else {
       let subschema
       if(schema) {
-        if(schema.type === 'array') { subschema = schema.target[0] }
-        else if(schema.type === 'object') { subschema = schema.target[$propertyKey] }
+        if(schema.type === 'array') { subschema = schema.target[0].type.value }
+        else if(schema.type === 'object') { subschema = schema.target[$propertyKey].type.value }
         else { subschema = undefined }
       }
       let subtarget = typedObjectLiteral(propertyValue)

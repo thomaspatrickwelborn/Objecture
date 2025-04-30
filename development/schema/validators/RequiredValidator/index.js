@@ -1,68 +1,34 @@
+
 import { Coutil } from 'core-plex'
 const { recursiveAssign, typedObjectLiteral } = Coutil
 import Schema from '../../index.js'
 import Validator from '../../validator/index.js'
 export default class RequiredValidator extends Validator {
   constructor($definition, $schema) {
-    super(Object.assign($definition, {
+    super(Object.assign({}, $definition, {
       type: 'required',
       validate: ($key, $value, $source, $target) => {
+        const { requiredProperties, requiredPropertiesSize, type } = $schema
+        const corequiredProperties = Object.assign({}, requiredProperties)
+        let corequiredPropertiesSize = requiredPropertiesSize
+        const properties = Object.assign(typedObjectLiteral(type), $source, $target)
         const definition = this.definition
         let pass
-        const { requiredProperties, requiredPropertiesSize, type } = this.schema
-        if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true }
-        else if(type === 'object') {
-          const corequiredContextProperties = typedObjectLiteral(type)
-          const corequiredModelProperties = typedObjectLiteral(type)
-          iterateRequiredProperties: 
-          for(const [
-            $requiredPropertyName, $requiredProperty
-          ] of Object.entries(requiredProperties)) {
-            const requiredProperty = recursiveAssign({}, $requiredProperty)
-            // ?:START
-            requiredProperty.required.value = false
-            // ?:STOP
-            if($requiredPropertyName === $key) { continue iterateRequiredProperties }
-            const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName)
-            if(sourcePropertyDescriptor !== undefined) {
-              corequiredContextProperties[$requiredPropertyName] = requiredProperty
-              corequiredModelProperties[$requiredPropertyName] = sourcePropertyDescriptor.value
-            }
-            else if($target) {
-              const targetPropertyDescriptor = Object.getOwnPropertyDescriptor($target, $requiredPropertyName)
-              if(targetPropertyDescriptor !== undefined) { continue iterateRequiredProperties }
-              else { corequiredContextProperties[$requiredPropertyName] = requiredProperty }
-            }
-            else {
-              corequiredContextProperties[$requiredPropertyName] = requiredProperty
-            }
+        if(!requiredPropertiesSize) { pass = true }
+        else {
+          if(Object.hasOwn(corequiredProperties, $key)) {
+            delete corequiredProperties[$key]
+            corequiredPropertiesSize--
           }
-          const corequiredContextPropertiesSize = Object.keys(corequiredContextProperties).length
-          const corequiredModelPropertiesSize = Object.keys(corequiredModelProperties).length
-          if(corequiredContextPropertiesSize === 0 && corequiredModelPropertiesSize === 0) { pass = true }
-          else if(corequiredContextPropertiesSize !== corequiredModelPropertiesSize) { pass = false }
-          else {
-            const coschema = new Schema(corequiredContextProperties, Object.assign({}, this.schema.options, {
-              required: false 
-            }))
-            const validations = []
-            for(const [
-              $corequiredContextPropertyName, $corequiredContextProperty
-            ] of Object.entries(corequiredModelProperties)) {
-              const corequiredModelPropertyName = $corequiredContextPropertyName
-              const corequiredModelProperty = corequiredModelProperties[corequiredModelPropertyName]
-              const coschemaPropertyValidation = coschema.validateProperty(
-                $corequiredContextPropertyName, corequiredModelProperty, $source, $target
-              )
-              validations.push(coschemaPropertyValidation)
-            }
-            const nonvalidValidation = (validations.find(($validation) => $validation.pass === false))
-            if(nonvalidValidation) { pass = false }
-            else { pass = true }
+          if(corequiredPropertiesSize) {
+            const coschema = new Schema(corequiredProperties, {
+              path: $schema.path,
+              parent: $schema.parent,
+            })
+            const comodel = Object.assign({}, $target, $source)
+            const covalidation = coschema.validate(comodel)
+            pass = covalidation.valid
           }
-        }
-        else if(type === 'array') {
-          pass = true
         }
         return pass
       }

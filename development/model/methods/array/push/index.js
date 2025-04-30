@@ -40,7 +40,7 @@ export default function push($model, $options, ...$elements) {
       : String(elementsIndex)
     if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element
-      const subschema = schema?.target[0] || null
+      const subschema = schema?.target[0].type.value || null
       const subproperties = typedObjectLiteral(typeOf($element))
       const submodelOptions = Object.assign({}, options, {
         path: modelPath,

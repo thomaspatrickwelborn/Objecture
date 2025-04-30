@@ -21,7 +21,7 @@ const modelOptions = {
 **Descript**: Emit included events.  
 
 ### Map Options
-[Model Property Map Method Options](../index.md#path-options)
+[Model Map Method Options](../index.md#path-options)
 
 ## "Get Model" Invocation
 ```

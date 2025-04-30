@@ -56,7 +56,7 @@ export default function fill($model, $options, ...$arguments) {
     let value
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf() }
-      const subschema = schema?.target[0] || null
+      const subschema = schema?.target[0].type.value || null
       const subproperties = typedObjectLiteral($value)
       const suboptions = Object.assign({}, options, {
         path: modelPath,

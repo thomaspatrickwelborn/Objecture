@@ -18,7 +18,7 @@ const schema = {
   }],
   propertyG: String
 }
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -32,6 +32,9 @@ const object = new Model({
       }
     }
   }],
-  propertyG: false
-}, schema)
+  propertyG: true
+}
+const object = new Model(content, schema)
+delete content.propertyG
 console.log(object.toString({ space: 2, replacer: null }))
+console.log("pass", object.toString() === JSON.stringify(content))

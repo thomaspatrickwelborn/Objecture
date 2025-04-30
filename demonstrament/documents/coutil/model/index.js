@@ -1,6 +1,7 @@
 import { Core, Coutil } from '../../../../node_modules/core-plex/distributement/core-plex.js'
 const { accessors, typedObjectLiteral, typeOf, variables } = Coutil
 const Accessors = [($target, $property) => {
+  console.log($target, $property)
   if($property === undefined) { return $target.target }
   else { return $target.get($property) }
 }]

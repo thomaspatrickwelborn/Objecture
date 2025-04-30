@@ -4,10 +4,8 @@ export default class Verification extends EventTarget {
     const settings = Object.assign({}, $settings)
     Object.defineProperties(this, {
       'type': { value: settings.type },
-      'definition': { value: settings.definition },
       'key': { value: settings.key },
       'value': { value: settings.value },
-      // 'path': { value: settings.path },
       'message': { configurable: true, get() {
         let message
         if(this.pass !== undefined) {

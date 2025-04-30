@@ -52,9 +52,11 @@ class Schema extends EventTarget {
         const requiredProperties = typedObjectLiteral(this.type)
         iterateContextEntries: 
         for(const [$propertyKey, $propertyDefinition] of Object.entries(this.target)) {
-          if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
+          if($propertyDefinition.required?.value === true) {
+            requiredProperties[$propertyKey] = $propertyDefinition
+          }
         }
-        Object.defineProperty(this, 'requiredProperties', { value: requiredProperties })
+        Object.defineProperty(this, 'requiredProperties', { value: Object.freeze(requiredProperties) })
         return requiredProperties
       } },
       'requiredPropertiesSize': { configurable: true, get() {
@@ -88,37 +90,23 @@ class Schema extends EventTarget {
         }, this)
         const sourceProperties = Object.entries($source)
         let sourcePropertyIndex = 0
-        let deadvancedRequiredProperties = []
         while(sourcePropertyIndex < sourceProperties.length) {
           const [$sourceKey, $sourceValue] = sourceProperties[sourcePropertyIndex]
           const propertyValidation = this.validateProperty($sourceKey, $sourceValue, $source, $target)
-          const deadvancedRequiredPropertyValidation = propertyValidation.deadvance.filter(
-            ($verification) => $verification.type === 'required'
-          )
           if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
           else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation) } 
           else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation )}
-          deadvancedRequiredProperties = deadvancedRequiredProperties.concat(deadvancedRequiredPropertyValidation)
           sourcePropertyIndex++
         }
-        if(required === true) {
-          if(validation.deadvance.length) { validation.valid = false }
-          else if(validation.advance.length) { validation.valid = true }
-          else if(validation.unadvance.length) { validation.valid = undefined }
-          else { validation.valid = false }
-        }
-        else if(required === false) {
-          if(deadvancedRequiredProperties.length) { validation.valid = false }
-          else if(validation.advance.length) { validation.valid = true }
-          else if(validation.deadvance.length) { validation.valid = false }
-          else if(validation.unadvance.length) { validation.valid = undefined }
-          else { validation.valid = false }
-         } 
+        if(validation.advance.length) { validation.valid = true }
+        else if(validation.deadvance.length) { validation.valid = false }
+        else if(validation.unadvance.length) { validation.valid = undefined }
+        else { validation.valid = true }
         return validation
       } },
       'validateProperty': { value: function() {
         const { $key, $value, $source, $target } = parseValidatePropertyArguments(...arguments)
-        const { target, path, required, type, verificationType } = this
+        const { target, path, required, schema, type, verificationType } = this
         let propertyDefinition
         if(type === 'array') { propertyDefinition = target[0] }
         else if(type === 'object') { propertyDefinition = target[$key] }
@@ -139,22 +127,16 @@ class Schema extends EventTarget {
           verification.pass = false
           propertyValidation.unadvance.push(verification)
         }
-        else if(propertyDefinition instanceof Schema) {
-          let validation
-          if($target && $target[$key]) { validation = propertyDefinition.validate($key, $value, $target[$key]) }
-          else { validation = propertyDefinition.validate($key, $value) }
-          if(validation.valid === true) { propertyValidation.advance.push(validation) }
-          else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
-          else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
-        }
         else {
-          iterateContextValueValidators:
+          iteratePropertyDefinitionValidators:
           for(const [$validatorIndex, $validator] of Object.entries(propertyDefinition.validators)) {
             const verification = $validator.validate($key, $value, $source, $target)
             if(verification.pass === true) { propertyValidation.advance.push(verification) }
             else if(verification.pass === false) { propertyValidation.deadvance.push(verification) }
             else if(verification.pass === undefined) { propertyValidation.unadvance.push(verification) }
-            if(this.verificationType === 'one' && propertyValidation.deadvance.length) { break iterateContextValueValidators }
+            if(this.verificationType === 'one' && propertyValidation.deadvance.length) {
+              break iteratePropertyDefinitionValidators
+            }
           }
         }
         if(propertyValidation.deadvance.length) { propertyValidation.valid = false }
@@ -191,6 +173,7 @@ function parseValidatePropertyArguments(...$arguments) {
 }
 function parseProperties($properties, $schema) {
   const properties = typedObjectLiteral($properties)
+  if(_isPropertyDefinition($properties, $schema)) { return $properties }
   iterateProperties: 
   for(const [
     $propertyKey, $propertyValue
@@ -206,43 +189,51 @@ function parseProperties($properties, $schema) {
     }
     else if(!isPropertyDefinition) {
       const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey
-      propertyDefinition = new Schema($propertyValue, Object.assign({}, $schema.options, {
-        parent: $schema,
-        path: subpropertyPath
-      }))
-      Object.assign(properties, { [$propertyKey]: propertyDefinition })
-      continue iterateProperties
+      Object.assign(propertyDefinition, {
+        type: { type: 'type', value: new Schema($propertyValue, Object.assign({}, $schema.options, {
+          parent: $schema,
+          path: subpropertyPath
+        })) }
+      })
     }
     else if(isPropertyDefinition) {
       for(const [$propertyValidatorName, $propertyValidator] of Object.entries($propertyValue)) {
         const isValidatorDefinition = _isValidatorDefinition($propertyValidator, $schema)
         if(!isValidatorDefinition) {
-          Object.assign(propertyDefinition, { [$propertyValidatorName]: { value: $propertyValidator } })
+          let propertyValidator
+          if($propertyValidatorName === 'type') {
+            if($propertyValidator && typeof $propertyValidator === 'object') {
+              const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey
+              propertyValidator = new Schema($propertyValidator, Object.assign({}, $schema.options, {
+                parent: $schema, 
+                path: subpropertyPath
+              }))
+            }
+            else {
+              propertyValidator = $propertyValidator
+            }
+          }
+          else {
+            propertyValidator = $propertyValidator
+          }
+          propertyDefinition[$propertyValidatorName] = {
+            type: $propertyValidatorName, value: propertyValidator
+          }
         }
         else if(isValidatorDefinition) {
-          Object.assign(propertyDefinition, { [$propertyValidatorName]: $propertyValidator })
+          propertyDefinition[$propertyValidatorName] = $propertyValidator
         }
       }
     }
-    Object.assign(propertyDefinition, { validators: [] })
-    Object.assign(properties, { [$propertyKey]: propertyDefinition })
+    propertyDefinition.validators = []
+    properties[$propertyKey] = propertyDefinition
     const validators = new Map()
-    const contextRequired = $schema.options.required
-    if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
-      type: 'required', value: true, validator: RequiredValidator 
-    })) }
-    else if(propertyDefinition.required) { validators.set('required', Object.assign({}, propertyDefinition.required, {
-      type: 'required', value: true, validator: RequiredValidator  }))
-    }
-    else { validators.set('required', Object.assign({}, propertyDefinition.required, {
-      type: 'required', value: false, validator: RequiredValidator  }))
-    }
-    if(propertyDefinition.type) { validators.set('type', Object.assign({}, propertyDefinition.type, {
-      type: 'type', validator: TypeValidator
-    })) }
-    else { validators.set('type', Object.assign({}, propertyDefinition.type, {
-      type: 'type', value: undefined, validator: TypeValidator
-    })) }
+    validators.set('type', Object.assign({}, {
+      type: 'type', validator: TypeValidator, value: propertyDefinition.type?.value || false
+    }))
+    validators.set('required', Object.assign({}, {
+      type: 'required', validator: RequiredValidator, value: propertyDefinition.required?.value || false
+    }))
     if(propertyDefinition.range) { validators.set('range', Object.assign({}, propertyDefinition.range, {
       type: 'range', validator: RangeValidator
     })) }
@@ -276,6 +267,7 @@ function parseProperties($properties, $schema) {
   return properties
 }
 function _isPropertyDefinition($object, $schema) {
+  if($object instanceof Schema) return false
   const typeKey = $schema.options.properties.type
   return Object.hasOwn($object, typeKey)
 }

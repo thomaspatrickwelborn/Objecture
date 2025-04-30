@@ -1,22 +1,34 @@
 import { Coutil } from 'core-plex'
 const { typeOf, variables } = Coutil
 import Validator from '../../validator/index.js'
-const { PrimitiveKeys, ObjectKeys } = variables
+const { ObjectKeys, TypeKeys } = variables
+import Schema from '../../index.js'
 export default class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {
-    super(Object.assign($definition, {
+    super(Object.assign({}, $definition, {
       type: 'type',
-      validate: ($key, $value) => {
+      validate: ($key, $value, $source, $target) => {
         let pass
         const definition = this.definition
-        const typeOfDefinitionValue = (typeOf(definition.value) === 'function')
-          ? typeOf(definition.value())
-          : typeOf(definition.value)
-        if(PrimitiveKeys.concat(ObjectKeys).includes(typeOfDefinitionValue)) {
-          const typeOfModelValue = typeOf($value)
-          if(typeOfModelValue === 'undefined') { pass = false }
+        let typeOfDefinitionValue = typeOf(definition.value)
+        if(typeOfDefinitionValue === 'function') {
+          typeOfDefinitionValue = typeOf(definition.value())
+        }
+        else if(definition.value instanceof Schema) {
+          typeOfDefinitionValue = definition.value.type
+        }
+        else {
+          typeOfDefinitionValue = typeOf(definition.value)
+        }
+        if(TypeKeys.includes(typeOfDefinitionValue)) {
+          const typeOfValue = typeOf($value)
+          if(typeOfValue === 'undefined') { pass = false }
           else if(typeOfDefinitionValue === 'undefined') { pass = true }
-          else { pass = (typeOfDefinitionValue === typeOfModelValue) }
+          else if(definition.value instanceof Schema) {
+            const validation = definition.value.validate($value, $source)
+            pass = validation
+          }
+          else { pass = (typeOfDefinitionValue === typeOfValue) }
         }
         else { pass = false }
         return pass
@@ -24,3 +36,4 @@ export default class TypeValidator extends Validator {
     }), $schema)
   }
 }
+

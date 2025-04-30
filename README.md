@@ -31,14 +31,13 @@
      - `assign`, `defineProperties`/`defineProperty`, `freeze`, and `seal` events.  
    - `Array` Events:  
      - `concat`, `copyWithin`, `fill`, `pop`, `push`, `reverse`, `shift`, `splice`, and `unshift` events.  
-   - `Property Map` Events: 
+   - `Map` Events: 
      - `get`, `set`, `delete`  
  - **Capture validation events/data** for array/object properties.    
    - `valid`, `nonvalid` `validProperty`, `nonvalidProperty` events.  
    - Schema validation object with `report` method.  
 
 ## ⏣&ensp;Illustrations
-***Import Object Model, Schema***  
 ```
 import { Model, Schema } from 'objecture'
 ```
@@ -93,7 +92,7 @@ const schema = {
       }
     }
   }],
-  propertyG: String
+  propertyG: Boolean
 }
 const object = new Model({
   propertyA: {
@@ -131,6 +130,7 @@ console.log(object.toString({ space: 2, replacer: null }))
       }
     }
   ],
+  "propertyG": "true"
 }
 ```
 (`propertyG` nonvalid)

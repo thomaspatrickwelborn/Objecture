@@ -1,10 +1,10 @@
 export default {
-  active: false,
-  name: 'Index',
-  path: '/',
-  source: 'documents',
-  target: 'localhost',
-  ignore: ['model', 'schema'],
+  active: true,
+  name: 'Objecture | Model',
+  path: '/schema',
+  source: 'documents/schema',
+  target: 'localhost/schema',
+  ignore: [],
   main: 'index.html',
   pilers: {
     sans: [{
@@ -24,9 +24,33 @@ export default {
       name: 'SimulePiler',
       type: 'simules',
       outputType: 'path',
-      input: 'favicon.ico',
-      output: 'favicon.ico',
-      watch: ['favicon.ico'],
+      input: '../../../node_modules/core-plex/distributement/core-plex.js',
+      output: '../../static/dependencies/core-plex.js',
+      watch: ['../../../node_modules/core-plex/distributement/core-plex.js'],
+      ignore: [],
+    }, {
+      name: 'SimulePiler',
+      type: 'simules',
+      outputType: 'path',
+      input: '../../../node_modules/core-plex/distributement/core-plex.js.map',
+      output: '../../static/dependencies/core-plex.js.map',
+      watch: ['../../../node_modules/core-plex/distributement/core-plex.js.map'],
+      ignore: [],
+    }, {
+      name: 'SimulePiler',
+      type: 'simules',
+      outputType: 'path',
+      input: '../../../node_modules/core-plex/distributement/core-plex.min.js',
+      output: '../../static/dependencies/core-plex.min.js',
+      watch: ['../../../node_modules/core-plex/distributement/core-plex.min.js'],
+      ignore: [],
+    }, {
+      name: 'SimulePiler',
+      type: 'simules',
+      outputType: 'path',
+      input: '../../../node_modules/core-plex/distributement/core-plex.min.js.map',
+      output: '../../static/dependencies/core-plex.min.js.map',
+      watch: ['../../../node_modules/core-plex/distributement/core-plex.min.js.map'],
       ignore: [],
     }],
     styles: [{
@@ -34,7 +58,10 @@ export default {
       type: 'styles',
       input: 'index.scss',
       output: 'index.css',
-      watch: ['**/*.scss'],
+      watch: [
+        '**/*.scss',
+        '../coutil/**/*.scss',
+      ],
       ignore: [],
       inputOptions: {},
       outputOptions: {
@@ -44,7 +71,10 @@ export default {
     scripts: [{
       name: 'RollupPiler',
       type: 'scripts',
-      watch: ['**/*.js'],
+      watch: [
+        '**/*.js',
+        '../coutil/**/*.js',
+      ],
       ignore: [
         '**/$route.js',
         '**/$document.js',

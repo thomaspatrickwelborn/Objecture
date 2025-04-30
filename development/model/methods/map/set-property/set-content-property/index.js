@@ -9,8 +9,8 @@ export default function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model
   const {
     enableValidation, mutatorEvents, pathkey, 
-    recursive, subpathError, validationEvents,
-    source, 
+    recursive, subpathError, 
+    validationEvents, source, 
   } = options
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
@@ -23,8 +23,8 @@ export default function setContentProperty($model, $options, $path, $value) {
     if(subpaths.length) {
       if(recursive && target[propertyKey] === undefined) {
         let subschema
-        if(schema?.type === 'array') { subschema = schema.target[0] }
-        else if(schema?.type === 'object') { subschema = schema.target[propertyKey] }
+        if(schema?.type === 'array') { subschema = schema.target[0].type.value }
+        else if(schema?.type === 'object') { subschema = schema.target[propertyKey].type.value }
         else { subschema = undefined }
         let submodel
         if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -75,12 +75,8 @@ export default function setContentProperty($model, $options, $path, $value) {
       const typeOfPropertyValue= typeOf($value)
       let subschema
       let submodel
-      if(schema?.type === 'array') {
-        subschema = schema.target[0]
-      }
-      else if(schema?.type === 'object') {
-        subschema = schema.target[propertyKey]
-      }
+      if(schema?.type === 'array') { subschema = schema.target[0].type.value }
+      else if(schema?.type === 'object') { subschema = schema.target[propertyKey].type.value }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }
       else if(typeOfPropertyValue === 'object') { submodel = {} }
@@ -113,10 +109,10 @@ export default function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
-            value: propertyValue,
+            value: propertyValue.valueOf(),
             detail: {
               key: propertyKey,
-              value: propertyValue,
+              value: propertyValue.valueOf(),
             }
           }, $model)
         )
@@ -126,9 +122,9 @@ export default function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
-            value: propertyValue,
+            value: propertyValue.valueOf(),
             detail: {
-              value: propertyValue,
+              value: propertyValue.valueOf(),
             }
           }, $model)
         )
@@ -144,10 +140,10 @@ export default function setContentProperty($model, $options, $path, $value) {
       let subschema
       let submodel
       if(schema?.type === 'array') {
-        subschema = schema.target[0]
+        subschema = schema.target[0].type.value
       }
       if(schema?.type === 'object') {
-        subschema = schema.target[propertyKey]
+        subschema = schema.target[propertyKey].type.value
       }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -184,11 +180,11 @@ export default function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
-            value: propertyValue,
+            value: propertyValue.valueOf(),
             detail: {
               key: propertyKey,
-              value: propertyValue,
-            }
+              value: propertyValue.valueOf(),
+            },
           }, $model)
         )
       }
@@ -197,9 +193,9 @@ export default function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
-            value: propertyValue,
+            value: propertyValue.valueOf(),
             detail: {
-              value: propertyValue,
+              value: propertyValue.valueOf(),
             }
           }, $model)
         )

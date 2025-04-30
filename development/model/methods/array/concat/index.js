@@ -39,7 +39,7 @@ export default function concat($model, $options) {
       : String(valueIndex)
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf() }
-      let subschema = schema?.target[0] || null
+      let subschema = schema?.target[0].type.value || null
       const submodel = typedObjectLiteral($value)
       let value = new $model.constructor(submodel, subschema, {
         path: modelPath,

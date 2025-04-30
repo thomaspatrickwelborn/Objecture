@@ -25,7 +25,7 @@ const modelOptions = {
 **Includes**: `deleteProperty`, `delete`  
 **Descript**: Emit included events.  
 ### Map Options
-[Model Property Map Method Options](../index.md#path-options)
+[Model Map Method Options](../index.md#path-options)
 
 ## "Delete Model" Invocation
 ```

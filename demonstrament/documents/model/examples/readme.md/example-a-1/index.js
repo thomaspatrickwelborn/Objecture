@@ -2,7 +2,7 @@ console.log("------------")
 console.log("Example A.1.")
 console.log("------------")
 import { Model, Schema } from '/dependencies/objecture.js'
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -14,5 +14,8 @@ const object = new Model({
     }
   }],
   propertyG: "TRUE"
-})
-console.log(object.valueOf())
+}
+const object = new Model(content)
+console.log("=====")
+console.log(object.toString({ space: 2, replacer: null }))
+console.log("pass", object.toString() === JSON.stringify(content))

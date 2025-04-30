@@ -1,6 +1,7 @@
 import { Coutil } from 'core-plex'
 const { recursiveAssign } = Coutil
 import Verification from '../verification/index.js'
+import Validation from '../validation/index.js'
 const Messages = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
@@ -18,15 +19,19 @@ export default class Validator extends EventTarget {
       'messages': { value: definition.messages },
       'validate': { configurable: true, get() {
         function validate($key, $value, $source, $target) {
-          const { definition, messages, type} = this
-          const verification = new Verification({
+          const { definition, messages, type } = this
+          let verification = new Verification({
             type: type,
-            definition: definition,
             key: $key,
             value: $value,
             messages: recursiveAssign({}, messages, definition.messages),
           })
-          verification.pass = definition.validate(...arguments)
+          const validation = definition.validate(...arguments)
+          if(typeof validation === 'object') {
+            verification.validation = validation
+            verification.pass = validation.valid
+          }
+          else { verification.pass = validation }
           return verification
         }
         const boundValidate = validate.bind(this)

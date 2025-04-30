@@ -1,9 +1,9 @@
 console.log("------------")
-console.log("Example A.4.")
+console.log("Example A.5.")
 console.log("------------")
 import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) {
-  console.log($event.type, $event.path, JSON.stringify($event.value, null, 2))
+  console.log($event.type, $event.path)
 }
 const schema = new Schema({
   propertyA: {
@@ -14,9 +14,11 @@ const schema = new Schema({
   propertyD: [{
     propertyE: {
       propertyF: Number,
-      propertyE: {
-        propertyFFF: Number
-      }
+      propertyE: { required: true, type: {
+        propertyFFF: Number,
+        propertyGGG: Boolean,
+      } },
+      propertyFF: { required: true, type: Boolean },
     }
   }],
   propertyG: Boolean
@@ -31,21 +33,29 @@ const content = {
     propertyE: {
       propertyF: 1,
       propertyE: {
-        propertyFFF: 1
-      }
+        propertyFFF: "1",
+        propertyGGG: "true",
+      },
+      propertyFF: true,
+    }
+  }, {
+    propertyE: {
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1,
+        propertyGGG: true,
+      },
+      propertyFF: true,
     }
   }],
-  propertyG: "true"
+  propertyG: true
 }
+const validation = schema.validate(content)
 const object = new Model(content, schema, {
   events: {
-    '** valid': eventLog,
     '** validProperty': eventLog,
-    '** nonvalid': eventLog,
     '** nonvalidProperty': eventLog,
   },
   enableEvents: true,
 })
-const delcontent = Object.assign({}, content)
-delete delcontent.propertyG
-console.log("pass", object.toString({ space: 2, replacer: null }) === JSON.stringify(delcontent, null, 2))
+console.log(object.toString({ space: 2, replacer: null }))

@@ -11,8 +11,6 @@ export default ($options) => {
       'validProperty': true,
       'nonvalidProperty:$key': true,
       'nonvalidProperty': true,
-      'valid': true,
-      'nonvalid': true,
     },
     pathkey: true,
     subpathError: false,

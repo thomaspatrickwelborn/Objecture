@@ -52,8 +52,8 @@ export default function assign($model, $options, ...$sources) {
           sourceValue = $sourceValue.valueOf()
         }
         let subschema
-        if(schema?.type === 'array') { subschema = schema.target[0] }
-        else if(schema?.type === 'object') { subschema = schema.target[$sourceKey] }
+        if(schema?.type === 'array') { subschema = schema.target[0].type.value }
+        else if(schema?.type === 'object') { subschema = schema.target[$sourceKey].type.value }
         else { subschema = null }
         const modelPath = (path)
           ? [path, $sourceKey].join('.')
@@ -129,16 +129,6 @@ export default function assign($model, $options, ...$sources) {
       }
     }
     assignedSources.push(assignedSource)
-    if(enableValidation && schema) {
-      if(validationEvents) {
-        let type, propertyType
-        const validatorPath = path
-        if(validObject.valid) { type = 'valid' }
-        else { type = 'nonvalid' }
-        $model.dispatchEvent(new ValidatorEvent(type, validObject, $model))
-      }
-      if(!validObject.valid) { return }
-    }
     if(mutatorEvents && mutatorEvents['assignSource']) {
       assignSourceChange.anter = $model
       $model.dispatchEvent(

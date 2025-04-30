@@ -14,11 +14,11 @@ export default class ValidatorEvent extends CustomEvent {
         Object.defineProperty(this, 'path', { value: path })
         return path
       } },
-      'value': { configurable: true, get () {
-        const value = $settings.value
-        Object.defineProperty(this, 'value', { value: value, })
-        return value
-      } },
+      // 'value': { configurable: true, get () {
+      //   const value = $settings.value
+      //   Object.defineProperty(this, 'value', { value: value, })
+      //   return value
+      // } },
       'valid': { configurable: true, get () {
         const valid = $settings.valid
         Object.defineProperty(this, 'valid', { value: valid })

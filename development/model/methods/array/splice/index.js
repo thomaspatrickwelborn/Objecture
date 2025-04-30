@@ -94,7 +94,7 @@ export default function splice($model, $options) {
     let startIndex = $start + addItemsIndex
     if(addItem && typeof addItem === 'object') {
       if(addItem instanceof $model.constructor) { addItem = addItem.valueOf() }
-      const subschema = schema?.target[0] || null
+      const subschema = schema?.target[0].type.value || null
       const subproperties = typedObjectLiteral(addItem)
       const suboptions = recursiveAssign({}, options, {
         path: modelPath,
