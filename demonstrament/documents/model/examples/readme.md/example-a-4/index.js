@@ -3,7 +3,7 @@ console.log("Example A.4.")
 console.log("------------")
 import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) {
-  console.log($event.type, $event.path, JSON.stringify($event.value, null, 2))
+  console.log($event.type, $event.path)
 }
 const schema = new Schema({
   propertyA: {
@@ -39,13 +39,12 @@ const content = {
 }
 const object = new Model(content, schema, {
   events: {
-    '** valid': eventLog,
     '** validProperty': eventLog,
-    '** nonvalid': eventLog,
     '** nonvalidProperty': eventLog,
   },
   enableEvents: true,
 })
 const delcontent = Object.assign({}, content)
 delete delcontent.propertyG
+console.log(object.toString({ space: 2, replacer: null }))
 console.log("pass", object.toString({ space: 2, replacer: null }) === JSON.stringify(delcontent, null, 2))

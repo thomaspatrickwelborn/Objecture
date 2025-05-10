@@ -11,22 +11,22 @@
 | :-- |
 
 ## ⏣&ensp;Introduction
- - Manage structured content using *familiar* JS `Object`, `Array`, `EventTarget` APIs.  
+ - Manage structured data models using *familiar* JS `Object`, `Array`, `EventTarget` APIs.  
  - Schematize data structures with property validators.  
- - Capture **content *and* validation events** for property changes (including **nested** property events).  
+ - Capture data model **and** validation events for property changes (including nested property events).  
 
 ## ⏣&ensp;Impetus
- - Frontend, backend applications require or benefit from structured content with validatable schema.  
- - Detecting changes to structured content in objects/arrays through property events promotes event-driven application architecture.  
- - There are limited libraries with *both* **browser** *and* **Node** *compatibility* that manage **schematized content** with **validators** or that capture **nested property change events**.  
+ - Frontend, backend applications require or benefit from structured data models with validatable schema.  
+ - Detecting changes to structured  through property events promotes event-driven application architecture.  
+ - Few libraries offer *both* browser-**and**-Node-compatible schematized data models with validators **or** that nested property change events.  
 
 ## ⏣&ensp;Impact
- - **Manage content** for primitive/object data types: 
+ - **Manage data models** for primitive/object data types: 
    - `string`, `number`, `boolean`, `null` primitives; 
    - `object`, `array`. 
- - **Schematize content** with property validators.  
+ - **Schematize data models** with property validators.  
    - `type`, `required`, `match`, `enum`, `range`, `length` and *custom* validators.  
- - [**Capture content events**](./document/guide/model/events/index.md) for *any* methods that modify content.  
+ - [**Capture data model events**](./document/guide/model/events/index.md) for *any* methods that modify data models.  
    - `Object` Events:  
      - `assign`, `defineProperties`/`defineProperty`, `freeze`, and `seal` events.  
    - `Array` Events:  
@@ -44,7 +44,7 @@ import { Model, Schema } from 'objecture'
 ### Objecture Model
 - [Example A.1.](./demonstrament/documents/model/examples/readme.md/example-a-1/index.js)
 ```
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -56,23 +56,28 @@ const object = new Model({
     }
   }],
   propertyG: "TRUE"
-})
-console.log(object.valueOf())
+}
+const object = new Model(content)
+console.log(object.toString({ space: 2, replacer: null }))
+console.log("pass", object.toString() === JSON.stringify(content))
+
 ```
 ***`object.valueOf` logs***:  
 ```
 {
-  propertyA: {
-    propertyB: {
-      propertyC: true
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
     }
   },
-  propertyD: [{
-    propertyE: { 
-      propertyF: 1
+  "propertyD": [
+    {
+      "propertyE": {
+        "propertyF": 1
+      }
     }
-  }],
-  propertyG: "TRUE"
+  ],
+  "propertyG": "TRUE"
 }
 ```
 ### Schematized Objecture Model
@@ -92,9 +97,9 @@ const schema = {
       }
     }
   }],
-  propertyG: Boolean
+  propertyG: String
 }
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -108,8 +113,9 @@ const object = new Model({
       }
     }
   }],
-  propertyG: "true"
-}, schema)
+  propertyG: true
+}
+const object = new Model(content, schema)
 console.log(object.toString({ space: 2, replacer: null }))
 ```
 ***`object.toString` logs***:  
@@ -141,7 +147,7 @@ console.log(object.toString({ space: 2, replacer: null }))
 function eventLog($event) {
   console.log($event.type, $event.path, JSON.stringify($event.value))
 }
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -153,7 +159,8 @@ const object = new Model({
     }
   }],
   propertyG: "TRUE"
-}, null, {
+}
+const object = new Model(content, null, {
   events: {
     'propertyA.propertyB setProperty': eventLog,
     'propertyA setProperty': eventLog,
@@ -164,6 +171,7 @@ const object = new Model({
   },
   enableEvents: true
 })
+console.log(object.toString({ space: 2, replacer: null }))
 ```
 ***logs***  
 ```
@@ -171,17 +179,23 @@ setProperty propertyA.propertyB.propertyC true
 set propertyA.propertyB {
   "propertyC": true
 }
-setProperty propertyA.propertyB {}
+setProperty propertyA.propertyB {
+  "propertyC": true
+}
 set propertyA {
   "propertyB": {
     "propertyC": true
   }
 }
-setProperty propertyA {}
+setProperty propertyA {
+  "propertyB": {
+    "propertyC": true
+  }
+}
 set propertyD.0.propertyE {
   "propertyF": 1
 }
-set propertyD.0 {
+2set propertyD.0 {
   "propertyE": {
     "propertyF": 1
   }
@@ -193,7 +207,13 @@ set propertyD [
     }
   }
 ]
-setProperty propertyD {}
+setProperty propertyD [
+  {
+    "propertyE": {
+      "propertyF": 1
+    }
+  }
+]
 setProperty propertyG "TRUE"
 set null {
   "propertyA": {
@@ -202,7 +222,22 @@ set null {
     }
   },
   "propertyD": [
-  {
+    {
+      "propertyE": {
+        "propertyF": 1
+      }
+    }
+  ],
+  "propertyG": "TRUE"
+}
+{
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+    {
       "propertyE": {
         "propertyF": 1
       }
@@ -228,9 +263,9 @@ const schema = new Schema({
       }
     }
   }],
-  propertyG: String
+  propertyG: Boolean
 })
-const object = new Model({
+const content = {
   propertyA: {
     propertyB: {
       propertyC: true
@@ -245,113 +280,29 @@ const object = new Model({
     }
   }],
   propertyG: "true"
-}, schema, {
+}
+const object = new Model(content, schema, {
   events: {
-    '** valid': eventLog,
     '** validProperty': eventLog,
-    '** nonvalid': eventLog,
     '** nonvalidProperty': eventLog,
   },
   enableEvents: true,
 })
 console.log(object.toString({ space: 2, replacer: null }))
-
 ```
-***logs***  
+***logs***
 ```
-validProperty propertyA {
-  "propertyB": {
-    "propertyC": true
-  }
-}
-validProperty propertyA.propertyB {
-  "propertyC": true
-}
-validProperty propertyA.propertyB.propertyC true
-valid propertyA.propertyB. {
-  "propertyC": true
-}
-valid propertyA. {
-  "propertyB": {
-    "propertyC": true
-  }
-}
-validProperty propertyD [
-  {
-    "propertyE": {
-      "propertyF": 1,
-      "propertyE": {
-        "propertyFFF": 1
-      }
-    }
-  }
-]
-validProperty propertyD.0 {
-  "propertyE": {
-    "propertyF": 1,
-    "propertyE": {
-      "propertyFFF": 1
-    }
-  }
-}
-validProperty propertyD.0.propertyE {
-  "propertyF": 1,
-  "propertyE": {
-    "propertyFFF": 1
-  }
-}
-validProperty propertyD.0.propertyE.propertyF 1
-validProperty propertyD.0.propertyE.propertyE {
-  "propertyFFF": 1
-}
-validProperty propertyD.0.propertyE.propertyE.propertyFFF 1
-valid propertyD.0.propertyE.propertyE. {
-  "propertyFFF": 1
-}
-valid propertyD.0.propertyE. {
-  "propertyF": 1,
-  "propertyE": {
-    "propertyFFF": 1
-  }
-}
-valid propertyD.0. {
-  "propertyE": {
-    "propertyF": 1,
-    "propertyE": {
-      "propertyFFF": 1
-    }
-  }
-}
-valid propertyD. [
-  {
-    "propertyE": {
-      "propertyF": 1,
-      "propertyE": {
-        "propertyFFF": 1
-      }
-    }
-  }
-]
-nonvalidProperty propertyG "true"
-valid null {
-  "propertyA": {
-    "propertyB": {
-      "propertyC": true
-    }
-  },
-  "propertyD": [
-    {
-      "propertyE": {
-        "propertyF": 1,
-        "propertyE": {
-          "propertyFFF": 1
-        }
-      }
-    }
-  ],
-  "propertyG": "true"
-}
- {
+validProperty propertyA
+validProperty propertyA.propertyB
+validProperty propertyA.propertyB.propertyC
+validProperty propertyD
+validProperty propertyD.0
+validProperty propertyD.0.propertyE
+validProperty propertyD.0.propertyE.propertyF
+validProperty propertyD.0.propertyE.propertyE
+validProperty propertyD.0.propertyE.propertyE.propertyFFF
+nonvalidProperty propertyG
+{
   "propertyA": {
     "propertyB": {
       "propertyC": true
@@ -369,3 +320,101 @@ valid null {
   ]
 }
 ```
+(`propertyG` nonvalid)
+
+### Ventilated, Schematized Model
+- [Example A.5.](./demonstrament/documents/model/examples/readme.md/example-a-5/index.js)
+```
+const schema = new Schema({
+  propertyA: {
+    propertyB: {
+      propertyC: Boolean
+    }
+  },
+  propertyD: [{
+    propertyE: {
+      propertyF: Number,
+      propertyE: { required: true, type: {
+        propertyFFF: Number,
+        propertyGGG: Boolean,
+      } },
+      propertyFF: { required: true, type: Boolean },
+    }
+  }],
+  propertyG: Boolean
+})
+const content = {
+  propertyA: {
+    propertyB: {
+      propertyC: true
+    }
+  },
+  propertyD: [{
+    propertyE: {
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: "1",
+        propertyGGG: "true",
+      },
+      propertyFF: true,
+    }
+  }, {
+    propertyE: {
+      propertyF: 1,
+      propertyE: {
+        propertyFFF: 1,
+        propertyGGG: true,
+      },
+      propertyFF: true,
+    }
+  }],
+  propertyG: true
+}
+const object = new Model(content, schema, {
+  events: {
+    '** validProperty': eventLog,
+    '** nonvalidProperty': eventLog,
+  },
+  enableEvents: true,
+})
+console.log(object.toString({ space: 2, replacer: null }))
+
+``` 
+***logs*** 
+```
+validProperty propertyA
+validProperty propertyA.propertyB
+validProperty propertyA.propertyB.propertyC
+validProperty propertyD
+nonvalidProperty propertyD.0
+validProperty propertyD.1
+validProperty propertyD.1.propertyE
+validProperty propertyD.1.propertyE.propertyF
+validProperty propertyD.1.propertyE.propertyE
+validProperty propertyD.1.propertyE.propertyE.propertyFFF
+validProperty propertyD.1.propertyE.propertyE.propertyGGG
+validProperty propertyD.1.propertyE.propertyFF
+validProperty propertyG
+{
+  "propertyA": {
+    "propertyB": {
+      "propertyC": true
+    }
+  },
+  "propertyD": [
+    null,
+    {
+      "propertyE": {
+        "propertyF": 1,
+        "propertyE": {
+          "propertyFFF": 1,
+          "propertyGGG": true
+        },
+        "propertyFF": true
+      }
+    }
+  ],
+  "propertyG": true
+}
+```
+(`propertyD.0` nonvalid)

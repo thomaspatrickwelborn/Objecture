@@ -16,6 +16,5 @@ const content = {
   propertyG: "TRUE"
 }
 const object = new Model(content)
-console.log("=====")
 console.log(object.toString({ space: 2, replacer: null }))
 console.log("pass", object.toString() === JSON.stringify(content))

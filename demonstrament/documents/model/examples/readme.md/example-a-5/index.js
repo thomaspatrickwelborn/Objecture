@@ -50,7 +50,6 @@ const content = {
   }],
   propertyG: true
 }
-const validation = schema.validate(content)
 const object = new Model(content, schema, {
   events: {
     '** validProperty': eventLog,
