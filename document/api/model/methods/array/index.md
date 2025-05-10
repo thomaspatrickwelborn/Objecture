@@ -49,7 +49,7 @@ const $modelOptions = {
     array: {
       concat: {
         events: {
-          'concatValue': true,
+          'concatElement': true,
           'concat': true
         ]
       },
@@ -72,7 +72,7 @@ const $modelOptions = {
       },
       push: {
         events: [
-          'pushProp',
+          'pushElement',
           'push'
         ]
       },
@@ -88,14 +88,14 @@ const $modelOptions = {
       },
       splice: {
         events: {
-          'spliceDelete': true,
-          'spliceAdd': true,
+          'spliceDeleteElement': true,
+          'spliceAddElement': true,
           'splice': true
         }
       },
       unshift: {
         events: {
-          'unshiftProp': true,
+          'unshiftElement': true,
           'unshift': true
         }
       },

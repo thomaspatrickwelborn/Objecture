@@ -3,25 +3,25 @@
 
 # ⏣ Objecture Guide \| Model Array Events
 ## `concat` Events
-### `concatValue:$index` Event
-### `concatValue` Event
+### `concatElement:$index` Event
+### `concatElement` Event
 ### `concat` Event
 
 ## `copyWithin` Events
-### `copyWithinIndex:$index` Event
-### `copyWithinIndex` Event
+### `copyWithinElement:$index` Event
+### `copyWithinElement` Event
 ### `copyWithin` Event
 
 ## `fill` Events
-### `fillIndex:$index` Event
-### `fillIndex` Event
+### `fillElement:$index` Event
+### `fillElement` Event
 ### `fill` Event
 
 ## `pop` Event
 
 ## `push` Events
-### `pushProp:$index` Event
-### `pushProp` Event
+### `pushElement:$index` Event
+### `pushElement` Event
 ### `push` Event
 
 ## `reverse` Event
@@ -29,13 +29,13 @@
 ## `shift` Event
 
 ## `splice` Events
-### `spliceDelete:$index` Event
-### `spliceDelete` Event
-### `spliceAdd:$index` Event
-### `spliceAdd` Event
+### `spliceDeleteElement:$index` Event
+### `spliceDeleteElement` Event
+### `spliceAddElement:$index` Event
+### `spliceAddElement` Event
 ### `splice` Event
 
 ## `unshift` Events
-### `unshiftProp:$index` Event
-### `unshiftProp` Event
+### `unshiftElement:$index` Event
+### `unshiftElement` Event
 ### `unshift` Event

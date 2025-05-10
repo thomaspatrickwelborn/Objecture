@@ -31,9 +31,9 @@ export default function splice($model, $options) {
       const modelEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex)
-      if(mutatorEvents['spliceDelete']) {
+      if(mutatorEvents['spliceDeleteElement']) {
         $model.dispatchEvent(
-          new ModelEvent('spliceDelete', {
+          new ModelEvent('spliceDeleteElement', {
             path: modelEventPath,
             value: deleteItem,
             detail: {
@@ -44,8 +44,8 @@ export default function splice($model, $options) {
           }, $model)
         )
       }
-      if(mutatorEvents['spliceDelete:$index']) {
-        const type = ['spliceDelete', ':', deleteItemsIndex].join('')
+      if(mutatorEvents['spliceDeleteElement:$index']) {
+        const type = ['spliceDeleteElement', ':', deleteItemsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -116,9 +116,9 @@ export default function splice($model, $options) {
       const modelEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex)
-      if(mutatorEvents['spliceAdd']) {
+      if(mutatorEvents['spliceAddElement']) {
         $model.dispatchEvent(
-          new ModelEvent('spliceAdd', {
+          new ModelEvent('spliceAddElement', {
             path: modelEventPath,
             value: addItem,
             detail: {
@@ -129,8 +129,8 @@ export default function splice($model, $options) {
           }, $model)
         )
       }
-      if(mutatorEvents['spliceAdd:$index']) {
-        const type = ['spliceAdd', ':', addItemsIndex].join('')
+      if(mutatorEvents['spliceAddElement:$index']) {
+        const type = ['spliceAddElement', ':', addItemsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,

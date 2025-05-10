@@ -44,23 +44,23 @@ export default ($options) => {
       array: {
         concat: {
           mutatorEvents: {
-            'concatValue:$index': true,
-            'concatValue': true,
+            'concatElement:$index': true,
+            'concatElement': true,
             'concat': true,
           }
         },
         copyWithin: {
           mutatorEvents: {
-            'copyWithinIndex:$index': true,
-            'copyWithinIndex': true,
+            'copyWithinElement:$index': true,
+            'copyWithinElement': true,
             'copyWithin': true,
           }
         },
         fill: {
           lengthen: true,
           mutatorEvents: {
-            'fillIndex:$index': true,
-            'fillIndex': true,
+            'fillElement:$index': true,
+            'fillElement': true,
             'fill': true,
           }
         },
@@ -69,8 +69,8 @@ export default ($options) => {
         },
         push: {
           mutatorEvents: {
-            'pushProp:$index': true,
-            'pushProp': true,
+            'pushElement:$index': true,
+            'pushElement': true,
             'push': true,
           }
         },
@@ -82,17 +82,17 @@ export default ($options) => {
         },
         splice: {
           mutatorEvents: {
-            'spliceDelete:$index': true,
-            'spliceDelete': true,
-            'spliceAdd:$index': true,
-            'spliceAdd': true,
+            'spliceDeleteElement:$index': true,
+            'spliceDeleteElement': true,
+            'spliceAddElement:$index': true,
+            'spliceAddElement': true,
             'splice': true,
           }
         },
         unshift: {
           mutatorEvents: {
-            'unshiftProp:$index': true,
-            'unshiftProp': true,
+            'unshiftElement:$index': true,
+            'unshiftElement': true,
             'unshift': true,
           }
         },

@@ -76,9 +76,9 @@ export default function fill($model, $options, ...$arguments) {
       const modelEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex)
-      if(mutatorEvents['fillIndex']) {
+      if(mutatorEvents['fillElement']) {
         $model.dispatchEvent(
-          new ModelEvent('fillIndex', {
+          new ModelEvent('fillElement', {
             path: modelEventPath, 
             value: value,
             detail: {
@@ -89,8 +89,8 @@ export default function fill($model, $options, ...$arguments) {
           }, $model)
         )
       }
-      if(mutatorEvents['fillIndex:$index']) {
-        const type = ['fillIndex', ':', fillIndex].join('')
+      if(mutatorEvents['fillElement:$index']) {
+        const type = ['fillElement', ':', fillIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 

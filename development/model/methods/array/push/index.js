@@ -64,9 +64,9 @@ export default function push($model, $options, ...$elements) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex)
-      if(mutatorEvents['pushProp']) {
+      if(mutatorEvents['pushElement']) {
         $model.dispatchEvent(
-          new ModelEvent('pushProp', {
+          new ModelEvent('pushElement', {
             path: modelEventPath,
             value: elements[elementsIndex],
             detail: {
@@ -76,8 +76,8 @@ export default function push($model, $options, ...$elements) {
           }, $model)
         )
       }
-      if(mutatorEvents['pushProp:$index']) {
-        const type = ['pushProp', ':', elementsIndex].join('')
+      if(mutatorEvents['pushElement:$index']) {
+        const type = ['pushElement', ':', elementsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,

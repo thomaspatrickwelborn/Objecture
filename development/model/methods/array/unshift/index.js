@@ -61,9 +61,9 @@ export default function unshift($model, $options, ...$elements) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex)
-      if(mutatorEvents['unshiftProp']) {
+      if(mutatorEvents['unshiftElement']) {
         $model.dispatchEvent(
-          new ModelEvent('unshiftProp', {
+          new ModelEvent('unshiftElement', {
             path: modelEventPath,
             value: elements[elementsIndex],
             detail: {
@@ -73,8 +73,8 @@ export default function unshift($model, $options, ...$elements) {
           }, $model)
         )
       }
-      if(mutatorEvents['unshiftProp:$index']) {
-        const type = ['unshiftProp', ':', elementsIndex].join('')
+      if(mutatorEvents['unshiftElement:$index']) {
+        const type = ['unshiftElement', ':', elementsIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,

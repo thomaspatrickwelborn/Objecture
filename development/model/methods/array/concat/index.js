@@ -56,9 +56,9 @@ export default function concat($model, $options) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex)
-      if(mutatorEvents['concatValue']) {
+      if(mutatorEvents['concatElement']) {
         $model.dispatchEvent(
-          new ModelEvent('concatValue', {
+          new ModelEvent('concatElement', {
             path: modelEventPath,
             value: values[valueIndex],
             detail: {
@@ -68,10 +68,10 @@ export default function concat($model, $options) {
           }, $model)
         )
       }
-      if(mutatorEvents['concatValue:$index']) {
-        const type = ['concatValue', valueIndex].join(':')
+      if(mutatorEvents['concatElement:$index']) {
+        const type = ['concatElement', valueIndex].join(':')
         $model.dispatchEvent(
-          new ModelEvent('concatValue', {
+          new ModelEvent('concatElement', {
             path: modelEventPath,
             value: values[valueIndex],
             detail: {

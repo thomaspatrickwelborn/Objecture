@@ -36,10 +36,10 @@ export default function copyWithin($model, $options) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex)
-      if(mutatorEvents['copyWithinIndex']) {
+      if(mutatorEvents['copyWithinElement']) {
         $model.dispatchEvent(
           new ModelEvent(
-            'copyWithinIndex',
+            'copyWithinElement',
             {
               path: modelEventPath,
               value: copyItem,
@@ -54,8 +54,8 @@ export default function copyWithin($model, $options) {
           )
         )
       }
-      if(mutatorEvents['copyWithinIndex:$index']) {
-        const type  = ['copyWithinIndex', ':', copyIndex].join('')
+      if(mutatorEvents['copyWithinElement:$index']) {
+        const type  = ['copyWithinElement', ':', copyIndex].join('')
         $model.dispatchEvent(
           new ModelEvent(
             type,

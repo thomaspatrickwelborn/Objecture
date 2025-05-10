@@ -1844,23 +1844,23 @@ var Options = ($options) => {
       array: {
         concat: {
           mutatorEvents: {
-            'concatValue:$index': true,
-            'concatValue': true,
+            'concatElement:$index': true,
+            'concatElement': true,
             'concat': true,
           }
         },
         copyWithin: {
           mutatorEvents: {
-            'copyWithinIndex:$index': true,
-            'copyWithinIndex': true,
+            'copyWithinElement:$index': true,
+            'copyWithinElement': true,
             'copyWithin': true,
           }
         },
         fill: {
           lengthen: true,
           mutatorEvents: {
-            'fillIndex:$index': true,
-            'fillIndex': true,
+            'fillElement:$index': true,
+            'fillElement': true,
             'fill': true,
           }
         },
@@ -1869,8 +1869,8 @@ var Options = ($options) => {
         },
         push: {
           mutatorEvents: {
-            'pushProp:$index': true,
-            'pushProp': true,
+            'pushElement:$index': true,
+            'pushElement': true,
             'push': true,
           }
         },
@@ -1882,17 +1882,17 @@ var Options = ($options) => {
         },
         splice: {
           mutatorEvents: {
-            'spliceDelete:$index': true,
-            'spliceDelete': true,
-            'spliceAdd:$index': true,
-            'spliceAdd': true,
+            'spliceDeleteElement:$index': true,
+            'spliceDeleteElement': true,
+            'spliceAddElement:$index': true,
+            'spliceAddElement': true,
             'splice': true,
           }
         },
         unshift: {
           mutatorEvents: {
-            'unshiftProp:$index': true,
-            'unshiftProp': true,
+            'unshiftElement:$index': true,
+            'unshiftElement': true,
             'unshift': true,
           }
         },
@@ -2469,9 +2469,9 @@ function concat($model, $options) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex);
-      if(mutatorEvents['concatValue']) {
+      if(mutatorEvents['concatElement']) {
         $model.dispatchEvent(
-          new ModelEvent('concatValue', {
+          new ModelEvent('concatElement', {
             path: modelEventPath,
             value: values[valueIndex],
             detail: {
@@ -2481,9 +2481,9 @@ function concat($model, $options) {
           }, $model)
         );
       }
-      if(mutatorEvents['concatValue:$index']) {
+      if(mutatorEvents['concatElement:$index']) {
         $model.dispatchEvent(
-          new ModelEvent('concatValue', {
+          new ModelEvent('concatElement', {
             path: modelEventPath,
             value: values[valueIndex],
             detail: {
@@ -2545,10 +2545,10 @@ function copyWithin($model, $options) {
       const modelEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex);
-      if(mutatorEvents['copyWithinIndex']) {
+      if(mutatorEvents['copyWithinElement']) {
         $model.dispatchEvent(
           new ModelEvent(
-            'copyWithinIndex',
+            'copyWithinElement',
             {
               path: modelEventPath,
               value: copyItem,
@@ -2563,8 +2563,8 @@ function copyWithin($model, $options) {
           )
         );
       }
-      if(mutatorEvents['copyWithinIndex:$index']) {
-        const type  = ['copyWithinIndex', ':', copyIndex].join('');
+      if(mutatorEvents['copyWithinElement:$index']) {
+        const type  = ['copyWithinElement', ':', copyIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(
             type,
@@ -2680,9 +2680,9 @@ function fill($model, $options, ...$arguments) {
       const modelEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex);
-      if(mutatorEvents['fillIndex']) {
+      if(mutatorEvents['fillElement']) {
         $model.dispatchEvent(
-          new ModelEvent('fillIndex', {
+          new ModelEvent('fillElement', {
             path: modelEventPath, 
             value: value,
             detail: {
@@ -2693,8 +2693,8 @@ function fill($model, $options, ...$arguments) {
           }, $model)
         );
       }
-      if(mutatorEvents['fillIndex:$index']) {
-        const type = ['fillIndex', ':', fillIndex].join('');
+      if(mutatorEvents['fillElement:$index']) {
+        const type = ['fillElement', ':', fillIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
@@ -2813,9 +2813,9 @@ function push($model, $options, ...$elements) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex);
-      if(mutatorEvents['pushProp']) {
+      if(mutatorEvents['pushElement']) {
         $model.dispatchEvent(
-          new ModelEvent('pushProp', {
+          new ModelEvent('pushElement', {
             path: modelEventPath,
             value: elements[elementsIndex],
             detail: {
@@ -2825,8 +2825,8 @@ function push($model, $options, ...$elements) {
           }, $model)
         );
       }
-      if(mutatorEvents['pushProp:$index']) {
-        const type = ['pushProp', ':', elementsIndex].join('');
+      if(mutatorEvents['pushElement:$index']) {
+        const type = ['pushElement', ':', elementsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -2934,9 +2934,9 @@ function splice($model, $options) {
       const modelEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex);
-      if(mutatorEvents['spliceDelete']) {
+      if(mutatorEvents['spliceDeleteElement']) {
         $model.dispatchEvent(
-          new ModelEvent('spliceDelete', {
+          new ModelEvent('spliceDeleteElement', {
             path: modelEventPath,
             value: deleteItem,
             detail: {
@@ -2947,8 +2947,8 @@ function splice($model, $options) {
           }, $model)
         );
       }
-      if(mutatorEvents['spliceDelete:$index']) {
-        const type = ['spliceDelete', ':', deleteItemsIndex].join('');
+      if(mutatorEvents['spliceDeleteElement:$index']) {
+        const type = ['spliceDeleteElement', ':', deleteItemsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -3016,9 +3016,9 @@ function splice($model, $options) {
       const modelEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex);
-      if(mutatorEvents['spliceAdd']) {
+      if(mutatorEvents['spliceAddElement']) {
         $model.dispatchEvent(
-          new ModelEvent('spliceAdd', {
+          new ModelEvent('spliceAddElement', {
             path: modelEventPath,
             value: addItem,
             detail: {
@@ -3029,8 +3029,8 @@ function splice($model, $options) {
           }, $model)
         );
       }
-      if(mutatorEvents['spliceAdd:$index']) {
-        const type = ['spliceAdd', ':', addItemsIndex].join('');
+      if(mutatorEvents['spliceAddElement:$index']) {
+        const type = ['spliceAddElement', ':', addItemsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -3120,9 +3120,9 @@ function unshift($model, $options, ...$elements) {
       const modelEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex);
-      if(mutatorEvents['unshiftProp']) {
+      if(mutatorEvents['unshiftElement']) {
         $model.dispatchEvent(
-          new ModelEvent('unshiftProp', {
+          new ModelEvent('unshiftElement', {
             path: modelEventPath,
             value: elements[elementsIndex],
             detail: {
@@ -3132,8 +3132,8 @@ function unshift($model, $options, ...$elements) {
           }, $model)
         );
       }
-      if(mutatorEvents['unshiftProp:$index']) {
-        const type = ['unshiftProp', ':', elementsIndex].join('');
+      if(mutatorEvents['unshiftElement:$index']) {
+        const type = ['unshiftElement', ':', elementsIndex].join('');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
