@@ -38,10 +38,15 @@
    - Schema validation object with `report` method.  
 
 ## ⏣&ensp;Illustrations
+ - [Model](#model)
+ - [Schematized Model](#schematized-model)
+ - [Ventilated Model](#ventilated-model)
+ - [Ventilated, Schematized Model (Nonvalid Literal)](#ventilated-schematized-model-nonvalid-literal)
+ - [Ventilated, Schematized Model (Nonvalid Object)](#ventilated-schematized-model-nonvalid-object)
 ```
 import { Model, Schema } from 'objecture'
 ```
-### Objecture Model
+### Model
 - [Example A.1.](./demonstrament/documents/model/examples/readme.md/example-a-1/index.js)
 ```
 const content = {
@@ -80,7 +85,7 @@ console.log("pass", object.toString() === JSON.stringify(content))
   "propertyG": "TRUE"
 }
 ```
-### Schematized Objecture Model
+### Schematized Model
 - [Example A.2.](./demonstrament/documents/model/examples/readme.md/example-a-2/index.js)
 ```
 const schema = {
@@ -141,7 +146,7 @@ console.log(object.toString({ space: 2, replacer: null }))
 ```
 (`propertyG` nonvalid)
 
-### Ventilated Objecture Model
+### Ventilated Model
 - [Example A.3.](./demonstrament/documents/model/examples/readme.md/example-a-3/index.js)
 ```
 function eventLog($event) {
@@ -246,7 +251,7 @@ set null {
   "propertyG": "TRUE"
 }
 ```
-### Ventilated, Schematized Model
+### Ventilated, Schematized Model (Nonvalid Literal)
 - [Example A.4.](./demonstrament/documents/model/examples/readme.md/example-a-4/index.js)
 ```
 const schema = new Schema({
@@ -322,7 +327,7 @@ nonvalidProperty propertyG
 ```
 (`propertyG` nonvalid)
 
-### Ventilated, Schematized Model
+### Ventilated, Schematized Model (Nonvalid Object)
 - [Example A.5.](./demonstrament/documents/model/examples/readme.md/example-a-5/index.js)
 ```
 const schema = new Schema({
