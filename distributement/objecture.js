@@ -3373,6 +3373,7 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value;
       target[propertyKey] = propertyValue;
     }
+    const _propertyValue = (propertyValue === null) ? null : propertyValue;
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')
@@ -3381,10 +3382,10 @@ function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
-            value: propertyValue.valueOf(),
+            value: _propertyValue,
             detail: {
               key: propertyKey,
-              value: propertyValue.valueOf(),
+              value: _propertyValue,
             }
           }, $model)
         );
@@ -3394,9 +3395,9 @@ function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
-            value: propertyValue.valueOf(),
+            value: _propertyValue,
             detail: {
-              value: propertyValue.valueOf(),
+              value: _propertyValue,
             }
           }, $model)
         );
@@ -3452,10 +3453,10 @@ function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent('setProperty', {
             path: modelEventPath, 
-            value: propertyValue.valueOf(),
+            value: _propertyValue,
             detail: {
               key: propertyKey,
-              value: propertyValue.valueOf(),
+              value: _propertyValue,
             },
           }, $model)
         );
@@ -3465,9 +3466,9 @@ function setContentProperty($model, $options, $path, $value) {
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
-            value: propertyValue.valueOf(),
+            value: _propertyValue,
             detail: {
-              value: propertyValue.valueOf(),
+              value: _propertyValue,
             }
           }, $model)
         );
