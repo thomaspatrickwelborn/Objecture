@@ -2,12 +2,18 @@
 | :-- | :-- | :-- | :-- | :-- |
 
 # ⏣ Objecture Guide \| Model Object Methods
-## `Model.assign` Method
-### `Model.assign` Options
+## `$model.assign` Method
+### `$model.assign` Options
 ```
 { sourceTree: true }
 ```
-### `Model.assign` Example
+#### `$model.assign` `sourceTree` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - `true`:  Deep property assignment.  
+ - `false`: Shallow property assignment.  
+### `$model.assign` Example
 ```
 const object = new Model({
   propertyA: {
@@ -27,7 +33,7 @@ const object = new Model({
 }, null, {
   assignObject: 'assign'
 })
-console.log(array.valueOf())
+console.log(object.toString({ space: 2, replacer: null }))
 ```
 ***logs***  
 ```
@@ -50,21 +56,22 @@ console.log(array.valueOf())
 ```
 *then*  
 ```
-object.assign(
-  { propertyA: {
+object.assign({
+  propertyA: {
     propertyB: {
       propertyC: false
     }
-  } },
-  { propertyD: [{
+  }
+}, {
+  propertyD: [{
     propertyE: {
       propertyE: {
         propertyFFF: 0
       }
     }
-  }] },
-)
-console.log(array.valueOf())
+  }],
+})
+console.log(object.toString({ space: 2, replacer: null }))
 ```
 ***logs***
 ```
@@ -85,12 +92,19 @@ console.log(array.valueOf())
   propertyG: "true"
 }
 ```
-## `Model.defineProperties` Method
-### `Model.defineProperties` Options
+## `$model.defineProperties` Method
+### `$model.defineProperties` Options
 ```
 { descriptorTree: true }
 ```
-### `Model.defineProperties` Example
+#### `$model.defineProperties` `descriptorTree` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - `true`:  Deep property definitions.  
+ - `false`: Shallow property definitions.  
+
+### `$model.defineProperties` Example
 ```
 const object = new Model({
   propertyA: { writable: true, value: {
@@ -136,14 +150,14 @@ console.log(object.valueOf())
 object.defineProperties({
   propertyA: { value: {
     propertyB: { value: {
-      propertyC: { value: false }
+      propertyC: { writable: true, value: false }
     } }
   } },
   propertyD: { value: [{
     propertyE: { value: {
       propertyF: { value: 0 },
       propertyE: { value: {
-        propertyFFF: { value: 0 }
+        propertyFFF: { writable: true, value: 0 }
       } }
     } }
   }] },
@@ -171,14 +185,38 @@ console.log(object.valueOf())
 }
 ```
 (`propertyD.0.propertyE.propertyE.propertyFFF` not writable)
+*then*  
+```
+object.get('propertyB').defineProperty('propertyC', { value: true })
+object.defineProperties({
+  propertyD: { value: [{ value: {
+    propertyE: { value: {
+      propertyF: { value: 1 }
+    } }
+  } }] }
+})
+```
+## `$model.freeze` Method
+### `$model.freeze` Options
+```
+{ recursive: true }
+```
+#### `$model.freeze` `recursive` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - `true`:  Deep property freeze.  
+ - `false`: Shallow property freeze.  
 
-## `Model.freeze` Method
-### `Model.freeze` Options
+## `$model.seal` Method
+### `$model.seal` Options
 ```
 { recursive: true }
 ```
-## `Model.seal` Method
-### `Model.seal` Options
-```
-{ recursive: true }
-```
+
+#### `$model.seal` `recursive` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - `true`:  Deep property seal.  
+ - `false`: Shallow property seal.  

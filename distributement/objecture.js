@@ -2227,7 +2227,7 @@ function defineProperties($model, $options, $propertyDescriptors) {
 }
 
 const { recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$8 } = index;
-function defineProperty($model, $options, $propertyKey) {
+function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
   const assignObject = 'defineProperties';
   const assignArray = options.assignArray || 'defineProperties';

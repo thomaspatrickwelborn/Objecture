@@ -2,7 +2,7 @@ import { Coutil } from 'core-plex'
 const { recursiveAssign, typedObjectLiteral } = Coutil
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
-export default function defineProperty($model, $options, $propertyKey) {
+export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options)
   const assignObject = 'defineProperties'
   const assignArray = options.assignArray || 'defineProperties'
