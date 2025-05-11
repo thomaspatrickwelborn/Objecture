@@ -48,6 +48,76 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
   return propEvents
 }
 
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys = Object.keys(Primitives);
+const PrimitiveValues = Object.values(Primitives);
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys$1 = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
+const TypeKeys$1 = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
+];
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys$1,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys,
+  PrimitiveValues: PrimitiveValues,
+  Primitives: Primitives,
+  TypeKeys: TypeKeys$1,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
+var regularExpressions$3 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
+function subpaths($path) {
+  return $path.split(
+    new RegExp(regularExpressions$3.quotationEscape)
+  )
+}
+function keypaths($path) {
+  const _subpaths = subpaths($path);
+  _subpaths.pop();
+  return _subpaths
+}
+function key($path) {
+  return subpaths($path).pop()
+}
+function root($path) {
+  return subpaths($path).shift()
+}
+function typeofRoot($path) {
+  return (Number(root($path))) ? 'array' : 'object'
+}
+function parse($path) {
+  return {
+    subpaths: subpaths($path),
+    keypaths: keypaths($path),
+    key: key($path),
+    root: root($path),
+    typeofRoot: typeofRoot($path),
+  }
+}
+
 const typeOf$6 = ($data) => Object
   .prototype
   .toString
@@ -66,48 +136,69 @@ function typedObjectLiteral$e($value) {
   return _typedObjectLiteral
 }
 
-function createSubtarget($sourceValue, $path) {
-  const subpaths = $path.split('.');
-  let subpathIndex = 0;
-  const subtarget = {};
-  let subtargetTerminal = subtarget;
+function get($path, $value) {
+  const subpaths = $path.split(new RegExp(regularExpressions$3.quotationEscape));
+  const key = subpaths.pop();
+  const tree = $value;
+  let treeNode = tree;
   for(const $subpath of subpaths) {
-    if(subpathIndex === subpaths.length - 1) {
-      if($sourceValue && typeof $sourceValue === 'object') {
-        subtargetTerminal[$subpath] = expandTree($sourceValue, $path);
-      }
-      else {
-        subtargetTerminal[$subpath] = $sourceValue;
-      }
-    }
-    else {
-      subtargetTerminal[$subpath] = {};
-      subtargetTerminal = subtargetTerminal[$subpath];
-    }
-    subpathIndex++;
+    treeNode = treeNode[$subpath];
   }
-  return subtarget
+  return treeNode[key]
+}
+function set($path, $value) {
+  const {
+    keypaths, key, typeofRoot
+  } = parse($path);
+  const tree = typedObjectLiteral$e(typeofRoot);
+  let treeNode = tree;
+  for(const $subpath of keypaths) {
+    if(Number($subpath)) { treeNode[$subpath] = []; }
+    else { treeNode[$subpath] = {}; }
+    treeNode = treeNode[$subpath];
+  }
+  treeNode[key] = $value;
+  return tree
 }
 
-function expandTree($source, $path) {
-  const target = {};
-  const typeofSource = typeof $source;
-  const typeofPath = typeof $path;
-  if($source && typeofSource === 'object') {
-    for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-      if(typeofPath === 'function') {
-        $path(target, $sourceKey, $sourceValue);
-      }
-      else {
-        const subtarget = createSubtarget($sourceValue, $path);
-        target[$sourceKey] = subtarget;
-      }
+function expandTree($root, $tree) {
+  const typeofRoot = typeof $root;
+  const typeofTree = typeof $tree;
+  if(
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
+  let tree;
+  if($root && typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
     }
   }
   else {
-    Object.assign(target, createSubtarget($source, $path));
+    if(typeofTree === 'string') { tree = set($tree, $root); }
+    else if(typeofTree === 'function') { tree = $tree($root); }
   }
-  return target
+  return tree
+}
+
+function impandTree$1($root, $tree) {
+  const typeofTree = typeof $tree;
+  const typeofRoot = typeof $root;
+  if(
+    !['string', 'function'].includes(typeofTree) ||
+    typeofRoot && typeofRoot !== 'object'
+  ) { return $root }
+  let tree = typedObjectLiteral$e($root);
+  if(typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree[$rootKey] = $tree($rootValue); }
+      if(tree[$rootKey] && typeof tree[$rootKey] === 'object') {
+        tree[$rootKey] = impandTree$1(tree[$rootKey], $tree);
+      }
+    }
+  }
+  return tree
 }
 
 const Options$2 = {
@@ -202,10 +293,6 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
-var index$2 = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
 function recursiveFreeze$1($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -215,53 +302,17 @@ function recursiveFreeze$1($target) {
   return Object.freeze($target)
 }
 
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys$1 = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
-const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys$1 = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
- Primitives.String, Primitives.Number, Primitives.Boolean, 
- Objects.Object, Objects.Array
-];
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys$1,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys$1,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
   accessors: accessors,
   expandEvents: expandEvents,
   expandTree: expandTree,
+  impandTree: impandTree$1,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign$f,
   recursiveAssignConcat: recursiveAssignConcat,
   recursiveFreeze: recursiveFreeze$1,
-  regularExpressions: index$2,
+  regularExpressions: regularExpressions$3,
   typeOf: typeOf$6,
   typedObjectLiteral: typedObjectLiteral$e,
   variables: index$1
@@ -1729,7 +1780,7 @@ function parseProperties($properties, $schema) {
               const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
               propertyValidator = new Schema($propertyValidator, Object.assign({}, $schema.options, {
                 parent: $schema, 
-                path: subpropertyPath
+                path: subpropertyPath,
               }));
             }
             else {
@@ -2199,13 +2250,18 @@ function assign($model, $options, ...$sources) {
 const { typedObjectLiteral: typedObjectLiteral$9 } = index;
 function defineProperties($model, $options, $propertyDescriptors) {
   const { path, schema } = $model;
-  const { enableValidation, mutatorEvents, required, validationEvents } = $options;
+  let {
+    enableValidation, mutatorEvents, required, 
+    validation, validationEvents, validationReport
+  } = $options;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const definePropertiesChange = new Change({ preter: $model });
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
-    $model.defineProperty($propertyKey, $propertyDescriptor, $options);
+    $model.defineProperty($propertyKey, $propertyDescriptor, Object.assign({}, $options, {
+      validation, validationReport
+    }));
   }
   if(mutatorEvents && mutatorEvents['defineProperties']) {
     definePropertiesChange.anter = $model;
@@ -2226,13 +2282,14 @@ function defineProperties($model, $options, $propertyDescriptors) {
   return $model
 }
 
-const { recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$8 } = index;
+const { impandTree, recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$8 } = index;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
   const assignObject = 'defineProperties';
   const assignArray = options.assignArray || 'defineProperties';
   const {
-    descriptorTree, enableValidation, mutatorEvents, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, 
+    validation, validationEvents, validationReport
   } = options;
   const { target, path, schema } = $model;
   const propertyValue = $propertyDescriptor.value;
@@ -2240,9 +2297,9 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const targetPropertyValue = targetPropertyDescriptor.value;
   const definePropertyChange = new Change({ preter: targetPropertyValue });
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue });
-  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof $model.constructor) ? true : false;
+  const targetPropertyValueIsModelInstance = targetPropertyValue instanceof $model.constructor;
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, {}, $model.valueOf());
+    const validProperty = schema.validateProperty($propertyKey, impandTree(propertyValue, 'value'), {}, $model.valueOf());
     if(validationEvents) {
       let type, propertyType;
       if(validProperty.valid) {
@@ -3373,7 +3430,8 @@ function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value;
       target[propertyKey] = propertyValue;
     }
-    const _propertyValue = (propertyValue === null) ? null : propertyValue;
+    // const _propertyValue = (propertyValue === null) ? null : propertyValue.valueOf()
+    const _propertyValue = propertyValue.valueOf();
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')

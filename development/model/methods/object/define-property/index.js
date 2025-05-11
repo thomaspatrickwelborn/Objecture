@@ -1,5 +1,5 @@
 import { Coutil } from 'core-plex'
-const { recursiveAssign, typedObjectLiteral } = Coutil
+const { impandTree, recursiveAssign, typedObjectLiteral } = Coutil
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
@@ -7,7 +7,8 @@ export default function defineProperty($model, $options, $propertyKey, $property
   const assignObject = 'defineProperties'
   const assignArray = options.assignArray || 'defineProperties'
   const {
-    descriptorTree, enableValidation, mutatorEvents, validationEvents
+    descriptorTree, enableValidation, mutatorEvents, 
+    validation, validationEvents, validationReport
   } = options
   const { target, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
@@ -15,9 +16,9 @@ export default function defineProperty($model, $options, $propertyKey, $property
   const targetPropertyValue = targetPropertyDescriptor.value
   const definePropertyChange = new Change({ preter: targetPropertyValue })
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
-  const targetPropertyValueIsModelInstance = (targetPropertyValue instanceof $model.constructor) ? true : false
+  const targetPropertyValueIsModelInstance = targetPropertyValue instanceof $model.constructor
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, {}, $model.valueOf())
+    const validProperty = schema.validateProperty($propertyKey, impandTree(propertyValue, 'value'), {}, $model.valueOf())
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)

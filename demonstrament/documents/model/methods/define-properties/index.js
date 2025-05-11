@@ -1,31 +1,44 @@
 console.log("----------------")
 console.log("defineProperties")
 console.log("----------------")
-import { Model } from '/dependencies/objecture.js'
+console.log("Example 1")
+import { Model, Schema } from '/dependencies/objecture.js'
 import ComplexObjectB from '../../sets/complex-object-b/index.js'
 function eventLog($event) { console.log($event.type, $event.path) }
-// console.log(ComplexObjectB)
-// console.log(new Model(ComplexObjectB, null, {
-//   assignObject: 'defineProperties',
-//   assignArray: 'defineProperties', 
-// }).valueOf())
-const object = new Model({
-  propertyA: { writable: true, enumerable: true, value: {
-    propertyB: { writable: true, enumerable: true, value: {
-      propertyC: { writable: true, enumerable: true, value: true }
+const schema = new Schema({
+  propertyA: { type: {
+    propertyB: { type: {
+      propertyC: { type: Boolean }
+    } }
+  } },
+  propertyD: { type: [{ type: {
+    propertyE: { type: {
+      propertyF: { type: Number },
+      propertyE: { type: {
+        propertyFFF: { type: Number }
+      } }
+    } }
+  } }] },
+  propertyG: { type: String }
+})
+const object = {
+  propertyA: { enumerable: true, writable: true, value: {
+    propertyB: { enumerable: true, writable: true, value: {
+      propertyC: { enumerable: true, writable: true, value: true }
     } }
   } },
   propertyD: { enumerable: true, value: [{ enumerable: true, value: {
     propertyE: { enumerable: true, value: {
-      propertyF: { writable: true, enumerable: true, value: 1 },
+      propertyF: { enumerable: true, value: 1, writable: true },
       propertyE: { enumerable: true, value: {
         propertyFFF: { enumerable: true, value: 1 }
       } }
     } }
   } }] },
   propertyG: { writable: true, enumerable: true, value: "true" }
-}, null, {
+}
+const model = new Model(object, schema, {
   assignArray: 'defineProperties',
   assignObject: 'defineProperties',
 })
-console.log(object.toString({ replacer: null, space: 2 }))
+console.log(model.toString({ replacer: null, space: 2 }))

@@ -4,14 +4,19 @@ import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperties($model, $options, $propertyDescriptors) {
   const { path, schema } = $model
-  const { enableValidation, mutatorEvents, required, validationEvents } = $options
+  let {
+    enableValidation, mutatorEvents, required, 
+    validation, validationEvents, validationReport
+  } = $options
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   const definePropertiesChange = new Change({ preter: $model })
   iteratePropertyDescriptors: 
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
-    $model.defineProperty($propertyKey, $propertyDescriptor, $options)
+    $model.defineProperty($propertyKey, $propertyDescriptor, Object.assign({}, $options, {
+      validation, validationReport
+    }))
   }
   if(mutatorEvents && mutatorEvents['defineProperties']) {
     definePropertiesChange.anter = $model

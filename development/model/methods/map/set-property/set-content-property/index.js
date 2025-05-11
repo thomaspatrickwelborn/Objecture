@@ -101,7 +101,8 @@ export default function setContentProperty($model, $options, $path, $value) {
       propertyValue = $value
       target[propertyKey] = propertyValue
     }
-    const _propertyValue = (propertyValue === null) ? null : propertyValue
+    // const _propertyValue = (propertyValue === null) ? null : propertyValue.valueOf()
+    const _propertyValue = propertyValue.valueOf()
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, propertyKey].join('.')

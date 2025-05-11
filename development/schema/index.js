@@ -206,7 +206,7 @@ function parseProperties($properties, $schema) {
               const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey
               propertyValidator = new Schema($propertyValidator, Object.assign({}, $schema.options, {
                 parent: $schema, 
-                path: subpropertyPath
+                path: subpropertyPath,
               }))
             }
             else {
