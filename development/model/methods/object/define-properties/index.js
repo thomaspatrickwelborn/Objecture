@@ -10,6 +10,20 @@ export default function defineProperties($model, $options, $propertyDescriptors)
   } = $options
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   const definePropertiesChange = new Change({ preter: $model })
+  // console.log(schema)
+  // if(schema && enableValidation) {
+  //   if(!validation) {
+  //     const validationObject = new $model.constructor($propertyDescriptors, null, {
+  //       assignObject: 'defineProperties',
+  //       assignArray: 'defineProperties',
+  //     }).valueOf()
+  //     console.log("validationObject", validationObject)
+  //     validation = schema.validate(validationObject)
+  //     console.log("validation", validation)
+  //     validationReport = validation.report('impand')
+  //     throw validationReport
+  //   }
+  // }
   iteratePropertyDescriptors: 
   for(const [
     $propertyKey, $propertyDescriptor

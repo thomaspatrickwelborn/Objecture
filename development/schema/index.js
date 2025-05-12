@@ -267,11 +267,12 @@ function parseProperties($properties, $schema) {
   return properties
 }
 function _isPropertyDefinition($object, $schema) {
-  if($object instanceof Schema) return false
+  if($object instanceof Schema) { return false }
   const typeKey = $schema.options.properties.type
   return Object.hasOwn($object, typeKey)
 }
 function _isValidatorDefinition($object, $schema) {
+  if(!$object) { return false }
   const valueKey = $schema.options.properties.value
   return Object.hasOwn($object, valueKey)
 }

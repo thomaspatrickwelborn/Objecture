@@ -90,6 +90,11 @@ var regularExpressions = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
+const typeOf = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
 function subpaths($path) {
   return $path.split(
     new RegExp(regularExpressions.quotationEscape)
@@ -100,15 +105,11 @@ function keypaths($path) {
   _subpaths.pop();
   return _subpaths
 }
-function key($path) {
-  return subpaths($path).pop()
-}
-function root($path) {
-  return subpaths($path).shift()
-}
-function typeofRoot($path) {
-  return (Number(root($path))) ? 'array' : 'object'
-}
+function key($path) { return subpaths($path).pop() }
+function root($path) { return subpaths($path).shift() }
+function typeofRoot($path) { return (
+  Number(root($path))
+) ? 'array' : 'object' }
 function parse($path) {
   return {
     subpaths: subpaths($path),
@@ -118,11 +119,6 @@ function parse($path) {
     typeofRoot: typeofRoot($path),
   }
 }
-
-const typeOf = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
 
 function typedObjectLiteral($value) {
   let _typedObjectLiteral;
@@ -137,71 +133,67 @@ function typedObjectLiteral($value) {
   return _typedObjectLiteral
 }
 
-function get($path, $value) {
+function get($path, $source) {
   const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
   const key = subpaths.pop();
-  const tree = $value;
-  let treeNode = tree;
-  for(const $subpath of subpaths) {
-    treeNode = treeNode[$subpath];
-  }
-  return treeNode[key]
+  let subtarget = $source;
+  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
+  return subtarget[key]
 }
-function set($path, $value) {
+function set($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse($path);
-  const tree = typedObjectLiteral(typeofRoot);
-  let treeNode = tree;
+  const target = typedObjectLiteral(typeofRoot);
+  let subtarget = target;
   for(const $subpath of keypaths) {
-    if(Number($subpath)) { treeNode[$subpath] = []; }
-    else { treeNode[$subpath] = {}; }
-    treeNode = treeNode[$subpath];
+    if(Number($subpath)) { subtarget[$subpath] = []; }
+    else { subtarget[$subpath] = {}; }
+    subtarget = subtarget[$subpath];
   }
-  treeNode[key] = $value;
-  return tree
+  subtarget[key] = $source;
+  return target
 }
 
-function expandTree($root, $tree) {
-  const typeofRoot = typeof $root;
-  const typeofTree = typeof $tree;
+function expandTree($source, $property) {
+  const typeOfProperty = typeOf($property);
+  const typeOfSource = typeOf($source);
   if(
-    !['string', 'function'].includes(typeofTree)
-  ) { return undefined }
-  let tree;
-  if($root && typeofRoot === 'object') {
-    iterateRootEntries: 
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral($source);
+  iterateSourceEntries: 
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
+      target[$sourceKey] = expandTree(target[$sourceKey], $property);
     }
   }
-  else {
-    if(typeofTree === 'string') { tree = set($tree, $root); }
-    else if(typeofTree === 'function') { tree = $tree($root); }
-  }
-  return tree
+  return target
 }
 
-function impandTree($root, $tree) {
-  const typeofTree = typeof $tree;
-  const typeofRoot = typeof $root;
+function impandTree($source, $property) {
+  const typeOfProperty = typeOf($property);
+  const typeOfSource = typeOf($source);
   if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
-  ) { return $root }
-  let tree = typedObjectLiteral($root);
-  if(typeofRoot === 'object') {
-    iterateRootEntries: 
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree[$rootKey] = $tree($rootValue); }
-      if(tree[$rootKey] && typeof tree[$rootKey] === 'object') {
-        tree[$rootKey] = impandTree(tree[$rootKey], $tree);
-      }
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral($source);
+  iterateSourceEntries: 
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
+      target[$sourceKey] = impandTree(target[$sourceKey], $property);
     }
+    // else {
+    //   target[$property] = $source
+    // }
   }
-  return tree
+  return target
 }
 
 const Options = {

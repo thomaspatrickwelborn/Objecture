@@ -89,6 +89,11 @@ var regularExpressions$3 = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
+const typeOf$6 = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
 function subpaths($path) {
   return $path.split(
     new RegExp(regularExpressions$3.quotationEscape)
@@ -99,15 +104,11 @@ function keypaths($path) {
   _subpaths.pop();
   return _subpaths
 }
-function key($path) {
-  return subpaths($path).pop()
-}
-function root($path) {
-  return subpaths($path).shift()
-}
-function typeofRoot($path) {
-  return (Number(root($path))) ? 'array' : 'object'
-}
+function key($path) { return subpaths($path).pop() }
+function root($path) { return subpaths($path).shift() }
+function typeofRoot($path) { return (
+  Number(root($path))
+) ? 'array' : 'object' }
 function parse($path) {
   return {
     subpaths: subpaths($path),
@@ -117,11 +118,6 @@ function parse($path) {
     typeofRoot: typeofRoot($path),
   }
 }
-
-const typeOf$6 = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
 
 function typedObjectLiteral$e($value) {
   let _typedObjectLiteral;
@@ -136,69 +132,64 @@ function typedObjectLiteral$e($value) {
   return _typedObjectLiteral
 }
 
-function get($path, $value) {
+function get($path, $source) {
   const subpaths = $path.split(new RegExp(regularExpressions$3.quotationEscape));
   const key = subpaths.pop();
-  const tree = $value;
-  let treeNode = tree;
-  for(const $subpath of subpaths) {
-    treeNode = treeNode[$subpath];
-  }
-  return treeNode[key]
+  let subtarget = $source;
+  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
+  return subtarget[key]
 }
-function set($path, $value) {
+function set($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse($path);
-  const tree = typedObjectLiteral$e(typeofRoot);
-  let treeNode = tree;
+  const target = typedObjectLiteral$e(typeofRoot);
+  let subtarget = target;
   for(const $subpath of keypaths) {
-    if(Number($subpath)) { treeNode[$subpath] = []; }
-    else { treeNode[$subpath] = {}; }
-    treeNode = treeNode[$subpath];
+    if(Number($subpath)) { subtarget[$subpath] = []; }
+    else { subtarget[$subpath] = {}; }
+    subtarget = subtarget[$subpath];
   }
-  treeNode[key] = $value;
-  return tree
+  subtarget[key] = $source;
+  return target
 }
 
-function expandTree($root, $tree) {
-  const typeofRoot = typeof $root;
-  const typeofTree = typeof $tree;
-  if(
-    !['string', 'function'].includes(typeofTree)
-  ) { return undefined }
-  let tree;
-  if($root && typeofRoot === 'object') {
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
-    }
-  }
-  else {
-    if(typeofTree === 'string') { tree = set($tree, $root); }
-    else if(typeofTree === 'function') { tree = $tree($root); }
-  }
-  return tree
-}
-
-function impandTree$1($root, $tree) {
-  const typeofTree = typeof $tree;
-  const typeofRoot = typeof $root;
-  if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
-  ) { return $root }
-  let tree = typedObjectLiteral$e($root);
-  if(typeofRoot === 'object') {
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree[$rootKey] = $tree($rootValue); }
-      if(tree[$rootKey] && typeof tree[$rootKey] === 'object') {
-        tree[$rootKey] = impandTree$1(tree[$rootKey], $tree);
+function expandTree($source, $target) {
+  const typeOfTarget = typeOf$6($target);
+  const typeOfSource = typeOf$6($source);
+  if(!['string', 'function'].includes(typeOfTarget)) { return $source }
+  let target = typedObjectLiteral$e($source);
+  if(['array', 'object'].includes(typeOfSource)) {
+    for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+      if(typeOfTarget === 'string') { target[$sourceKey] = set($target, $sourceValue); }
+      else if(typeOfTarget === 'function') { target[$sourceKey] = $target($sourceValue); }
+      if(target[$sourceKey][$target] && typeof target[$sourceKey][$target] === 'object') {
+        target[$sourceKey][$target] = expandTree(target[$sourceKey][$target], $target);
       }
     }
   }
-  return tree
+  return target
+}
+
+function impandTree$1($source, $property) {
+  const typeOfProperty = typeOf$6($property);
+  const typeOfSource = typeOf$6($source);
+  if(
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral$e($source);
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
+      target[$sourceKey] = impandTree$1(target[$sourceKey], $property);
+    }
+    else {
+      target[$property] = $source;
+    }
+  }
+  return target
 }
 
 const Options$2 = {
@@ -1841,11 +1832,12 @@ function parseProperties($properties, $schema) {
   return properties
 }
 function _isPropertyDefinition($object, $schema) {
-  if($object instanceof Schema) return false
+  if($object instanceof Schema) { return false }
   const typeKey = $schema.options.properties.type;
   return Object.hasOwn($object, typeKey)
 }
 function _isValidatorDefinition($object, $schema) {
+  if(!$object) { return false }
   const valueKey = $schema.options.properties.value;
   return Object.hasOwn($object, valueKey)
 }
@@ -2256,6 +2248,20 @@ function defineProperties($model, $options, $propertyDescriptors) {
   } = $options;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const definePropertiesChange = new Change({ preter: $model });
+  // console.log(schema)
+  // if(schema && enableValidation) {
+  //   if(!validation) {
+  //     const validationObject = new $model.constructor($propertyDescriptors, null, {
+  //       assignObject: 'defineProperties',
+  //       assignArray: 'defineProperties',
+  //     }).valueOf()
+  //     console.log("validationObject", validationObject)
+  //     validation = schema.validate(validationObject)
+  //     console.log("validation", validation)
+  //     validationReport = validation.report('impand')
+  //     throw validationReport
+  //   }
+  // }
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
@@ -2299,7 +2305,12 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const definePropertyKeyChange = new Change({ preter: targetPropertyValue });
   const targetPropertyValueIsModelInstance = targetPropertyValue instanceof $model.constructor;
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, impandTree(propertyValue, 'value'), {}, $model.valueOf());
+    const validProperty = schema.validateProperty(
+      $propertyKey, 
+      impandTree(propertyValue, 'value') || propertyValue,
+      {},
+      $model.valueOf()
+    );
     if(validationEvents) {
       let type, propertyType;
       if(validProperty.valid) {
