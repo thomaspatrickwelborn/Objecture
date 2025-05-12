@@ -267,7 +267,7 @@ function parseProperties($properties, $schema) {
   return properties
 }
 function _isPropertyDefinition($object, $schema) {
-  if($object instanceof Schema) { return false }
+  if(!$object || $object instanceof Schema) { return false }
   const typeKey = $schema.options.properties.type
   return Object.hasOwn($object, typeKey)
 }

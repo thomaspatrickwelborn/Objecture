@@ -1830,7 +1830,7 @@ function parseProperties($properties, $schema) {
   return properties
 }
 function _isPropertyDefinition($object, $schema) {
-  if($object instanceof Schema) { return false }
+  if(!$object || $object instanceof Schema) { return false }
   const typeKey = $schema.options.properties.type;
   return Object.hasOwn($object, typeKey)
 }
@@ -2246,19 +2246,6 @@ function defineProperties($model, $options, $propertyDescriptors) {
   } = $options;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const definePropertiesChange = new Change({ preter: $model });
-  // if(schema && enableValidation) {
-  //   if(!validation) {
-  //     const validationObject = new $model.constructor($propertyDescriptors, null, {
-  //       assignObject: 'defineProperties',
-  //       assignArray: 'defineProperties',
-  //     }).valueOf()
-  //     console.log("validationObject", validationObject)
-  //     validation = schema.validate(validationObject)
-  //     console.log("validation", validation)
-  //     validationReport = validation.report('impand')
-  //     throw validationReport
-  //   }
-  // }
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {

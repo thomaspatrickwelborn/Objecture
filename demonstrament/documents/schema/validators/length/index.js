@@ -1,0 +1,1 @@
+import { Model, Schema } from '/dependencies/objecture.js'
