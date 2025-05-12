@@ -154,18 +154,19 @@ function set($path, $source) {
   return target
 }
 
-function expandTree($source, $target) {
-  const typeOfTarget = typeOf$6($target);
+function expandTree($source, $property) {
+  const typeOfProperty = typeOf$6($property);
   const typeOfSource = typeOf$6($source);
-  if(!['string', 'function'].includes(typeOfTarget)) { return $source }
+  if(
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
   let target = typedObjectLiteral$e($source);
-  if(['array', 'object'].includes(typeOfSource)) {
-    for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-      if(typeOfTarget === 'string') { target[$sourceKey] = set($target, $sourceValue); }
-      else if(typeOfTarget === 'function') { target[$sourceKey] = $target($sourceValue); }
-      if(target[$sourceKey][$target] && typeof target[$sourceKey][$target] === 'object') {
-        target[$sourceKey][$target] = expandTree(target[$sourceKey][$target], $target);
-      }
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey][$property] && typeof target[$sourceKey][$property] === 'object') {
+      target[$sourceKey][$property] = expandTree(target[$sourceKey][$property], $property);
     }
   }
   return target
@@ -184,9 +185,6 @@ function impandTree$1($source, $property) {
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
     if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
       target[$sourceKey] = impandTree$1(target[$sourceKey], $property);
-    }
-    else {
-      target[$property] = $source;
     }
   }
   return target
@@ -1794,7 +1792,7 @@ function parseProperties($properties, $schema) {
     properties[$propertyKey] = propertyDefinition;
     const validators = new Map();
     validators.set('type', Object.assign({}, {
-      type: 'type', validator: TypeValidator, value: propertyDefinition.type?.value || false
+      type: 'type', validator: TypeValidator, value: propertyDefinition.type.value
     }));
     validators.set('required', Object.assign({}, {
       type: 'required', validator: RequiredValidator, value: propertyDefinition.required?.value || false
@@ -2248,7 +2246,6 @@ function defineProperties($model, $options, $propertyDescriptors) {
   } = $options;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const definePropertiesChange = new Change({ preter: $model });
-  // console.log(schema)
   // if(schema && enableValidation) {
   //   if(!validation) {
   //     const validationObject = new $model.constructor($propertyDescriptors, null, {

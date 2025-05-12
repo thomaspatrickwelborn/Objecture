@@ -229,7 +229,7 @@ function parseProperties($properties, $schema) {
     properties[$propertyKey] = propertyDefinition
     const validators = new Map()
     validators.set('type', Object.assign({}, {
-      type: 'type', validator: TypeValidator, value: propertyDefinition.type?.value || false
+      type: 'type', validator: TypeValidator, value: propertyDefinition.type.value
     }))
     validators.set('required', Object.assign({}, {
       type: 'required', validator: RequiredValidator, value: propertyDefinition.required?.value || false

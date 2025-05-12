@@ -167,8 +167,8 @@ function expandTree($source, $property) {
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = expandTree(target[$sourceKey], $property);
+    if(target[$sourceKey][$property] && typeof target[$sourceKey][$property] === 'object') {
+      target[$sourceKey][$property] = expandTree(target[$sourceKey][$property], $property);
     }
   }
   return target
@@ -189,9 +189,6 @@ function impandTree($source, $property) {
     if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
       target[$sourceKey] = impandTree(target[$sourceKey], $property);
     }
-    // else {
-    //   target[$property] = $source
-    // }
   }
   return target
 }
