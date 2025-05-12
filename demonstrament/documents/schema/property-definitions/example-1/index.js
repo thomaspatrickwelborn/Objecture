@@ -5,7 +5,9 @@ Property Definitions
 Example 1.
  - Impand Property Definitions
 `)
+import { Coutil } from '/dependencies/core-plex.js'
 import { Model, Schema } from '/dependencies/objecture.js'
+const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
   propertyA: {
@@ -69,8 +71,63 @@ const objectA = {
       propertyO: -15,
     },
   }],
-  propertyP: String,
+  propertyP: "Sixteen",
   propertyQ: null,
-  propertyR: undefined,
+  propertyR: 18,
 }
-console.log(schema.validate(objectA))
+const objectB = {
+  propertyA: {
+    propertyB: {
+      propertyC: true,
+      propertyD: 4,
+      propertyE: "Five",
+    },
+  },
+  propertyF: [{
+    propertyG: {
+      propertyH: {
+        propertyI: true,
+        propertyJ: [10, "100", 1000], // [VALID, NONVALID, VALID]
+        propertyK: "Eleven",
+      },
+      propertyL: false,
+      propertyM: [[{
+        propertyN: "Fourteen",
+      }, {
+        propertyN: 14, // NONVALID
+      }]],
+      propertyO: 15,
+    },
+  }, {
+    propertyG: {
+      propertyH: {
+        propertyI: false,
+        propertyJ: [-10, -100, -1000],
+        propertyK: "Negative Eleven",
+      },
+      propertyL: true,
+      propertyM: [[{
+        propertyN: "Negative Fourteen",
+      }]],
+      propertyO: "-15", // NONVALID
+    },
+  }],
+  propertyP: 16, // NONVALID
+  propertyQ: null,
+  propertyR: "Eighteen",
+}
+
+// console.log(propertyDirectoryValues(objectB))
+console.log(propertyDirectory(objectB))
+console.log(Object.fromEntries(propertyDirectory(objectB, { values: true })))
+// console.log(propertyDirectory(objectB, { values: true }))
+// console.log(Object.fromEntries(propertyDirectory(objectB, { values: true })))
+/*
+const objectAValidation = schema.validate(objectA)
+const objectAValidationReport = objectAValidation.report("impand")
+console.log("objectAValidationReport", objectAValidationReport)
+
+const objectBValidation = schema.validate(objectB)
+const objectBValidationReport = objectBValidation.report("impand")
+console.log("objectBValidationReport", objectBValidationReport)
+*/

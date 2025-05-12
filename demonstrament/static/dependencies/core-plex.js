@@ -209,22 +209,25 @@ function propertyDirectory($object, $options) {
     if(!object) continue iterateAccessors
     iterateObjectProperties: 
     for(const [$key, $value] of Object.entries(object)) {
-      _propertyDirectory.push($key);
+      if(!options.values) { _propertyDirectory.push($key); }
+      else if(options.values) { _propertyDirectory.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         $value !== object
       ) {
-        const subtarget = propertyDirectory($value, options);
-        for(const $subtarget of subtarget) {
-          let path;
-          if(typeof $subtarget === 'object') {
-            path = [$key, ...$subtarget].join('.');
+        const subtargets = propertyDirectory($value, options);
+        if(!options.values) {
+          for(const $subtarget of subtargets) {
+            const path = [$key, $subtarget].join('.');
+            _propertyDirectory.push(path);
           }
-          else {
-            path = [$key, $subtarget].join('.');
+        }
+        else if(options.values) {
+          for(const [$subtargetKey, $subtarget] of subtargets) {
+            const path = [$key, $subtargetKey].join('.');
+            _propertyDirectory.push([path, $subtarget]);
           }
-          _propertyDirectory.push(path);
         }
       }
     }
