@@ -2,39 +2,40 @@ console.log(`
 --------------------
 Property Definitions
 --------------------
-Example 1.
- - Property Definition Format: Impand
+Example 6.
+ - Property Definition Format: Expand
  - Type: All Valid
+ - Required: Some Required
 `)
 import { Coutil } from '/dependencies/core-plex.js'
 import { Model, Schema } from '/dependencies/objecture.js'
 const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
-  propertyA: {
-    propertyB: {
-      propertyC: Boolean,
-      propertyD: Number,
-      propertyE: String,
-    },
-  },
-  propertyF: [{
-    propertyG: {
-      propertyH: {
-        propertyI: Boolean,
-        propertyJ: [Number],
-        propertyK: String,
-      },
-      propertyL: Boolean,
-      propertyM: [[{
-        propertyN: String,
-      }]],
-      propertyO: Number,
-    },
-  }],
-  propertyP: String,
-  propertyQ: null,
-  propertyR: undefined,
+  propertyA: { type: {
+    propertyB: { type: {
+      propertyC: { type: Boolean },
+      propertyD: { type: Number },
+      propertyE: { type: String },
+    } },
+  } },
+  propertyF: { type: [{
+    propertyG: { type: {
+      propertyH: { type: {
+        propertyI: { type: Boolean },
+        propertyJ: { required: true, type: [{ type: Number }] },
+        propertyK: { type: String },
+      } },
+      propertyL: { type: Boolean },
+      propertyM: { type: [{ type: [{ type: {
+        propertyN: { type: String },
+      } }] }] },
+      propertyO: { required: true, type: Number },
+    } },
+  }] },
+  propertyP: { type: String },
+  propertyQ: { type: null },
+  propertyR: { type: undefined },
 })
 const object = {
   propertyA: {
@@ -46,19 +47,21 @@ const object = {
   },
   propertyF: [{
     propertyG: {
-      propertyH: {
+      propertyH: { // NONVALID
         propertyI: true,
-        propertyJ: [10, 100, 1000],
+        propertyJ: ["10", "100", "1000"], // NONVALID
         propertyK: "Eleven",
       },
       propertyL: false,
       propertyM: [[{
         propertyN: "Fourteen",
+      }, { 
+        propertyN: 14, 
       }]],
       propertyO: 15,
     },
-  }, {
-    propertyG: {
+  }, { // NONVALID
+    propertyG: { // NONVALID
       propertyH: {
         propertyI: false,
         propertyJ: [-10, -100, -1000],
@@ -68,12 +71,12 @@ const object = {
       propertyM: [[{
         propertyN: "Negative Fourteen",
       }]],
-      propertyO: -15,
+      propertyO: "-15", // NONVALID
     },
   }],
-  propertyP: "Sixteen",
+  propertyP: 16, 
   propertyQ: null,
-  propertyR: 18,
+  propertyR: "Eighteen",
 }
 const validation = schema.validate(object)
 const report = validation.report("impand")
@@ -85,23 +88,13 @@ console.log("pass", (
   reportDirectory["propertyA.propertyB.propertyC"] === true &&
   reportDirectory["propertyA.propertyB.propertyD"] === true &&
   reportDirectory["propertyA.propertyB.propertyE"] === true &&
-  reportDirectory["propertyF.0.propertyG.propertyH.propertyI"] === true &&
-  reportDirectory["propertyF.0.propertyG.propertyH.propertyJ.0"] === true &&
-  reportDirectory["propertyF.0.propertyG.propertyH.propertyJ.1"] === true &&
-  reportDirectory["propertyF.0.propertyG.propertyH.propertyJ.2"] === true &&
-  reportDirectory["propertyF.0.propertyG.propertyH.propertyK"] === true &&
   reportDirectory["propertyF.0.propertyG.propertyL"] === true &&
   reportDirectory["propertyF.0.propertyG.propertyM.0.0.propertyN"] === true &&
+  reportDirectory["propertyF.0.propertyG.propertyM.0.1"] === false &&
   reportDirectory["propertyF.0.propertyG.propertyO"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyH.propertyI"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyH.propertyJ.0"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyH.propertyJ.1"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyH.propertyJ.2"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyH.propertyK"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyL"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyM.0.0.propertyN"] === true &&
-  reportDirectory["propertyF.1.propertyG.propertyO"] === true &&
-  reportDirectory["propertyP"] === true &&
+  reportDirectory["propertyF.0.propertyG.propertyH"] === false &&
+  reportDirectory["propertyF.1"] === false &&
   reportDirectory["propertyQ"] === true &&
-  reportDirectory["propertyR"] === true
+  reportDirectory["propertyR"] === true &&
+  reportDirectory["propertyP"] === false
 ))

@@ -2,39 +2,40 @@ console.log(`
 --------------------
 Property Definitions
 --------------------
-Example 1.
- - Property Definition Format: Impand
+Example 5.
+ - Property Definition Format: Expand
  - Type: All Valid
+ - Required: Some Required
 `)
 import { Coutil } from '/dependencies/core-plex.js'
 import { Model, Schema } from '/dependencies/objecture.js'
 const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
-  propertyA: {
-    propertyB: {
-      propertyC: Boolean,
-      propertyD: Number,
-      propertyE: String,
-    },
-  },
-  propertyF: [{
-    propertyG: {
-      propertyH: {
-        propertyI: Boolean,
-        propertyJ: [Number],
-        propertyK: String,
-      },
-      propertyL: Boolean,
-      propertyM: [[{
-        propertyN: String,
-      }]],
-      propertyO: Number,
-    },
-  }],
-  propertyP: String,
-  propertyQ: null,
-  propertyR: undefined,
+  propertyA: { type: {
+    propertyB: { type: {
+      propertyC: { type: Boolean },
+      propertyD: { type: Number },
+      propertyE: { type: String },
+    } },
+  } },
+  propertyF: { type: [{
+    propertyG: { type: {
+      propertyH: { type: {
+        propertyI: { type: Boolean },
+        propertyJ: { required: true, type: [{ type: Number }] },
+        propertyK: { type: String },
+      } },
+      propertyL: { type: Boolean },
+      propertyM: { type: [{ type: [{ type: {
+        propertyN: { type: String },
+      } }] }] },
+      propertyO: { required: true, type: Number },
+    } },
+  }] },
+  propertyP: { type: String },
+  propertyQ: { type: null },
+  propertyR: { type: undefined },
 })
 const object = {
   propertyA: {
@@ -48,12 +49,14 @@ const object = {
     propertyG: {
       propertyH: {
         propertyI: true,
-        propertyJ: [10, 100, 1000],
+        propertyJ: [10, 100, 1000], 
         propertyK: "Eleven",
       },
       propertyL: false,
       propertyM: [[{
         propertyN: "Fourteen",
+      }, { 
+        propertyN: 14, 
       }]],
       propertyO: 15,
     },
@@ -68,12 +71,12 @@ const object = {
       propertyM: [[{
         propertyN: "Negative Fourteen",
       }]],
-      propertyO: -15,
+      propertyO: -15
     },
   }],
-  propertyP: "Sixteen",
+  propertyP: "16", 
   propertyQ: null,
-  propertyR: 18,
+  propertyR: "Eighteen",
 }
 const validation = schema.validate(object)
 const report = validation.report("impand")

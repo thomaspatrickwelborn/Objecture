@@ -8,7 +8,8 @@ const EcosystemConfig = {
         "package.json",
         "dpm.config.documents.js",
         "ecosystem.config.cjs",
-        "../Core-Plex/development/"
+        "../Core-Plex/development/",
+        "../Document-Process-Manager/development/",
       ],
       args: "--config dpm.config.documents.js",
       autorestart: false,

@@ -2,8 +2,8 @@ console.log(`
 --------------------
 Property Definitions
 --------------------
-Example 2.
- - Property Definition Format: Impand
+Example 4.
+ - Property Definition Format: Expand
  - Type: Some Valid
 `)
 import { Coutil } from '/dependencies/core-plex.js'
@@ -11,30 +11,30 @@ import { Model, Schema } from '/dependencies/objecture.js'
 const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
-  propertyA: {
-    propertyB: {
-      propertyC: Boolean,
-      propertyD: Number,
-      propertyE: String,
-    },
-  },
-  propertyF: [{
-    propertyG: {
-      propertyH: {
-        propertyI: Boolean,
-        propertyJ: [Number], // NONVALID
-        propertyK: String,
-      },
-      propertyL: Boolean,
-      propertyM: [[{
-        propertyN: String,
-      }]],
-      propertyO: Number,
-    },
-  }],
-  propertyP: String,
-  propertyQ: null,
-  propertyR: undefined,
+  propertyA: { type: {
+    propertyB: { type: {
+      propertyC: { type: Boolean },
+      propertyD: { type: Number },
+      propertyE: { type: String },
+    } },
+  } },
+  propertyF: { type: [{
+    propertyG: { type: {
+      propertyH: { type: {
+        propertyI: { type: Boolean },
+        propertyJ: { type: [{ type: Number }] },
+        propertyK: { type: String },
+      } },
+      propertyL: { type: Boolean },
+      propertyM: { type: [{ type: [{ type: {
+        propertyN: { type: String },
+      } }] }] },
+      propertyO: { type: Number },
+    } },
+  }] },
+  propertyP: { type: String },
+  propertyQ: { type: null },
+  propertyR: { type: undefined },
 })
 const object = {
   propertyA: {

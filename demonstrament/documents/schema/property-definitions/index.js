@@ -1,2 +1,6 @@
 import './example-1/index.js'
 import './example-2/index.js'
+import './example-3/index.js'
+import './example-4/index.js'
+import './example-5/index.js'
+import './example-6/index.js'
