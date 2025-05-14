@@ -34,6 +34,7 @@ function report($format = "expand", $prevalidation) {
     return _report
   }
   if($format === "impand") {
+    if(prevalidation.valid === false) { return false }
     const _report = typedObjectLiteral(schema.type)
     iterateValidations: 
     for(const $validation of validations) {

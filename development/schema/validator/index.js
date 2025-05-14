@@ -23,7 +23,7 @@ export default class Validator extends EventTarget {
           let verification = new Verification({
             type: type,
             key: $key,
-            value: $value,
+            value: definition.value,
             messages: recursiveAssign({}, messages, definition.messages),
           })
           const validation = definition.validate(...arguments)
