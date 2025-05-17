@@ -126,8 +126,8 @@ function typedObjectLiteral($value) {
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
   else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
   else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
+    if($value?.toLowerCase() === 'object') { _typedObjectLiteral = {}; }
+    else if($value?.toLowerCase() === 'array') { _typedObjectLiteral = []; }
   }
   else { _typedObjectLiteral = undefined; }
   return _typedObjectLiteral
@@ -196,7 +196,7 @@ function impandTree($source, $property) {
 const Options = {
   depth: 0,
   maxDepth: 10,
-  accessors: [accessors.default],
+  accessors: [accessors.default /*Accessors.get*/],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];

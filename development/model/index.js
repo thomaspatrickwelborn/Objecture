@@ -17,67 +17,63 @@ export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
     super({ accessors: Model.accessors })
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
-    Object.defineProperty(this, 'options', { configurable: true, get() {
-      const options = Options($options)
-      if(options.events) {
-        this.addEvents(options.events)
-        delete options.events
-      }
-      if(options.enableEvents) {
-        const typeofEnableEvents = typeof options.enableEvents
-        if(typeofEnableEvents === 'boolean') { this.enableEvents() }
-        else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents) }
-      }
-      Object.defineProperty(this, 'options', { value: options })
-      return options
-    } })
-    Object.defineProperty(this, 'target', { configurable: true, get() {
-      const target = typedObjectLiteral(properties)
-      Object.defineProperty(this, 'target', { value: target })
-      return target
-    } })
-    Object.defineProperty(this, 'type', { configurable: true, get() {
-      const type = typeOf(this.target)
-      Object.defineProperty(this, 'type', { value: type })
-      return type
-    } })
-    Object.defineProperty(this, 'schema', { configurable: true, get() {
-      const typeOfSchema = typeOf($schema)
-      let schema
-      if(['undefined', 'null'].includes(typeOfSchema)) { schema = null }
-      else if($schema instanceof Schema) { schema = $schema }
-      else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema) }
-      Object.defineProperty(this, 'schema', { value: schema })
-      return schema
-    } })
-    Object.defineProperty(this, 'parent', { configurable: true, get() {
-      const options = this.options
-      const parent = (options.parent) ? options.parent : null
-      Object.defineProperty(this, 'parent', { value: parent })
-      return parent
-    } })
-    Object.defineProperty(this, 'path', { configurable: true, get() {
-      const options = this.options
-      let path = (options.path) ? String(options.path) : null
-      Object.defineProperty(this, 'path', { value: path })
-      return path
-    } })
-    Object.defineProperty(this, 'key', { configurable: true, get() {
-      let key = (this.path) ? this.path.split('.').pop() : null
-      Object.defineProperty(this, 'key', {
-         value: key
-      })
-      return key
-    } })
-    Object.defineProperty(this, 'root', { get() {
-      let root = this
-      iterateParents: 
-      while(root) {
-        if([undefined, null].includes(root.parent)) { break iterateParents }
-        root = root.parent
-      }
-      return root
-    } })
+    let parent, path
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent
+        const mountPath = $mount.path
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath
+        if(parent) { parent.unmount(property) }
+        parent = mountParent
+        path = mountPath
+      } })
+    }
+    catch($err) { console.error($err) }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path
+        delete this[$property]
+      } })
+    }
+    catch($err) { console.error($err) }
+    Object.defineProperties(this, {
+      'options': { configurable: true, get() {
+        const options = Options($options)
+        if(options.events) {
+          this.addEvents(options.events)
+          delete options.events
+        }
+        if(options.enableEvents) {
+          const typeofEnableEvents = typeof options.enableEvents
+          if(typeofEnableEvents === 'boolean') { this.enableEvents() }
+          else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents) }
+        }
+        Object.defineProperty(this, 'options', { value: options })
+        return options
+      } },
+      'target': { configurable: true, get() {
+        const target = typedObjectLiteral(properties)
+        Object.defineProperty(this, 'target', { value: target })
+        return target
+      } },
+      'type': { configurable: true, get() {
+        const type = typeOf(this.target)
+        Object.defineProperty(this, 'type', { value: type })
+        return type
+      } },
+      'schema': { configurable: true, get() {
+        const typeOfSchema = typeOf($schema)
+        let schema
+        if(['undefined', 'null'].includes(typeOfSchema)) { schema = null }
+        else if($schema instanceof Schema) { schema = $schema }
+        else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema) }
+        Object.defineProperty(this, 'schema', { value: schema })
+        return schema
+      } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
+    })
     Methods(this)
     Assign(this, properties, this.options)
   }

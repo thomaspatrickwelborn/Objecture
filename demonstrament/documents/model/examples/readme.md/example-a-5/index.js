@@ -60,4 +60,4 @@ const object = new Model(content, schema, {
 const delcontent = Object.assign({}, content)
 delete delcontent.propertyD[0]
 console.log(object.toString({ space: 2, replacer: null }))
-console.log(object.toString({ space: 2, replacer: null }) === JSON.stringify(delcontent, null, 2))
+console.log("pass", object.toString({ space: 2, replacer: null }) === JSON.stringify(delcontent, null, 2))
