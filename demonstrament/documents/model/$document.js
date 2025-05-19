@@ -1,7 +1,6 @@
 export default {
   active: true,
   name: 'Objecture | Model',
-  path: '/model',
   source: 'documents/model',
   target: 'localhost/model',
   ignore: [],

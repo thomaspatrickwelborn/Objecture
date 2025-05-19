@@ -7,17 +7,14 @@ import Methods from './methods/index.js'
 import Assign from './assign/index.js'
 
 export default class Model extends Core {
-  static accessors = Object.freeze([($target, $property) => {
-    if($property === undefined) { return $target.target }
-    else { return $target.get($property) }
-  }, ($target, $property) => {
-    if($property === undefined) { return $target }
-    else { return $target[$property] }
-  }])
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ accessors: Model.accessors })
+    super({ propertyDirectory: { accessors: [($target, $property) => {
+      if($property === undefined) { return $target.target }
+      else { return $target.get($property) }
+    }] } })
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
-    let parent, path
+    let parent = null
+    let path = null
     try {
       Object.defineProperty(this, 'mount', { value: function($mount) {
         const mountParent = $mount.parent
@@ -51,6 +48,9 @@ export default class Model extends Core {
         Object.defineProperty(this, 'options', { value: options })
         return options
       } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
         const target = typedObjectLiteral(properties)
         Object.defineProperty(this, 'target', { value: target })
@@ -70,9 +70,10 @@ export default class Model extends Core {
         Object.defineProperty(this, 'schema', { value: schema })
         return schema
       } },
-      'parent': { get() { return parent } },
-      'path': { get() { return path } },
-      'key': { get() { return (path) ? path.pop() : path } },
+    })
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
     })
     Methods(this)
     Assign(this, properties, this.options)

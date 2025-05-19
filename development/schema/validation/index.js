@@ -1,5 +1,4 @@
 import { Coutil } from 'core-plex'
-import Schema from '../index.js'
 const { typedObjectLiteral } = Coutil
 import Verification from '../verification/index.js'
 const Messages = {

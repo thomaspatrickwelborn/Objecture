@@ -196,7 +196,7 @@ function impandTree($source, $property) {
 const Options = {
   depth: 0,
   maxDepth: 10,
-  accessors: [accessors.default /*Accessors.get*/],
+  accessors: [accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
@@ -205,7 +205,8 @@ function propertyDirectory($object, $options) {
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
-    const object = $accessor($object);
+    const accessor = $accessor.bind($object);
+    const object = accessor($object);
     if(!object) continue iterateAccessors
     iterateObjectProperties: 
     for(const [$key, $value] of Object.entries(object)) {
@@ -320,6 +321,11 @@ var Settings$1 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
+    propertyDirectory: {
+      accessors: [accessors.default],
+      scopeKey: ':scope', 
+      maxDepth: 10,
+    },
     propertyDefinitions: {
       getEvents: 'getEvents',
       addEvents: 'addEvents',
@@ -333,6 +339,7 @@ var Settings$1 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
+      case 'propertyDirectory':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -867,11 +874,8 @@ function outmatch(pattern, options) {
 var Settings = ($settings = {}) => {
   const Settings = {
     enable: false,
-    accessors: [accessors.default],
-    propertyDirectory: { scopeKey: $settings.scopeKey, maxDepth: 10 },
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
-    scopeKey: ':scope',
     errorLog: false,
     methods: {
       assign: {
@@ -912,13 +916,6 @@ var Settings = ($settings = {}) => {
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
-      case 'propertyDirectory':
-        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
-        break
-      case 'accessors':
-        Settings[$settingKey] = $settingValue;
-        Settings.propertyDirectory[$settingKey] = $settingValue;
-        break
       case 'methods': 
         Settings[$settingKey] = recursiveAssign(Settings[$settingKey], $settingValue);
         break
@@ -932,14 +929,8 @@ var Settings = ($settings = {}) => {
 };
 
 class EventDefinition {
-  #settings
   #context
-  #listener
   #enable = false
-  #path
-  #assigned = []
-  #deassigned = []
-  #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign
@@ -947,27 +938,35 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    this.#settings = Settings($settings);
+    const settings = Settings($settings);
+    const assigned = [];
+    const deassigned = [];
+    const transsigned = [];
+    Object.defineProperties(this, {
+      'settings': { value: settings },
+      'path': { value: settings.path },
+      'type': { value: settings.type },
+      'assigned': { value: assigned },
+      'deassigned': { value: deassigned },
+      'transsigned': { value: transsigned },
+      'listener':  { configurable: true, get() {
+        let listener; 
+        if(settings.bindListener === true) {
+          listener = settings.listener.bind(this.#context);
+        }
+        else { listener = settings.listener; }
+        Object.defineProperty(this, 'listener', { value: listener });
+        return listener
+      } }
+    });
     this.#context = $context;
     this.enable = this.settings.enable;
-  }
-  get settings() { return this.#settings }
-  get path() { return this.settings.path }
-  get type() { return this.settings.type }
-  get listener() {
-    if(this.#listener !== undefined) { return this.#listener }
-    const listener = this.settings.listener;
-    if(this.settings.bindListener === true) {
-      this.#listener = listener.bind(this.#context);
-    }
-    else { this.#listener = listener; }
-    return this.#listener
   }
   get enable() { return this.#enable }
   set enable($enable) {
     const targets = this.#targets;
-    const assigned = this.#assigned;
-    const deassigned = this.#deassigned;
+    const assigned = this.assigned;
+    const deassigned = this.deassigned;
     assigned.length = 0;
     deassigned.length = 0;
     iterateTargetElements: 
@@ -995,8 +994,6 @@ class EventDefinition {
     }
     this.#enable = $enable;
   }
-  get assigned() { return this.#assigned }
-  get deassigned() { return this.#deassigned }
   get #target() { return this.settings.target }
   get #targets() {
     const pretargets = this.#_targets;
@@ -1009,8 +1006,7 @@ class EventDefinition {
         if(pretargetElement !== undefined) {
           targets.push(pretargetElement);
         }
-        else if(pretargetElement === undefined) {
-          targets.push({
+        else if(pretargetElement === undefined) {ptargets.push({
             path: this.path,
             target: $target,
             enable: false,
@@ -1035,9 +1031,9 @@ class EventDefinition {
             separator: '.',
           });
           iteratePropertyPaths: 
-          for(const $propertyPath of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
-            if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+            if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
           if(this.path.charAt(0) === '*') {
             targetPaths.unshift(this.#scopeKey);
@@ -1047,26 +1043,12 @@ class EventDefinition {
           targetPaths.push(this.path);
         }
         iterateTargetPaths: 
-        for(const $targetPath of targetPaths) {
+        for(const [$targetPath, $targetValue] of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
           );
-          let target = this.#context;
+          let target = $targetValue;
           let targetElement;
-          const pathKeys = $targetPath.split('.');
-          let pathKeysIndex = 0;
-          iterateTargetPathKeys: 
-          while(pathKeysIndex < pathKeys.length) {
-            let pathKey = pathKeys[pathKeysIndex];
-            if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
-            iterateTargetAccessors: 
-            for(const $targetAccessor of this.settings.accessors) {
-              try { target = $targetAccessor(target, pathKey); }
-              catch($err) { if(this.settings.errorLog) { console.error($err); } }
-              if(target !== undefined) { break iterateTargetAccessors }
-            }
-            pathKeysIndex++;
-          }
           if(target !== undefined) {
             if(target === pretargetElement?.target) {
               targetElement = pretargetElement;
@@ -1086,7 +1068,7 @@ class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.scopeKey }
+  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -1102,17 +1084,14 @@ class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #methods() { return this.settings.methods }
   get #propertyDirectory() {
     if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = ({
-      accessors: this.settings.accessors
-    }, this.settings.propertyDirectory);
+    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
     return propertyDirectory(this.#context, propertyDirectorySettings)
   }
   emit() {
     const targets = this.#targets;
-    const transsigned = this.#transsigned;
+    const transsigned = this.transsigned;
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
@@ -1174,13 +1153,13 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.scopeKey);
+          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
           iterateAddEvents: 
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'accessors', 'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }

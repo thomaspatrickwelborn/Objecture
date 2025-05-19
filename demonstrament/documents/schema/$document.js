@@ -1,7 +1,6 @@
 export default {
   active: true,
   name: 'Objecture | Model',
-  path: '/schema',
   source: 'documents/schema',
   target: 'localhost/schema',
   ignore: [],
