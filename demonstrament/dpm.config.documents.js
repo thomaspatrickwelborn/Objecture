@@ -31,9 +31,9 @@ export default {
     proxy: {
       ws: true,
     },
-    reloadDelay: 500,
-    reloadDebounce: 500,
-    reloadThrottle: 0,
+    // reloadDelay: 500,
+    // reloadDebounce: 500,
+    // reloadThrottle: 500,
     // injectChanges: true,
   }, 
   sockets: {
@@ -41,18 +41,18 @@ export default {
     config: '$socket.js',
     source: 'documents',
     target: 'localhost',
-    logErrors: true,
+    logErrors: false,
   },
   routers: {
     config: '$router.js',
     source: 'documents',
     target: 'localhost',
-    logErrors: true,
+    logErrors: false,
   },
   documents: {
     config: '$document.js',
     source: 'documents',
     target: 'localhost',
-    logErrors: true,
+    logErrors: false,
   },
 }

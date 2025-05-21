@@ -73,6 +73,7 @@ export default {
       watch: [
         '**/*.js',
         '../coutil/**/*.js',
+        '../../static/dependencies',
       ],
       ignore: [
         '**/$route.js',

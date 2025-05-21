@@ -17,12 +17,11 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
     $propEvents === undefined
   ) { return $propEvents }
   const propEvents = [];
-  iteratePropEvents:
   for(const [
     $propEventSettings, $propEventListener
   ] of Object.entries($propEvents)) {
     const propEventSettings = $propEventSettings.trim().split(' ');
-    let path, type, listener, options;
+    let path, type, listener;
     if(propEventSettings.length === 1) {
       path = $scopeKey;
       type = propEventSettings[0];
@@ -33,7 +32,7 @@ function expandEvents($propEvents, $scopeKey = ':scope') {
     }
     if(Array.isArray($propEventListener)) {
       listener = $propEventListener[0];
-      options = $propEventListener[1];
+      $propEventListener[1];
     }
     else {
       listener = $propEventListener;
@@ -163,7 +162,6 @@ function expandTree($source, $property) {
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
   let target = typedObjectLiteral($source);
-  iterateSourceEntries: 
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -182,7 +180,6 @@ function impandTree($source, $property) {
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
   let target = typedObjectLiteral($source);
-  iterateSourceEntries: 
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -208,7 +205,6 @@ function propertyDirectory($object, $options) {
     const accessor = $accessor.bind($object);
     const object = accessor($object);
     if(!object) continue iterateAccessors
-    iterateObjectProperties: 
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
       else if(options.values) { _propertyDirectory.push([$key, $value]); }
@@ -241,7 +237,6 @@ function recursiveAssign($target, ...$sources) {
   iterateSources: 
   for(const $source of $sources) {
     if(!$source) continue iterateSources
-    iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
@@ -266,7 +261,6 @@ function recursiveAssignConcat($target, ...$sources) {
   iterateSources: 
   for(const $source of $sources) {
     if(!$source) continue iterateSources
-    iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
@@ -972,7 +966,7 @@ class EventDefinition {
     iterateTargetElements: 
     for(const $targetElement of targets) {
       const { path, target, enable } = $targetElement;
-      const settings = this.settings;
+      this.settings;
       if(enable === $enable) { continue iterateTargetElements }
       if($enable === true) {
         try {
@@ -1030,7 +1024,6 @@ class EventDefinition {
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          iteratePropertyPaths: 
           for(const [$propertyPath, $propertyValue] of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
             if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
@@ -1042,7 +1035,6 @@ class EventDefinition {
         else {
           targetPaths.push(this.path);
         }
-        iterateTargetPaths: 
         for(const [$targetPath, $targetValue] of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
@@ -1095,7 +1087,6 @@ class EventDefinition {
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
-    iterateTargetElements: 
     for(const $targetElement of targets) {
       const { target } = $targetElement;
       try {
@@ -1120,9 +1111,7 @@ class Core extends EventTarget {
           if(!arguments[0]) { return events }
           const getEvents = [];
           const $filterEvents = [].concat(arguments[0]);
-          iterateFilterEvents: 
           for(const $filterEvent of $filterEvents) {
-            iterateEvents: 
             for(const $event of events) {
               let match;
               iterateEventFilterProperties: 
@@ -1155,7 +1144,6 @@ class Core extends EventTarget {
           if(!arguments.length) { return $target }
           let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
-          iterateAddEvents: 
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
@@ -1194,7 +1182,7 @@ class Core extends EventTarget {
         value: function enableEvents() {
           const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
           if($events.length === 0) return $target
-          iterateEvents: for(const $event of $events) { $event.enable = true; }
+          for(const $event of $events) { $event.enable = true; }
           return $target
         },
       },
@@ -1203,7 +1191,7 @@ class Core extends EventTarget {
         value: function disableEvents() {
           const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
           if($events.length === 0) return $target
-          iterateEvents: for(const $event of $events) { $event.enable = false; }
+          for(const $event of $events) { $event.enable = false; }
           return $target
         },
       },

@@ -1,6 +1,6 @@
 {
   "name": "objecture",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "❂  Objecture\n⏣  Object Watcher, Property Manager\n      ⊚  Capture property changes for object, array mutator methods.\n      ⊚  Schematize and validate object, array properties.\n      ⊚  Browser, NodeJS compatible.\n⁘  Uses Core-Plex - Event Listener Management System.\n⁜  Used by MVC Framework - Presentation Abtraction Control (PAC) Pattern.",
   "homepage": "https://github.com/thomaspatrickwelborn/Objecture#readme",
   "bugs": {
@@ -38,7 +38,8 @@
     ".": "./distributement/objecture.js",
     "./development": "./development/index.js", 
     "./distributement/objecture.js": "./distributement/objecture.js", 
-    "./distributement/objecture.min.js": "./distributement/objecture.min.js" 
+    "./distributement/objecture.min.js": "./distributement/objecture.min.js" ,
+    "./distributement/objecture.sans.core-plex.js": "./distributement/objecture.sans.core-plex.js" 
   },
   "keywords": [
     "object watcher", "object observer", "object events", "array events", "object event manager",
