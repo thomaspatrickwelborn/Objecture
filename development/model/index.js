@@ -1,4 +1,5 @@
 import { Core, Coutil } from 'core-plex'
+import LocalStorage from './local-storage/index.js'
 const { typedObjectLiteral, typeOf } = Coutil
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
@@ -75,6 +76,37 @@ export default class Model extends Core {
       parent: this.options.parent,
       path: this.options.path
     })
+    if(localStorage && this.options.localStorage) {
+      Object.defineProperties(this,  {
+        'localStorage': { configurable: true, get() {
+          let _localStorage
+          let path
+          if(typeof this.options.localStorage === 'string') {
+            if(path[0] !== "/") { path = "/".concat(path) }
+            else { path = this.options.localStorage }
+          }
+          else if(this.options.localStorage === true) {
+            path = [window.location.pathname]
+            if(this.path) { path.push(path) }
+            path = path.join('')
+          }
+          if(path !== undefined) { _localStorage = new LocalStorage(path) }
+          else { _localStorage = null }
+          Object.defineProperty(this, 'localStorage', { value: _localStorage})
+          return _localStorage
+        } },
+        'save': { value: function save() {
+          return this.localStorage.set(this.valueOf())
+        } },
+        'load': { value: function load() {
+          const loadValue = this.localStorage.get()
+          if(loadValue) { return this.localStorage.set(loadValue) }
+        } },
+        'unload': { value: function unload() {
+          return this.localStorage.remove()
+        } },
+      })
+    }
     Methods(this)
     Assign(this, properties, this.options)
   }

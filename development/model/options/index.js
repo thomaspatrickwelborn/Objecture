@@ -2,6 +2,9 @@ import { Coutil } from 'core-plex'
 const { recursiveAssign } = Coutil
 export default ($options) => {
   const Options = recursiveAssign({
+    autoload: false, 
+    autosave: false, 
+    localStorage: false, 
     path: null, 
     parent: null, 
     enableEvents: false,

@@ -14,5 +14,6 @@ import './example-c/example-c-3/index.js'
 import './example-c/example-c-4/index.js'
 import './example-d/example-d-1/index.js'
 import './example-d/example-d-2/index.js'
-*/
 import ReadMe from './readme.md/index.js'
+*/
+import './example-e/index.js'

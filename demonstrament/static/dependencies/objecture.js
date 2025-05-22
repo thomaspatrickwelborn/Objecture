@@ -1248,6 +1248,35 @@ class Core extends EventTarget {
   }
 }
 
+class LocalStorage extends EventTarget {
+  #db = localStorage
+  #path
+  constructor($path) {
+    super();
+    this.path = $path;
+  }
+  get path() { return this.#path }
+  set path($path) {
+    if(this.#path !== undefined) return
+    this.#path = $path;
+  }
+  get() {
+    try{ return JSON.parse(this.#db.getItem(this.path)) }
+    catch($err) { console.error($err); }
+    return
+  }
+  set($$data) {
+    try { return this.#db.setItem(this.path, JSON.stringify($$data)) }
+    catch($err) { console.error($err); }
+    return
+  }
+  remove() {
+    try { return this.#db.removeItem(this.path) }
+    catch($err) { console.error($err); }
+    return
+  }
+}
+
 class Verification extends EventTarget {
   constructor($settings) {
     super();
@@ -1847,6 +1876,9 @@ function _isValidatorDefinition($object, $schema) {
 const { recursiveAssign: recursiveAssign$b } = index;
 var Options = ($options) => {
   const Options = recursiveAssign$b({
+    autoload: false, 
+    autosave: false, 
+    localStorage: false, 
     path: null, 
     parent: null, 
     enableEvents: false,
@@ -3845,7 +3877,8 @@ const ValidObjectAssigmentMethods = Object.freeze(
 
 function Assign($model, $properties, $options) {
   const { type } = $model;
-  const { assignObject, assignArray } = $options;
+  const { assignObject, assignArray, autoload } = $options;
+  if(autoload) { $properties = $model.load() || $properties; }
   if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
     $model[assignArray](...$properties);
   }
@@ -3926,6 +3959,37 @@ class Model extends Core {
       parent: this.options.parent,
       path: this.options.path
     });
+    if(localStorage && this.options.localStorage) {
+      Object.defineProperties(this,  {
+        'localStorage': { configurable: true, get() {
+          let _localStorage;
+          let path;
+          if(typeof this.options.localStorage === 'string') {
+            if(path[0] !== "/") { path = "/".concat(path); }
+            else { path = this.options.localStorage; }
+          }
+          else if(this.options.localStorage === true) {
+            path = [window.location.pathname];
+            if(this.path) { path.push(path); }
+            path = path.join('');
+          }
+          if(path !== undefined) { _localStorage = new LocalStorage(path); }
+          else { _localStorage = null; }
+          Object.defineProperty(this, 'localStorage', { value: _localStorage});
+          return _localStorage
+        } },
+        'save': { value: function save() {
+          return this.localStorage.set(this.valueOf())
+        } },
+        'load': { value: function load() {
+          const loadValue = this.localStorage.get();
+          if(loadValue) { return this.localStorage.set(loadValue) }
+        } },
+        'unload': { value: function unload() {
+          return this.localStorage.remove()
+        } },
+      });
+    }
     Methods(this);
     Assign(this, properties, this.options);
   }

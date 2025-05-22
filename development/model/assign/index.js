@@ -9,7 +9,8 @@ const ValidObjectAssigmentMethods = Object.freeze(
 
 export default function Assign($model, $properties, $options) {
   const { type } = $model
-  const { assignObject, assignArray } = $options
+  const { assignObject, assignArray, autoload } = $options
+  if(autoload) { $properties = $model.load() || $properties }
   if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
     $model[assignArray](...$properties)
   }
