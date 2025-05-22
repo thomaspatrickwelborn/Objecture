@@ -45,7 +45,7 @@ export default function splice($model, $options) {
         )
       }
       if(mutatorEvents['spliceDeleteElement:$index']) {
-        const type = ['spliceDeleteElement', ':', deleteItemsIndex].join('')
+        const type = ['spliceDeleteElement', deleteItemsIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -76,11 +76,11 @@ export default function splice($model, $options) {
           : String(addItemsIndex)
         if(validAddItem.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', addItemsIndex].join('')
+          propertyType = ['validProperty', addItemsIndex].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', addItemsIndex].join('')
+          propertyType = ['nonvalidProperty', addItemsIndex].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validAddItem, $model))
@@ -130,7 +130,7 @@ export default function splice($model, $options) {
         )
       }
       if(mutatorEvents['spliceAddElement:$index']) {
-        const type = ['spliceAddElement', ':', addItemsIndex].join('')
+        const type = ['spliceAddElement', addItemsIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,

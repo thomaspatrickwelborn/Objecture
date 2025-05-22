@@ -37,11 +37,11 @@ export default function fill($model, $options, ...$arguments) {
           : String(fillIndex)
         if(validValue.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', fillIndex].join('')
+          propertyType = ['validProperty', fillIndex].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', fillIndex].join('')
+          propertyType = ['nonvalidProperty', fillIndex].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validValue, $model))
@@ -90,7 +90,7 @@ export default function fill($model, $options, ...$arguments) {
         )
       }
       if(mutatorEvents['fillElement:$index']) {
-        const type = ['fillElement', ':', fillIndex].join('')
+        const type = ['fillElement', fillIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 

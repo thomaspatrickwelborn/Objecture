@@ -23,11 +23,11 @@ export default function push($model, $options, ...$elements) {
           : String(elementsIndex)
         if(validElement.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', elementsIndex].join('')
+          propertyType = ['validProperty', elementsIndex].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', elementsIndex].join('')
+          propertyType = ['nonvalidProperty', elementsIndex].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validElement, $model))
@@ -62,7 +62,7 @@ export default function push($model, $options, ...$elements) {
     elements.push(element)
     if(mutatorEvents) {
       const modelEventPath = (path)
-        ? [path, '.', elementsIndex].join('')
+        ? [path, elementsIndex].join('.')
         : String(elementsIndex)
       if(mutatorEvents['pushElement']) {
         $model.dispatchEvent(
@@ -77,7 +77,7 @@ export default function push($model, $options, ...$elements) {
         )
       }
       if(mutatorEvents['pushElement:$index']) {
-        const type = ['pushElement', ':', elementsIndex].join('')
+        const type = ['pushElement', elementsIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,

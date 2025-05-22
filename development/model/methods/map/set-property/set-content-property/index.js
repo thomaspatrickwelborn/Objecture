@@ -58,11 +58,11 @@ export default function setContentProperty($model, $options, $path, $value) {
         let type, propertyType
         if(validTargetProp.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', propertyKey].join('')
+          propertyType = ['validProperty', propertyKey].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+          propertyType = ['nonvalidProperty', propertyKey].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validTargetProp, $model))
@@ -120,7 +120,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         )
       }
       if(mutatorEvents['setProperty:$key']) {
-        const type = ['setProperty', ':', propertyKey].join('')
+        const type = ['setProperty', propertyKey].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
@@ -191,7 +191,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         )
       }
       if(mutatorEvents['setProperty:$key']) {
-        const type = ['setProperty', ':', propertyKey].join('')
+        const type = ['setProperty', propertyKey].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 

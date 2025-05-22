@@ -55,7 +55,7 @@ export default function copyWithin($model, $options) {
         )
       }
       if(mutatorEvents['copyWithinElement:$index']) {
-        const type  = ['copyWithinElement', ':', copyIndex].join('')
+        const type  = ['copyWithinElement', copyIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(
             type,

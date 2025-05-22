@@ -1372,7 +1372,7 @@ function copyWithin($model, $options) {
         );
       }
       if(mutatorEvents['copyWithinElement:$index']) {
-        const type  = ['copyWithinElement', ':', copyIndex].join('');
+        const type  = ['copyWithinElement', copyIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(
             type,
@@ -1449,11 +1449,11 @@ function fill($model, $options, ...$arguments) {
         let type, propertyType;
         if(validValue.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', fillIndex].join('');
+          propertyType = ['validProperty', fillIndex].join(':');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', fillIndex].join('');
+          propertyType = ['nonvalidProperty', fillIndex].join(':');
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent$1($eventType, validValue, $model));
@@ -1502,7 +1502,7 @@ function fill($model, $options, ...$arguments) {
         );
       }
       if(mutatorEvents['fillElement:$index']) {
-        const type = ['fillElement', ':', fillIndex].join('');
+        const type = ['fillElement', fillIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
@@ -1580,11 +1580,11 @@ function push($model, $options, ...$elements) {
         let type, propertyType;
         if(validElement.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', elementsIndex].join('');
+          propertyType = ['validProperty', elementsIndex].join(':');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', elementsIndex].join('');
+          propertyType = ['nonvalidProperty', elementsIndex].join(':');
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent$1($eventType, validElement, $model));
@@ -1619,7 +1619,7 @@ function push($model, $options, ...$elements) {
     elements.push(element);
     if(mutatorEvents) {
       const modelEventPath = (path)
-        ? [path, '.', elementsIndex].join('')
+        ? [path, elementsIndex].join('.')
         : String(elementsIndex);
       if(mutatorEvents['pushElement']) {
         $model.dispatchEvent(
@@ -1634,7 +1634,7 @@ function push($model, $options, ...$elements) {
         );
       }
       if(mutatorEvents['pushElement:$index']) {
-        const type = ['pushElement', ':', elementsIndex].join('');
+        const type = ['pushElement', elementsIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -1756,7 +1756,7 @@ function splice($model, $options) {
         );
       }
       if(mutatorEvents['spliceDeleteElement:$index']) {
-        const type = ['spliceDeleteElement', ':', deleteItemsIndex].join('');
+        const type = ['spliceDeleteElement', deleteItemsIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -1784,11 +1784,11 @@ function splice($model, $options) {
         let type, propertyType;
         if(validAddItem.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', addItemsIndex].join('');
+          propertyType = ['validProperty', addItemsIndex].join(':');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', addItemsIndex].join('');
+          propertyType = ['nonvalidProperty', addItemsIndex].join(':');
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validAddItem, $model));
@@ -1838,7 +1838,7 @@ function splice($model, $options) {
         );
       }
       if(mutatorEvents['spliceAddElement:$index']) {
-        const type = ['spliceAddElement', ':', addItemsIndex].join('');
+        const type = ['spliceAddElement', addItemsIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -1890,11 +1890,11 @@ function unshift($model, $options, ...$elements) {
         let type, propertyType;
         if(validElement.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', elementsIndex].join('');
+          propertyType = ['validProperty', elementsIndex].join(':');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', elementsIndex].join('');
+          propertyType = ['nonvalidProperty', elementsIndex].join(':');
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validElement, $model));
@@ -1926,7 +1926,7 @@ function unshift($model, $options, ...$elements) {
     elements.unshift(element);
     if(mutatorEvents) {
       const modelEventPath = (path)
-        ? [path, '.', elementsIndex].join('')
+        ? [path, elementsIndex].join('.')
         : String(elementsIndex);
       if(mutatorEvents['unshiftElement']) {
         $model.dispatchEvent(
@@ -1941,7 +1941,7 @@ function unshift($model, $options, ...$elements) {
         );
       }
       if(mutatorEvents['unshiftElement:$index']) {
-        const type = ['unshiftElement', ':', elementsIndex].join('');
+        const type = ['unshiftElement', elementsIndex].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
@@ -2138,11 +2138,11 @@ function setContentProperty($model, $options, $path, $value) {
         let type, propertyType;
         if(validTargetProp.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', propertyKey].join('');
+          propertyType = ['validProperty', propertyKey].join(':');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+          propertyType = ['nonvalidProperty', propertyKey].join(':');
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent$1($eventType, validTargetProp, $model));
@@ -2200,7 +2200,7 @@ function setContentProperty($model, $options, $path, $value) {
         );
       }
       if(mutatorEvents['setProperty:$key']) {
-        const type = ['setProperty', ':', propertyKey].join('');
+        const type = ['setProperty', propertyKey].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 
@@ -2271,7 +2271,7 @@ function setContentProperty($model, $options, $path, $value) {
         );
       }
       if(mutatorEvents['setProperty:$key']) {
-        const type = ['setProperty', ':', propertyKey].join('');
+        const type = ['setProperty', propertyKey].join(':');
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath, 

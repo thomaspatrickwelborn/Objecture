@@ -23,11 +23,11 @@ export default function unshift($model, $options, ...$elements) {
           : String(elementsIndex)
         if(validElement.valid) {
           type = 'validProperty'
-          propertyType = ['validProperty', ':', elementsIndex].join('')
+          propertyType = ['validProperty', elementsIndex].join(':')
         }
         else {
           type = 'nonvalidProperty'
-          propertyType = ['nonvalidProperty', ':', elementsIndex].join('')
+          propertyType = ['nonvalidProperty', elementsIndex].join(':')
         }
         for(const $eventType of [type, propertyType]) {
           $model.dispatchEvent(new ValidatorEvent($eventType, validElement, $model))
@@ -59,7 +59,7 @@ export default function unshift($model, $options, ...$elements) {
     elements.unshift(element)
     if(mutatorEvents) {
       const modelEventPath = (path)
-        ? [path, '.', elementsIndex].join('')
+        ? [path, elementsIndex].join('.')
         : String(elementsIndex)
       if(mutatorEvents['unshiftElement']) {
         $model.dispatchEvent(
@@ -74,7 +74,7 @@ export default function unshift($model, $options, ...$elements) {
         )
       }
       if(mutatorEvents['unshiftElement:$index']) {
-        const type = ['unshiftElement', ':', elementsIndex].join('')
+        const type = ['unshiftElement', elementsIndex].join(':')
         $model.dispatchEvent(
           new ModelEvent(type, {
             path: modelEventPath,
