@@ -89,7 +89,7 @@ var regularExpressions$3 = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-const typeOf$6 = ($data) => Object
+var typeOf$6 = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
@@ -122,13 +122,15 @@ function parse($path) {
 function typedObjectLiteral$e($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$6($value);
-  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
+  if(typeOfValue === 'string') {
+    const value = $value.toLowerCase();
+    if(value === 'object') { _typedObjectLiteral = {}; }
+    else if(value === 'array') { _typedObjectLiteral = []; }
   }
-  else { _typedObjectLiteral = undefined; }
+  else  {
+    if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
+    else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
+  }
   return _typedObjectLiteral
 }
 
@@ -172,7 +174,7 @@ function expandTree($source, $property) {
   return target
 }
 
-function impandTree$1($source, $property) {
+function impandTree$2($source, $property) {
   const typeOfProperty = typeOf$6($property);
   const typeOfSource = typeOf$6($source);
   if(
@@ -184,7 +186,7 @@ function impandTree$1($source, $property) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
     if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = impandTree$1(target[$sourceKey], $property);
+      target[$sourceKey] = impandTree$2(target[$sourceKey], $property);
     }
   }
   return target
@@ -202,7 +204,8 @@ function propertyDirectory($object, $options) {
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
-    const object = $accessor($object);
+    const accessor = $accessor.bind($object);
+    const object = accessor($object);
     if(!object) continue iterateAccessors
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
@@ -285,6 +288,41 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
+function recursiveGetOwnPropertyDescriptor($properties, $propertyKey) {
+  const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(['array', 'object'].includes(typeOf$6(propertyDescriptor.value))) {
+    propertyDescriptor.value = recursiveGetOwnPropertyDescriptors$1(propertyDescriptor.value);
+  }
+  return propertyDescriptor
+}
+
+function recursiveGetOwnPropertyDescriptors$1($properties) {
+  const propertyDescriptors = {};
+  for(const $propertyKey of Object.keys($properties)) {
+    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey);
+  }
+  return propertyDescriptors
+}
+
+function recursiveDefineProperty($target, $property, $propertyDescriptor) {
+  if(['array', 'object'].includes(typeOf$6($propertyDescriptor.value))) {
+    $target[$propertyKey] = recursiveDefineProperties(typedObjectLiteral$e($propertyDescriptor.value), $propertyDescriptor);
+  }
+  else {
+    Object.defineProperty($target, $propertyKey, $propertyDescriptor);
+  }
+  return $target
+}
+
+function recursiveDefineProperties($target, $propertyDescriptors) {
+  for(const [
+    $propertyKey, $propertyDescriptor
+  ] of Object.entries($propertyDescriptors)) {
+    recursiveDefineProperty($target, $propertyKey, $propertyDescriptor);
+  }
+  return $target
+}
+
 function recursiveFreeze$1($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -299,11 +337,15 @@ var index = /*#__PURE__*/Object.freeze({
   accessors: accessors,
   expandEvents: expandEvents,
   expandTree: expandTree,
-  impandTree: impandTree$1,
+  impandTree: impandTree$2,
   propertyDirectory: propertyDirectory,
   recursiveAssign: recursiveAssign$f,
   recursiveAssignConcat: recursiveAssignConcat,
+  recursiveDefineProperties: recursiveDefineProperties,
+  recursiveDefineProperty: recursiveDefineProperty,
   recursiveFreeze: recursiveFreeze$1,
+  recursiveGetOwnPropertyDescriptor: recursiveGetOwnPropertyDescriptor,
+  recursiveGetOwnPropertyDescriptors: recursiveGetOwnPropertyDescriptors$1,
   regularExpressions: regularExpressions$3,
   typeOf: typeOf$6,
   typedObjectLiteral: typedObjectLiteral$e,
@@ -314,6 +356,11 @@ var Settings$1 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
+    propertyDirectory: {
+      accessors: [accessors.default],
+      scopeKey: ':scope', 
+      maxDepth: 10,
+    },
     propertyDefinitions: {
       getEvents: 'getEvents',
       addEvents: 'addEvents',
@@ -327,6 +374,7 @@ var Settings$1 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
+      case 'propertyDirectory':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -861,11 +909,8 @@ function outmatch(pattern, options) {
 var Settings = ($settings = {}) => {
   const Settings = {
     enable: false,
-    accessors: [accessors.default],
-    propertyDirectory: { scopeKey: $settings.scopeKey, maxDepth: 10 },
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
-    scopeKey: ':scope',
     errorLog: false,
     methods: {
       assign: {
@@ -906,13 +951,6 @@ var Settings = ($settings = {}) => {
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
-      case 'propertyDirectory':
-        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
-        break
-      case 'accessors':
-        Settings[$settingKey] = $settingValue;
-        Settings.propertyDirectory[$settingKey] = $settingValue;
-        break
       case 'methods': 
         Settings[$settingKey] = recursiveAssign$f(Settings[$settingKey], $settingValue);
         break
@@ -926,14 +964,8 @@ var Settings = ($settings = {}) => {
 };
 
 class EventDefinition {
-  #settings
   #context
-  #listener
   #enable = false
-  #path
-  #assigned = []
-  #deassigned = []
-  #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign
@@ -941,27 +973,48 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    this.#settings = Settings($settings);
+    const settings = Settings($settings);
+    const assigned = [];
+    const deassigned = [];
+    const transsigned = [];
+    Object.defineProperties(this, {
+      'settings': { value: settings },
+      'path': { value: settings.path },
+      'type': { value: settings.type },
+      'assigned': { value: assigned },
+      'deassigned': { value: deassigned },
+      'transsigned': { value: transsigned },
+      'listener':  { configurable: true, get() {
+        const typeOfListener = typeOf$6(settings.listener);
+        let listener; 
+        if(typeOfListener === 'string') {
+          let listenerTarget = $context;
+          iterateListenerPathKeys: 
+          for(const $pathKey of settings.listener.split('.')) {
+            const value = listenerTarget[$pathKey];
+            if(value !== undefined) { listenerTarget = listenerTarget[$pathKey]; }
+            else { break iterateListenerPathKeys }
+          }
+          if(typeOf$6(listenerTarget) === 'function') {
+            listener = listenerTarget;
+          }
+        }
+        else { listener = settings.listener; }
+        if(settings.bindListener === true) {
+          listener = listener.bind(this.#context);
+        }
+        Object.defineProperty(this, 'listener', { value: listener });
+        return listener
+      } }
+    });
     this.#context = $context;
     this.enable = this.settings.enable;
-  }
-  get settings() { return this.#settings }
-  get path() { return this.settings.path }
-  get type() { return this.settings.type }
-  get listener() {
-    if(this.#listener !== undefined) { return this.#listener }
-    const listener = this.settings.listener;
-    if(this.settings.bindListener === true) {
-      this.#listener = listener.bind(this.#context);
-    }
-    else { this.#listener = listener; }
-    return this.#listener
   }
   get enable() { return this.#enable }
   set enable($enable) {
     const targets = this.#targets;
-    const assigned = this.#assigned;
-    const deassigned = this.#deassigned;
+    const assigned = this.assigned;
+    const deassigned = this.deassigned;
     assigned.length = 0;
     deassigned.length = 0;
     iterateTargetElements: 
@@ -989,8 +1042,6 @@ class EventDefinition {
     }
     this.#enable = $enable;
   }
-  get assigned() { return this.#assigned }
-  get deassigned() { return this.#deassigned }
   get #target() { return this.settings.target }
   get #targets() {
     const pretargets = this.#_targets;
@@ -1003,8 +1054,7 @@ class EventDefinition {
         if(pretargetElement !== undefined) {
           targets.push(pretargetElement);
         }
-        else if(pretargetElement === undefined) {
-          targets.push({
+        else if(pretargetElement === undefined) {ptargets.push({
             path: this.path,
             target: $target,
             enable: false,
@@ -1028,9 +1078,9 @@ class EventDefinition {
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          for(const $propertyPath of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
-            if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+            if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
           if(this.path.charAt(0) === '*') {
             targetPaths.unshift(this.#scopeKey);
@@ -1039,26 +1089,12 @@ class EventDefinition {
         else {
           targetPaths.push(this.path);
         }
-        for(const $targetPath of targetPaths) {
+        for(const [$targetPath, $targetValue] of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
           );
-          let target = this.#context;
+          let target = $targetValue;
           let targetElement;
-          const pathKeys = $targetPath.split('.');
-          let pathKeysIndex = 0;
-          iterateTargetPathKeys: 
-          while(pathKeysIndex < pathKeys.length) {
-            let pathKey = pathKeys[pathKeysIndex];
-            if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
-            iterateTargetAccessors: 
-            for(const $targetAccessor of this.settings.accessors) {
-              try { target = $targetAccessor(target, pathKey); }
-              catch($err) { if(this.settings.errorLog) { console.error($err); } }
-              if(target !== undefined) { break iterateTargetAccessors }
-            }
-            pathKeysIndex++;
-          }
           if(target !== undefined) {
             if(target === pretargetElement?.target) {
               targetElement = pretargetElement;
@@ -1078,7 +1114,7 @@ class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.scopeKey }
+  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -1094,17 +1130,14 @@ class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #methods() { return this.settings.methods }
   get #propertyDirectory() {
     if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = ({
-      accessors: this.settings.accessors
-    }, this.settings.propertyDirectory);
+    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
     return propertyDirectory(this.#context, propertyDirectorySettings)
   }
   emit() {
     const targets = this.#targets;
-    const transsigned = this.#transsigned;
+    const transsigned = this.transsigned;
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
@@ -1163,12 +1196,12 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.scopeKey);
+          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'accessors', 'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -1248,6 +1281,7 @@ class Core extends EventTarget {
   }
 }
 
+const { recursiveGetOwnPropertyDescriptors, impandTree: impandTree$1 } = index;
 class LocalStorage extends EventTarget {
   #db = localStorage
   #path
@@ -1261,19 +1295,18 @@ class LocalStorage extends EventTarget {
     this.#path = $path;
   }
   get() {
+    console.log(this.path);
+    // impandTree(propertyValue, 'value')
     try{ return JSON.parse(this.#db.getItem(this.path)) }
     catch($err) { console.error($err); }
-    return
   }
-  set($$data) {
-    try { return this.#db.setItem(this.path, JSON.stringify($$data)) }
+  set($data) {
+    try { return this.#db.setItem(this.path, JSON.stringify($data)) }
     catch($err) { console.error($err); }
-    return
   }
   remove() {
     try { return this.#db.removeItem(this.path) }
     catch($err) { console.error($err); }
-    return
   }
 }
 
@@ -3877,12 +3910,11 @@ const ValidObjectAssigmentMethods = Object.freeze(
 
 function Assign($model, $properties, $options) {
   const { type } = $model;
-  const { assignObject, assignArray, autoload } = $options;
-  if(autoload) { $properties = $model.load() || $properties; }
+  const { assignObject, assignArray /*, autoload */ } = $options;
   if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
     $model[assignArray](...$properties);
   }
-  else if(['array', 'object'].includes(type) && ValidObjectAssigmentMethods.includes(assignObject)) {
+  else if(type === 'object' && ValidObjectAssigmentMethods.includes(assignObject)) {
     $model[assignObject]($properties);
   }
   return $model
@@ -3896,7 +3928,7 @@ class Model extends Core {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
     }] } });
-    const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
+    if($properties instanceof Model) { $properties = $properties.valueOf(); }
     let parent = null;
     let path = null;
     try {
@@ -3936,7 +3968,7 @@ class Model extends Core {
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
-        const target = typedObjectLiteral(properties);
+        const target = typedObjectLiteral($properties);
         Object.defineProperty(this, 'target', { value: target });
         return target
       } },
@@ -3963,27 +3995,19 @@ class Model extends Core {
       Object.defineProperties(this,  {
         'localStorage': { configurable: true, get() {
           let _localStorage;
-          let path;
-          if(typeof this.options.localStorage === 'string') {
-            if(path[0] !== "/") { path = "/".concat(path); }
-            else { path = this.options.localStorage; }
-          }
-          else if(this.options.localStorage === true) {
-            path = [window.location.pathname];
-            if(this.path) { path.push(path); }
-            path = path.join('');
-          }
-          if(path !== undefined) { _localStorage = new LocalStorage(path); }
-          else { _localStorage = null; }
-          Object.defineProperty(this, 'localStorage', { value: _localStorage});
+          let path = [window.location.pathname];
+          if(this.path) { path.push(this.path); }
+          path = path.join('');
+          console.log("path", path);
+          _localStorage = new LocalStorage(path);
+          Object.defineProperty(this, 'localStorage', { value: _localStorage });
           return _localStorage
         } },
         'save': { value: function save() {
           return this.localStorage.set(this.valueOf())
         } },
         'load': { value: function load() {
-          const loadValue = this.localStorage.get();
-          if(loadValue) { return this.localStorage.set(loadValue) }
+          return this.localStorage.get()
         } },
         'unload': { value: function unload() {
           return this.localStorage.remove()
@@ -3991,7 +4015,13 @@ class Model extends Core {
       });
     }
     Methods(this);
-    Assign(this, properties, this.options);
+    if(this.options.autoload) {
+      Assign(this, this.load() || $properties, this.options);
+    }
+    else {
+      console.log(this.path, this.load());
+      Assign(this, $properties, this.options);
+    }
   }
   retroReenableEvents() {
     let model = this;

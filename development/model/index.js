@@ -13,7 +13,7 @@ export default class Model extends Core {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
     }] } })
-    const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties
+    if($properties instanceof Model) { $properties = $properties.valueOf() }
     let parent = null
     let path = null
     try {
@@ -53,7 +53,7 @@ export default class Model extends Core {
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
-        const target = typedObjectLiteral(properties)
+        const target = typedObjectLiteral($properties)
         Object.defineProperty(this, 'target', { value: target })
         return target
       } },
@@ -80,27 +80,19 @@ export default class Model extends Core {
       Object.defineProperties(this,  {
         'localStorage': { configurable: true, get() {
           let _localStorage
-          let path
-          if(typeof this.options.localStorage === 'string') {
-            if(path[0] !== "/") { path = "/".concat(path) }
-            else { path = this.options.localStorage }
-          }
-          else if(this.options.localStorage === true) {
-            path = [window.location.pathname]
-            if(this.path) { path.push(path) }
-            path = path.join('')
-          }
-          if(path !== undefined) { _localStorage = new LocalStorage(path) }
-          else { _localStorage = null }
-          Object.defineProperty(this, 'localStorage', { value: _localStorage})
+          let path = [window.location.pathname]
+          if(this.path) { path.push(this.path) }
+          path = path.join('')
+          console.log("path", path)
+          _localStorage = new LocalStorage(path)
+          Object.defineProperty(this, 'localStorage', { value: _localStorage })
           return _localStorage
         } },
         'save': { value: function save() {
           return this.localStorage.set(this.valueOf())
         } },
         'load': { value: function load() {
-          const loadValue = this.localStorage.get()
-          if(loadValue) { return this.localStorage.set(loadValue) }
+          return this.localStorage.get()
         } },
         'unload': { value: function unload() {
           return this.localStorage.remove()
@@ -108,7 +100,13 @@ export default class Model extends Core {
       })
     }
     Methods(this)
-    Assign(this, properties, this.options)
+    if(this.options.autoload) {
+      Assign(this, this.load() || $properties, this.options)
+    }
+    else {
+      console.log(this.path, this.load())
+      Assign(this, $properties, this.options)
+    }
   }
   retroReenableEvents() {
     let model = this

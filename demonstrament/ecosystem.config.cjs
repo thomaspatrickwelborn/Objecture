@@ -9,12 +9,12 @@ const EcosystemConfig = {
         "package.json",
         "dpm.config.documents.js",
         "ecosystem.config.cjs",
-        // "../node_modules/core-plex/distributement",
+        "../node_modules/core-plex/distributement",
         "../node_modules/document-process-manager/development",
         "../distributement",
       ],
       ignore_watch: [
-        // "!../node_modules/core-plex/distributement",
+        "!../node_modules/core-plex/distributement",
         "!../node_modules/document-process-manager/development",
       ],
       watch_options: {

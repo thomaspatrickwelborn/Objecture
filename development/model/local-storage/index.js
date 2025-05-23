@@ -1,3 +1,5 @@
+import { Coutil } from 'core-plex'
+const { recursiveGetOwnPropertyDescriptors, impandTree } = Coutil
 export default class LocalStorage extends EventTarget {
   #db = localStorage
   #path
@@ -11,19 +13,17 @@ export default class LocalStorage extends EventTarget {
     this.#path = $path
   }
   get() {
-    let dbItem
+    console.log(this.path)
+    // impandTree(propertyValue, 'value')
     try{ return JSON.parse(this.#db.getItem(this.path)) }
     catch($err) { console.error($err) }
-    return
   }
-  set($$data) {
-    try { return this.#db.setItem(this.path, JSON.stringify($$data)) }
+  set($data) {
+    try { return this.#db.setItem(this.path, JSON.stringify($data)) }
     catch($err) { console.error($err) }
-    return
   }
   remove() {
     try { return this.#db.removeItem(this.path) }
     catch($err) { console.error($err) }
-    return
   }
 }
