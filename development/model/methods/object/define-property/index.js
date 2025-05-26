@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { impandTree, recursiveAssign, typedObjectLiteral } = Coutil
+import { impandTree, recursiveAssign, typedObjectLiteral } from 'recourse'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {

@@ -1,6 +1,6 @@
-import { Core, Coutil } from 'core-plex'
+import Core from 'core-plex'
+import { typedObjectLiteral, typeOf } from 'recourse'
 import LocalStorage from './local-storage/index.js'
-const { typedObjectLiteral, typeOf } = Coutil
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
@@ -83,7 +83,6 @@ export default class Model extends Core {
           let path = [window.location.pathname]
           if(this.path) { path.push(this.path) }
           path = path.join('')
-          console.log("path", path)
           _localStorage = new LocalStorage(path)
           Object.defineProperty(this, 'localStorage', { value: _localStorage })
           return _localStorage
@@ -104,7 +103,6 @@ export default class Model extends Core {
       Assign(this, this.load() || $properties, this.options)
     }
     else {
-      console.log(this.path, this.load())
       Assign(this, $properties, this.options)
     }
   }

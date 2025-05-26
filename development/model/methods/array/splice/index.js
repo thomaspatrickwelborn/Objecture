@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { typedObjectLiteral } = Coutil
+import { typedObjectLiteral } from 'recourse'
 import { ModelEvent } from '../../../events/index.js'
 export default function splice($model, $options) {
   const options = Object.assign({}, $options)

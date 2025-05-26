@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveGetOwnPropertyDescriptors, impandTree } = Coutil
+import { recursiveGetOwnPropertyDescriptors, impandTree } from 'recourse'
 export default class LocalStorage extends EventTarget {
   #db = localStorage
   #path
@@ -13,8 +12,6 @@ export default class LocalStorage extends EventTarget {
     this.#path = $path
   }
   get() {
-    console.log(this.path)
-    // impandTree(propertyValue, 'value')
     try{ return JSON.parse(this.#db.getItem(this.path)) }
     catch($err) { console.error($err) }
   }

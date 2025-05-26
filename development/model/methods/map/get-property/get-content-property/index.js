@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { regularExpressions} = Coutil
+import { regularExpressions } from 'recourse'
 import { ModelEvent } from '../../../../events/index.js'
 export default function getContentProperty($model, $options, $path) {
   const { target, path } = $model

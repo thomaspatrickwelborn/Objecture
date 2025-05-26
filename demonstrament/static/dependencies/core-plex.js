@@ -1,53 +1,3 @@
-const defaultAccessor = ($target, $property) => {
-  if($property === undefined) { return $target }
-  else { return $target[$property] }
-};
-const getAccessor = ($target, $property) => {
-  if($property === undefined) { return $target }
-  else { return $target.get($property) }
-};
-var accessors = {
-  default: defaultAccessor,
-  get: getAccessor,
-};
-
-function expandEvents($propEvents, $scopeKey = ':scope') {
-  if(
-    Array.isArray($propEvents) ||
-    $propEvents === undefined
-  ) { return $propEvents }
-  const propEvents = [];
-  for(const [
-    $propEventSettings, $propEventListener
-  ] of Object.entries($propEvents)) {
-    const propEventSettings = $propEventSettings.trim().split(' ');
-    let path, type, listener;
-    if(propEventSettings.length === 1) {
-      path = $scopeKey;
-      type = propEventSettings[0];
-    }
-    else if(propEventSettings.length > 1) {
-      path = propEventSettings[0];
-      type = propEventSettings[1];
-    }
-    if(Array.isArray($propEventListener)) {
-      listener = $propEventListener[0];
-      $propEventListener[1];
-    }
-    else {
-      listener = $propEventListener;
-    }
-    const propEvent = {
-      type,
-      path,
-      listener,
-      enable: false,
-    };
-    propEvents.push(propEvent);
-  }
-  return propEvents
-}
-
 const Primitives = {
   'string': String, 
   'number': Number, 
@@ -55,147 +5,35 @@ const Primitives = {
   'undefined': undefined,
   'null': null,
 };
-const PrimitiveKeys = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
+Object.values(Primitives);
 const Objects = {
   'object': Object,
   'array': Array,
 };
-const ObjectKeys = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
+Object.values(Objects);
 const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
+Object.values(Types);
+[
  Primitives.String, Primitives.Number, Primitives.Boolean, 
  Objects.Object, Objects.Array
 ];
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
 
 var typeOf = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
-function subpaths($path) {
-  return $path.split(
-    new RegExp(regularExpressions.quotationEscape)
-  )
-}
-function keypaths($path) {
-  const _subpaths = subpaths($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key($path) { return subpaths($path).pop() }
-function root($path) { return subpaths($path).shift() }
-function typeofRoot($path) { return (
-  Number(root($path))
-) ? 'array' : 'object' }
-function parse($path) {
-  return {
-    subpaths: subpaths($path),
-    keypaths: keypaths($path),
-    key: key($path),
-    root: root($path),
-    typeofRoot: typeofRoot($path),
-  }
-}
-
-function typedObjectLiteral($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf($value);
-  if(typeOfValue === 'string') {
-    const value = $value.toLowerCase();
-    if(value === 'object') { _typedObjectLiteral = {}; }
-    else if(value === 'array') { _typedObjectLiteral = []; }
-  }
-  else  {
-    if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-    else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  }
-  return _typedObjectLiteral
-}
-
-function get($path, $source) {
-  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
-  const key = subpaths.pop();
-  let subtarget = $source;
-  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
-  return subtarget[key]
-}
-function set($path, $source) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse($path);
-  const target = typedObjectLiteral(typeofRoot);
-  let subtarget = target;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { subtarget[$subpath] = []; }
-    else { subtarget[$subpath] = {}; }
-    subtarget = subtarget[$subpath];
-  }
-  subtarget[key] = $source;
-  return target
-}
-
-function expandTree($source, $property) {
-  const typeOfProperty = typeOf($property);
-  const typeOfSource = typeOf($source);
-  if(
-    !['string', 'function'].includes(typeOfProperty) ||
-    !['array', 'object'].includes(typeOfSource)
-  ) { return $source }
-  let target = typedObjectLiteral($source);
-  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-    if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
-    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey][$property] && typeof target[$sourceKey][$property] === 'object') {
-      target[$sourceKey][$property] = expandTree(target[$sourceKey][$property], $property);
-    }
-  }
-  return target
-}
-
-function impandTree($source, $property) {
-  const typeOfProperty = typeOf($property);
-  const typeOfSource = typeOf($source);
-  if(
-    !['string', 'function'].includes(typeOfProperty) ||
-    !['array', 'object'].includes(typeOfSource)
-  ) { return $source }
-  let target = typedObjectLiteral($source);
-  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
-    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = impandTree(target[$sourceKey], $property);
-    }
-  }
-  return target
-}
+const defaultAccessor$1 = ($target, $property) => {
+  if($property === undefined) { return $target }
+  else { return $target[$property] }
+};
+var Accessors = {
+  default: defaultAccessor$1};
 
 const Options = {
   depth: 0,
   maxDepth: 10,
-  accessors: [accessors.default],
+  accessors: [Accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
@@ -258,99 +96,49 @@ function recursiveAssign($target, ...$sources) {
   return $target
 }
 
-function recursiveAssignConcat($target, ...$sources) {
-  if(!$target) { return $target}
-  iterateSources: 
-  for(const $source of $sources) {
-    if(!$source) continue iterateSources
-    for(const [
-      $sourcePropertyKey, $sourcePropertyValue
-    ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf($sourcePropertyValue);
-      if( 
-        typeOfTargetPropertyValue === 'object' &&
-        typeOfSourcePropertyValue === 'object'
-      ) {
-        $target[$sourcePropertyKey] = recursiveAssignConcat($target[$sourcePropertyKey], $sourcePropertyValue);
-      }
-      else if(
-        typeOfTargetPropertyValue === 'array' &&
-        typeOfSourcePropertyValue === 'array'
-      ) {
-        $target[$sourcePropertyKey] = $target[$sourcePropertyKey].concat($sourcePropertyValue);
-      }
-      else {
-        $target[$sourcePropertyKey] = $sourcePropertyValue;
-      }
-    }
-  }
-  return $target
-}
-
-function recursiveGetOwnPropertyDescriptor($properties, $propertyKey) {
-  const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
-  if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
-    propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value);
-  }
-  return propertyDescriptor
-}
-
-function recursiveGetOwnPropertyDescriptors($properties) {
-  const propertyDescriptors = {};
-  for(const $propertyKey of Object.keys($properties)) {
-    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey);
-  }
-  return propertyDescriptors
-}
-
-function recursiveDefineProperty($target, $property, $propertyDescriptor) {
-  if(['array', 'object'].includes(typeOf($propertyDescriptor.value))) {
-    $target[$propertyKey] = recursiveDefineProperties(typedObjectLiteral($propertyDescriptor.value), $propertyDescriptor);
-  }
-  else {
-    Object.defineProperty($target, $propertyKey, $propertyDescriptor);
-  }
-  return $target
-}
-
-function recursiveDefineProperties($target, $propertyDescriptors) {
+function expandEvents($propEvents, $scopeKey = ':scope') {
+  if(
+    Array.isArray($propEvents) ||
+    $propEvents === undefined
+  ) { return $propEvents }
+  const propEvents = [];
   for(const [
-    $propertyKey, $propertyDescriptor
-  ] of Object.entries($propertyDescriptors)) {
-    recursiveDefineProperty($target, $propertyKey, $propertyDescriptor);
-  }
-  return $target
-}
-
-function recursiveFreeze($target) {
-  for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
-    if($propertyValue && typeof $propertyValue === 'object') {
-      recursiveFreeze($propertyValue);
+    $propEventSettings, $propEventListener
+  ] of Object.entries($propEvents)) {
+    const propEventSettings = $propEventSettings.trim().split(' ');
+    let path, type, listener;
+    if(propEventSettings.length === 1) {
+      path = $scopeKey;
+      type = propEventSettings[0];
     }
+    else if(propEventSettings.length > 1) {
+      path = propEventSettings[0];
+      type = propEventSettings[1];
+    }
+    if(Array.isArray($propEventListener)) {
+      listener = $propEventListener[0];
+      $propEventListener[1];
+    }
+    else {
+      listener = $propEventListener;
+    }
+    const propEvent = {
+      type,
+      path,
+      listener,
+      enable: false,
+    };
+    propEvents.push(propEvent);
   }
-  return Object.freeze($target)
+  return propEvents
 }
 
-var index = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  accessors: accessors,
-  expandEvents: expandEvents,
-  expandTree: expandTree,
-  impandTree: impandTree,
-  propertyDirectory: propertyDirectory,
-  recursiveAssign: recursiveAssign,
-  recursiveAssignConcat: recursiveAssignConcat,
-  recursiveDefineProperties: recursiveDefineProperties,
-  recursiveDefineProperty: recursiveDefineProperty,
-  recursiveFreeze: recursiveFreeze,
-  recursiveGetOwnPropertyDescriptor: recursiveGetOwnPropertyDescriptor,
-  recursiveGetOwnPropertyDescriptors: recursiveGetOwnPropertyDescriptors,
-  regularExpressions: regularExpressions,
-  typeOf: typeOf,
-  typedObjectLiteral: typedObjectLiteral,
-  variables: index$1
-});
+const defaultAccessor = ($target, $property) => {
+  if($property === undefined) { return $target }
+  else { return $target[$property] }
+};
+var accessors = {
+  default: defaultAccessor};
 
 var Settings$1 = ($settings = {}) => {
   const Settings = {
@@ -1281,5 +1069,5 @@ class Core extends EventTarget {
   }
 }
 
-export { Core, index as Coutil };
+export { Core as default };
 //# sourceMappingURL=core-plex.js.map

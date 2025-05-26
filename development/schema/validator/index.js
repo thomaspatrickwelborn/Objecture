@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign } = Coutil
+import { recursiveAssign } from 'recourse'
 import Verification from '../verification/index.js'
 import Validation from '../validation/index.js'
 const Messages = {

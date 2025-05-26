@@ -13,7 +13,6 @@
   "license": "ISC",
   "author": "Thomas Patrick Welborn",
   "type": "module",
-  "main": "index.js",
   "workspaces": ["development", "demonstrament"],
   "scripts": {
     "demonstrate:start": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",

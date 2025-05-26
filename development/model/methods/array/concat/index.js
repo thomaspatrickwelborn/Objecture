@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { typedObjectLiteral } = Coutil
+import { typedObjectLiteral } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
   const { target, path, schema } = $model

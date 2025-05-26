@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign, typedObjectLiteral } = Coutil
+import { recursiveAssign, typedObjectLiteral } from 'recourse'
 const ValidArrayAssigmentMethods = Object.freeze(
   ['push', 'unshift']
 )

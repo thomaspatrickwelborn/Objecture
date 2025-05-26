@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign } = Coutil
+import { recursiveAssign } from 'recourse'
 import setContent from './set-content/index.js'
 import setContentProperty from './set-content-property/index.js'
 export default function setProperty($model, $options, ...$arguments) {

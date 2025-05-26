@@ -6,9 +6,8 @@ Example 7.
  - Property Definition Format: Impand
  - Type: All Primitives Nonvalid
 `)
-import { Coutil } from '/dependencies/core-plex.js'
+import { propertyDirectory } from '/dependencies/recourse.js'
 import { Model, Schema } from '/dependencies/objecture.js'
-const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
   propertyA: {

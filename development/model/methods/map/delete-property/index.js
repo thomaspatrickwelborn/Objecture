@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign } = Coutil
+import { recursiveAssign } from 'recourse'
 import deleteContent from './delete-content/index.js'
 import deleteContentProperty from './delete-content-property/index.js'
 export default function deleteProperty($model, $options, ...$arguments) {

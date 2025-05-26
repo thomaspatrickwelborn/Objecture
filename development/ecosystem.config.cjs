@@ -7,8 +7,18 @@ const EcosystemConfig = {
       watch: [
         "index.js",
         "package.json",
-        "**/*.js"
+        "**/*.js",
+        "../node_modules/recourse/distributement",
+        "../node_modules/core-plex/distributement",
       ],
+      ignore_watch: [
+        "!../node_modules/recourse/distributement",
+        "!../node_modules/core-plex/distributement",
+      ],
+      watch_options: {
+        followSymLinks: true,
+        interval: 500,
+      },
       args: "rollup --config rollup.config.js",
       execMode: "fork"
     },

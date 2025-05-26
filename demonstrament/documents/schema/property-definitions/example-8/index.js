@@ -6,9 +6,8 @@ Example 8.
  - Property Definition Format: Impand
  - Type: All Terminal Objects Empty
 `)
-import { Coutil } from '/dependencies/core-plex.js'
+import { propertyDirectory, typeOf } from '/dependencies/recourse.js'
 import { Model, Schema } from '/dependencies/objecture.js'
-const { propertyDirectory, typeOf } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
   propertyA: {

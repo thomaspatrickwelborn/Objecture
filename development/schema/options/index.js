@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign } = Coutil
+import { recursiveAssign } from 'recourse'
 export default (...$options) => Object.assign({
   required: false,
   verificationType: 'all', 

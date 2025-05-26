@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { typedObjectLiteral, typeOf, variables } = Coutil
+import { typedObjectLiteral, typeOf, variables } from 'recourse'
 import Verification from './verification/index.js'
 import Validation from './validation/index.js'
 import {

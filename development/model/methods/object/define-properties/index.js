@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { typedObjectLiteral } = Coutil
+import { typedObjectLiteral } from 'recourse'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperties($model, $options, $propertyDescriptors) {

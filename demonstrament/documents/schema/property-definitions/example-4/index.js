@@ -6,9 +6,8 @@ Example 4.
  - Property Definition Format: Expand
  - Type: Some Valid
 `)
-import { Coutil } from '/dependencies/core-plex.js'
+import { propertyDirectory } from '/dependencies/recourse.js'
 import { Model, Schema } from '/dependencies/objecture.js'
-const { propertyDirectory } = Coutil
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
   propertyA: { type: {

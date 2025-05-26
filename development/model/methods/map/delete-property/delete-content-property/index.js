@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { regularExpressions} = Coutil
+import { regularExpressions } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model

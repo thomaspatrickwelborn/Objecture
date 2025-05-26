@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign, typedObjectLiteral, typeOf } = Coutil
+import { recursiveAssign, typedObjectLiteral, typeOf } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function push($model, $options, ...$elements) {
   const options = Object.assign({}, $options)

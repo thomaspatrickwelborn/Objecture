@@ -1,5 +1,4 @@
-import { Coutil } from 'core-plex'
-const { recursiveAssign, recursiveFreeze } = Coutil
+import { recursiveAssign, recursiveFreeze } from 'recourse'
 import ObjectProperty from './object/index.js'
 import ArrayProperty from './array/index.js'
 import MapProperty from './map/index.js'
