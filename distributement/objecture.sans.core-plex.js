@@ -166,8 +166,9 @@ function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $op
     $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value);
   }
   else if(
-    options.typeCoercion && Object.getOwnPropertyDescriptor(
-      $propertyDescriptor, 'type') !== undefined
+    options.typeCoercion && 
+    Object.getOwnPropertyDescriptor($propertyDescriptor, 'type') !== undefined &&
+    !['undefined', 'null'].includes(typeOfPropertyValue)
   ) {
     $propertyDescriptor.value = Primitives[$propertyDescriptor.type](value);
   }

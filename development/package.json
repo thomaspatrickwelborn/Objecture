@@ -18,7 +18,7 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^4.0.1",
-    "recourse": "^1.0.4"
+    "core-plex": "^4.0.3",
+    "recourse": "^1.0.6"
   }
 }
