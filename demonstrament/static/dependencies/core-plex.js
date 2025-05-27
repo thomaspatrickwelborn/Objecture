@@ -2,6 +2,7 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'bigint': BigInt,
   'undefined': undefined,
   'null': null,
 };
@@ -30,14 +31,14 @@ const defaultAccessor$1 = ($target, $property) => {
 var Accessors = {
   default: defaultAccessor$1};
 
-const Options = {
+const Options$2 = {
   depth: 0,
   maxDepth: 10,
   accessors: [Accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options, $options);
+  const options = Object.assign({}, Options$2, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 

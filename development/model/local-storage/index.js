@@ -1,4 +1,4 @@
-import { recursiveGetOwnPropertyDescriptors, impandTree } from 'recourse'
+import { recursiveDefineProperties, recursiveGetOwnPropertyDescriptors, impandTree } from 'recourse'
 export default class LocalStorage extends EventTarget {
   #db = localStorage
   #path
@@ -12,11 +12,15 @@ export default class LocalStorage extends EventTarget {
     this.#path = $path
   }
   get() {
-    try{ return JSON.parse(this.#db.getItem(this.path)) }
+    try{ return recursiveDefineProperties(
+      JSON.parse(this.#db.getItem(this.path))
+    ) }
     catch($err) { console.error($err) }
   }
   set($data) {
-    try { return this.#db.setItem(this.path, JSON.stringify($data)) }
+    try { return this.#db.setItem(this.path, JSON.stringify(
+      recursiveGetOwnPropertyDescriptors($data)
+    )) }
     catch($err) { console.error($err) }
   }
   remove() {

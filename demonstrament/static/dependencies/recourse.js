@@ -2,6 +2,7 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'bigint': BigInt,
   'undefined': undefined,
   'null': null,
 };
@@ -175,14 +176,14 @@ const defaultAccessor = ($target, $property) => {
 var Accessors = {
   default: defaultAccessor};
 
-const Options = {
+const Options$2 = {
   depth: 0,
   maxDepth: 10,
   accessors: [Accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options, $options);
+  const options = Object.assign({}, Options$2, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
@@ -271,23 +272,31 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
-function recursiveGetOwnPropertyDescriptor($properties, $propertyKey) {
+var Options$1 = { type: false };
+
+function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
+  const options = Object.assign({}, Options$1, $options);
   const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
   if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
     propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value);
   }
   return propertyDescriptor
 }
 
-function recursiveGetOwnPropertyDescriptors($properties) {
+function recursiveGetOwnPropertyDescriptors($properties, $options) {
+  const options = Object.assign({}, Options$1, $options);
   const propertyDescriptors = {};
   for(const $propertyKey of Object.keys(Object.getOwnPropertyDescriptors($properties))) {
-    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey);
+    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
   }
   return propertyDescriptors
 }
 
-function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor) {
+var Options = { typeCoercion: false };
+
+function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $options) {
+  const options = Object.assign({}, Options, $options);
   const typeOfPropertyValue = typeOf($propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
@@ -295,11 +304,18 @@ function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor) {
     )) ? [] : {};
     $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value);
   }
+  else if(
+    options.typeCoercion && Object.getOwnPropertyDescriptor(
+      $propertyDescriptor, 'type') !== undefined
+  ) {
+    $propertyDescriptor.value = Primitives[$propertyDescriptor.type](value);
+  }
   Object.defineProperty($target, $propertyKey, $propertyDescriptor);
   return $target
 }
 
-function recursiveDefineProperties($target, $propertyDescriptors) {
+function recursiveDefineProperties($target, $propertyDescriptors, $options) {
+  Object.assign({}, Options, $options);
   for(const [
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {

@@ -2,6 +2,7 @@ const Primitives$1 = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'bigint': BigInt,
   'undefined': undefined,
   'null': null,
 };
@@ -30,14 +31,14 @@ const defaultAccessor$1 = ($target, $property) => {
 var Accessors = {
   default: defaultAccessor$1};
 
-const Options$2 = {
+const Options$2$1 = {
   depth: 0,
   maxDepth: 10,
   accessors: [Accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options$2, $options);
+  const options = Object.assign({}, Options$2$1, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
@@ -1073,6 +1074,7 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'bigint': BigInt,
   'undefined': undefined,
   'null': null,
 };
@@ -1156,6 +1158,27 @@ function impandTree($source, $property) {
   return target
 }
 
+var isArrayLike = ($source) => {
+  let isArrayLike;
+  const typeOfSource = typeOf($source);
+  if(typeOfSource === 'array') { isArrayLike = true; }
+  else if(
+    typeOfSource === 'object' &&
+    Number.isInteger($source.length) && $source.length >= 0
+  ) {
+    iterateSourceKeys: 
+    for(const $sourceKey of Object.keys(
+      Object.getOwnPropertyDescriptors($source)
+    )) {
+      if($sourceKey === 'length') { continue iterateSourceKeys }
+      isArrayLike = !isNaN($sourceKey);
+      if(!isArrayLike) { break iterateSourceKeys }
+    }
+  }
+  else { isArrayLike = false; }
+  return isArrayLike
+};
+
 function recursiveAssign$1($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
@@ -1180,6 +1203,58 @@ function recursiveAssign$1($target, ...$sources) {
   return $target
 }
 
+var Options$1$1 = { type: false };
+
+function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
+  const options = Object.assign({}, Options$1$1, $options);
+  const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
+  if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
+    propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value);
+  }
+  return propertyDescriptor
+}
+
+function recursiveGetOwnPropertyDescriptors($properties, $options) {
+  const options = Object.assign({}, Options$1$1, $options);
+  const propertyDescriptors = {};
+  for(const $propertyKey of Object.keys(Object.getOwnPropertyDescriptors($properties))) {
+    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+  }
+  return propertyDescriptors
+}
+
+var Options$2 = { typeCoercion: false };
+
+function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $options) {
+  const options = Object.assign({}, Options$2, $options);
+  const typeOfPropertyValue = typeOf($propertyDescriptor.value);
+  if(['array', 'object'].includes(typeOfPropertyValue)) {
+    const propertyValue = isArrayLike(Object.defineProperties(
+      typedObjectLiteral(typeOfPropertyValue), $propertyDescriptor.value
+    )) ? [] : {};
+    $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value);
+  }
+  else if(
+    options.typeCoercion && Object.getOwnPropertyDescriptor(
+      $propertyDescriptor, 'type') !== undefined
+  ) {
+    $propertyDescriptor.value = Primitives[$propertyDescriptor.type](value);
+  }
+  Object.defineProperty($target, $propertyKey, $propertyDescriptor);
+  return $target
+}
+
+function recursiveDefineProperties($target, $propertyDescriptors, $options) {
+  Object.assign({}, Options$2, $options);
+  for(const [
+    $propertyKey, $propertyDescriptor
+  ] of Object.entries($propertyDescriptors)) {
+    recursiveDefineProperty($target, $propertyKey, $propertyDescriptor);
+  }
+  return $target
+}
+
 class LocalStorage extends EventTarget {
   #db = localStorage
   #path
@@ -1193,11 +1268,15 @@ class LocalStorage extends EventTarget {
     this.#path = $path;
   }
   get() {
-    try{ return JSON.parse(this.#db.getItem(this.path)) }
+    try{ return recursiveDefineProperties(
+      JSON.parse(this.#db.getItem(this.path))
+    ) }
     catch($err) { console.error($err); }
   }
   set($data) {
-    try { return this.#db.setItem(this.path, JSON.stringify($data)) }
+    try { return this.#db.setItem(this.path, JSON.stringify(
+      recursiveGetOwnPropertyDescriptors($data)
+    )) }
     catch($err) { console.error($err); }
   }
   remove() {
