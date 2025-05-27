@@ -140,7 +140,7 @@ function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) 
   const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
   if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
   if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
-    propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value);
+    propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value, options);
   }
   return propertyDescriptor
 }
@@ -163,7 +163,7 @@ function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $op
     const propertyValue = isArrayLike(Object.defineProperties(
       typedObjectLiteral(typeOfPropertyValue), $propertyDescriptor.value
     )) ? [] : {};
-    $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value);
+    $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value, options);
   }
   else if(
     options.typeCoercion && 
@@ -177,11 +177,11 @@ function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $op
 }
 
 function recursiveDefineProperties($target, $propertyDescriptors, $options) {
-  Object.assign({}, Options$2, $options);
+  const options = Object.assign({}, Options$2, $options);
   for(const [
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {
-    recursiveDefineProperty($target, $propertyKey, $propertyDescriptor);
+    recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, options);
   }
   return $target
 }
