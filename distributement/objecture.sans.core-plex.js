@@ -38,10 +38,6 @@ var index = /*#__PURE__*/Object.freeze({
   Types: Types
 });
 
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
 var typeOf = ($data) => Object
   .prototype
   .toString
@@ -61,6 +57,10 @@ function typedObjectLiteral($value) {
   }
   return _typedObjectLiteral
 }
+
+var regularExpressions = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
 
 function get($path, $source) {
   const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
@@ -133,7 +133,11 @@ function recursiveAssign$1($target, ...$sources) {
   return $target
 }
 
-var Options$1$1 = { type: false };
+var Options$1$1 = {
+  parent: false,
+  path: false,
+  type: false,
+};
 
 function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
   const options = Object.assign({}, Options$1$1, $options);
@@ -157,22 +161,23 @@ function recursiveGetOwnPropertyDescriptors($properties, $options) {
 var Options$2 = { typeCoercion: false };
 
 function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $options) {
+  const propertyDescriptor = Object.assign({}, $propertyDescriptor);
   const options = Object.assign({}, Options$2, $options);
-  const typeOfPropertyValue = typeOf($propertyDescriptor.value);
+  const typeOfPropertyValue = typeOf(propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
-      typedObjectLiteral(typeOfPropertyValue), $propertyDescriptor.value
+      typedObjectLiteral(typeOfPropertyValue), propertyDescriptor.value
     )) ? [] : {};
-    $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value, options);
+    propertyDescriptor.value = recursiveDefineProperties(propertyValue, propertyDescriptor.value, options);
   }
   else if(
     options.typeCoercion && 
-    Object.getOwnPropertyDescriptor($propertyDescriptor, 'type') !== undefined &&
+    Object.getOwnPropertyDescriptor(propertyDescriptor, 'type') !== undefined &&
     !['undefined', 'null'].includes(typeOfPropertyValue)
   ) {
-    $propertyDescriptor.value = Primitives[$propertyDescriptor.type](value);
+    propertyDescriptor.value = Primitives[propertyDescriptor.type](propertyDescriptor.value);
   }
-  Object.defineProperty($target, $propertyKey, $propertyDescriptor);
+  Object.defineProperty($target, $propertyKey, propertyDescriptor);
   return $target
 }
 

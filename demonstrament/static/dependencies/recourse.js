@@ -36,39 +36,10 @@ var index = /*#__PURE__*/Object.freeze({
   Types: Types
 });
 
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
 var typeOf = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
-
-function subpaths($path) {
-  return $path.split(
-    new RegExp(regularExpressions.quotationEscape)
-  )
-}
-function keypaths($path) {
-  const _subpaths = subpaths($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key($path) { return subpaths($path).pop() }
-function root($path) { return subpaths($path).shift() }
-function typeofRoot($path) { return (
-  Number(root($path))
-) ? 'array' : 'object' }
-function parse($path) {
-  return {
-    subpaths: subpaths($path),
-    keypaths: keypaths($path),
-    key: key($path),
-    root: root($path),
-    typeofRoot: typeofRoot($path),
-  }
-}
 
 function typedObjectLiteral($value) {
   let _typedObjectLiteral;
@@ -85,6 +56,10 @@ function typedObjectLiteral($value) {
   return _typedObjectLiteral
 }
 
+var regularExpressions = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
 function get($path, $source) {
   const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
   const key = subpaths.pop();
@@ -93,15 +68,17 @@ function get($path, $source) {
   return subtarget[key]
 }
 function set($path, $source) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse($path);
-  const target = typedObjectLiteral(typeofRoot);
+  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+  const key = subpaths.pop();
+  const target = (key && !isNaN(key)) ? [] : {};
   let subtarget = target;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { subtarget[$subpath] = []; }
+  let subpathIndex = 0;
+  while(subpathIndex < subpaths.length - 2) {
+    const $subpath = keypaths[subpathIndex];
+    if(isNaN($subpath)) { subtarget[$subpath] = {}; }
     else { subtarget[$subpath] = {}; }
     subtarget = subtarget[$subpath];
+    subpathIndex++;
   }
   subtarget[key] = $source;
   return target
@@ -272,7 +249,11 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
-var Options$1 = { type: false };
+var Options$1 = {
+  parent: false,
+  path: false,
+  type: false,
+};
 
 function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
   const options = Object.assign({}, Options$1, $options);
@@ -296,22 +277,23 @@ function recursiveGetOwnPropertyDescriptors($properties, $options) {
 var Options = { typeCoercion: false };
 
 function recursiveDefineProperty($target, $propertyKey, $propertyDescriptor, $options) {
+  const propertyDescriptor = Object.assign({}, $propertyDescriptor);
   const options = Object.assign({}, Options, $options);
-  const typeOfPropertyValue = typeOf($propertyDescriptor.value);
+  const typeOfPropertyValue = typeOf(propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
-      typedObjectLiteral(typeOfPropertyValue), $propertyDescriptor.value
+      typedObjectLiteral(typeOfPropertyValue), propertyDescriptor.value
     )) ? [] : {};
-    $propertyDescriptor.value = recursiveDefineProperties(propertyValue, $propertyDescriptor.value, options);
+    propertyDescriptor.value = recursiveDefineProperties(propertyValue, propertyDescriptor.value, options);
   }
   else if(
     options.typeCoercion && 
-    Object.getOwnPropertyDescriptor($propertyDescriptor, 'type') !== undefined &&
+    Object.getOwnPropertyDescriptor(propertyDescriptor, 'type') !== undefined &&
     !['undefined', 'null'].includes(typeOfPropertyValue)
   ) {
-    $propertyDescriptor.value = Primitives[$propertyDescriptor.type](value);
+    propertyDescriptor.value = Primitives[propertyDescriptor.type](propertyDescriptor.value);
   }
-  Object.defineProperty($target, $propertyKey, $propertyDescriptor);
+  Object.defineProperty($target, $propertyKey, propertyDescriptor);
   return $target
 }
 
