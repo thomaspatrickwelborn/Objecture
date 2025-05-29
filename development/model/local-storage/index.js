@@ -12,16 +12,22 @@ export default class LocalStorage extends EventTarget {
     this.#path = $path
   }
   get() {
-    try{ return recursiveDefineProperties(
-      JSON.parse(this.#db.getItem(this.path))
-    ) }
-    catch($err) { console.error($err) }
+    let model = this.#db.getItem(this.path)
+    if(model) {
+      model = recursiveDefineProperties(JSON.parse(model), {
+        typeCoercion: true
+      })
+    }
+    return model
   }
   set($data) {
-    try { return this.#db.setItem(this.path, JSON.stringify(
-      recursiveGetOwnPropertyDescriptors($data)
-    )) }
-    catch($err) { console.error($err) }
+    return this.#db.setItem(this.path, JSON.stringify(
+      recursiveGetOwnPropertyDescriptors($data, {
+        path: true,
+        retrocursion: false,
+        type: true,
+      })
+    ))
   }
   remove() {
     try { return this.#db.removeItem(this.path) }

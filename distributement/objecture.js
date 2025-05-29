@@ -35,24 +35,29 @@ const Options$2$1 = {
   depth: 0,
   maxDepth: 10,
   accessors: [Accessors.default],
+  ancestors: [],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options$2$1, $options);
+  const options = Object.assign({}, Options$2$1, $options, {
+    ancestors: [].concat($options.ancestors)
+  });
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
     const accessor = $accessor.bind($object);
     const object = accessor($object);
-    if(!object) continue iterateAccessors
+    if(!object) { continue iterateAccessors }
+    if(!options.ancestors.includes(object)) { options.ancestors.unshift(object); }
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
       else if(options.values) { _propertyDirectory.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
-        $value !== object
+        !Object.is($value, object) && 
+        !options.ancestors.includes($value)
       ) {
         const subtargets = propertyDirectory($value, options);
         if(!options.values) {
@@ -695,7 +700,7 @@ function outmatch(pattern, options) {
     return fn;
 }
 
-var Settings = ($settings = {}) => {
+var Settings$2 = ($settings = {}) => {
   const Settings = {
     enable: false,
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
@@ -762,7 +767,7 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    const settings = Settings($settings);
+    const settings = Settings$2($settings);
     const assigned = [];
     const deassigned = [];
     const transsigned = [];
@@ -872,7 +877,7 @@ class EventDefinition {
             if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
           if(this.path.charAt(0) === '*') {
-            targetPaths.unshift(this.#scopeKey);
+            targetPaths.unshift([this.#scopeKey, this.#context]);
           }
         }
         else {
@@ -1203,15 +1208,31 @@ function recursiveAssign$1($target, ...$sources) {
   return $target
 }
 
+var Settings = {
+  depth: 0,
+  path: null,
+  ancestors: [],
+};
+
 var Options$1$1 = {
-  parent: false,
+  delimiter: '.',
+  maxDepth: 10,
   path: false,
+  retrocursion: false,
   type: false,
 };
 
 function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
-  const options = Object.assign({}, Options$1$1, $options);
+  const options = Object.assign({}, Settings, Options$1$1, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
   const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(!options.ancestors.includes($properties)) { options.ancestors.unshift($properties); }
+  if(!options.retrocursion && options.ancestors.includes(propertyDescriptor.value)) { return }
+  if(options.path) {
+    options.path = (typeOf(options.path) === 'string') ? [options.path, $propertyKey].join(options.delimiter) : $propertyKey;
+    propertyDescriptor.path = options.path;
+  }
   if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
   if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
     propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value, options);
@@ -1220,10 +1241,13 @@ function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) 
 }
 
 function recursiveGetOwnPropertyDescriptors($properties, $options) {
-  const options = Object.assign({}, Options$1$1, $options);
   const propertyDescriptors = {};
-  for(const $propertyKey of Object.keys(Object.getOwnPropertyDescriptors($properties))) {
-    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+  const options = Object.assign({}, Settings, Options$1$1, $options);
+  if(options.depth >= options.maxDepth) { return propertyDescriptors }
+  else { options.depth++; }
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries(Object.getOwnPropertyDescriptors($properties))) {
+    const propertyDescriptor = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+    if(propertyDescriptor !== undefined) { propertyDescriptors[$propertyKey] = propertyDescriptor; }
   }
   return propertyDescriptors
 }
@@ -1274,16 +1298,22 @@ class LocalStorage extends EventTarget {
     this.#path = $path;
   }
   get() {
-    try{ return recursiveDefineProperties(
-      JSON.parse(this.#db.getItem(this.path))
-    ) }
-    catch($err) { console.error($err); }
+    let model = this.#db.getItem(this.path);
+    if(model) {
+      model = recursiveDefineProperties(JSON.parse(model), {
+        typeCoercion: true
+      });
+    }
+    return model
   }
   set($data) {
-    try { return this.#db.setItem(this.path, JSON.stringify(
-      recursiveGetOwnPropertyDescriptors($data)
-    )) }
-    catch($err) { console.error($err); }
+    return this.#db.setItem(this.path, JSON.stringify(
+      recursiveGetOwnPropertyDescriptors($data, {
+        path: true,
+        retrocursion: false,
+        type: true,
+      })
+    ))
   }
   remove() {
     try { return this.#db.removeItem(this.path) }

@@ -133,15 +133,31 @@ function recursiveAssign$1($target, ...$sources) {
   return $target
 }
 
+var Settings = {
+  depth: 0,
+  path: null,
+  ancestors: [],
+};
+
 var Options$1$1 = {
-  parent: false,
+  delimiter: '.',
+  maxDepth: 10,
   path: false,
+  retrocursion: false,
   type: false,
 };
 
 function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
-  const options = Object.assign({}, Options$1$1, $options);
+  const options = Object.assign({}, Settings, Options$1$1, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
   const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(!options.ancestors.includes($properties)) { options.ancestors.unshift($properties); }
+  if(!options.retrocursion && options.ancestors.includes(propertyDescriptor.value)) { return }
+  if(options.path) {
+    options.path = (typeOf(options.path) === 'string') ? [options.path, $propertyKey].join(options.delimiter) : $propertyKey;
+    propertyDescriptor.path = options.path;
+  }
   if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
   if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
     propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value, options);
@@ -150,10 +166,13 @@ function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) 
 }
 
 function recursiveGetOwnPropertyDescriptors($properties, $options) {
-  const options = Object.assign({}, Options$1$1, $options);
   const propertyDescriptors = {};
-  for(const $propertyKey of Object.keys(Object.getOwnPropertyDescriptors($properties))) {
-    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+  const options = Object.assign({}, Settings, Options$1$1, $options);
+  if(options.depth >= options.maxDepth) { return propertyDescriptors }
+  else { options.depth++; }
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries(Object.getOwnPropertyDescriptors($properties))) {
+    const propertyDescriptor = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+    if(propertyDescriptor !== undefined) { propertyDescriptors[$propertyKey] = propertyDescriptor; }
   }
   return propertyDescriptors
 }
@@ -204,16 +223,22 @@ class LocalStorage extends EventTarget {
     this.#path = $path;
   }
   get() {
-    try{ return recursiveDefineProperties(
-      JSON.parse(this.#db.getItem(this.path))
-    ) }
-    catch($err) { console.error($err); }
+    let model = this.#db.getItem(this.path);
+    if(model) {
+      model = recursiveDefineProperties(JSON.parse(model), {
+        typeCoercion: true
+      });
+    }
+    return model
   }
   set($data) {
-    try { return this.#db.setItem(this.path, JSON.stringify(
-      recursiveGetOwnPropertyDescriptors($data)
-    )) }
-    catch($err) { console.error($err); }
+    return this.#db.setItem(this.path, JSON.stringify(
+      recursiveGetOwnPropertyDescriptors($data, {
+        path: true,
+        retrocursion: false,
+        type: true,
+      })
+    ))
   }
   remove() {
     try { return this.#db.removeItem(this.path) }
