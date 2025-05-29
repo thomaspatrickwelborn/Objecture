@@ -13,8 +13,8 @@
     "delete": "pm2 delete ecosystem.config.cjs"
   },
   "dependencies": {
-    "document-process-manager": "^1.5.1",
-    "recourse": "^1.0.9"
+    "document-process-manager": "^1.5.3",
+    "recourse": "^1.0.11"
   },
   "devDependencies": {
     "chokidar": "^4.0.3",

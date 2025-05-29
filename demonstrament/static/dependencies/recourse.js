@@ -157,24 +157,29 @@ const Options$2 = {
   depth: 0,
   maxDepth: 10,
   accessors: [Accessors.default],
+  ancestors: [],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options$2, $options);
+  const options = Object.assign({}, Options$2, $options, {
+    ancestors: [].concat($options.ancestors)
+  });
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
     const accessor = $accessor.bind($object);
     const object = accessor($object);
-    if(!object) continue iterateAccessors
+    if(!object) { continue iterateAccessors }
+    if(!options.ancestors.includes(object)) { options.ancestors.unshift(object); }
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
       else if(options.values) { _propertyDirectory.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
-        $value !== object
+        !Object.is($value, object) && 
+        !options.ancestors.includes($value)
       ) {
         const subtargets = propertyDirectory($value, options);
         if(!options.values) {
@@ -249,15 +254,31 @@ function recursiveAssignConcat($target, ...$sources) {
   return $target
 }
 
+var Settings = {
+  depth: 0,
+  path: null,
+  ancestors: [],
+};
+
 var Options$1 = {
-  parent: false,
+  delimiter: '.',
+  maxDepth: 10,
   path: false,
+  retrocursion: false,
   type: false,
 };
 
 function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) {
-  const options = Object.assign({}, Options$1, $options);
+  const options = Object.assign({}, Settings, Options$1, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
   const propertyDescriptor = Object.getOwnPropertyDescriptor($properties, $propertyKey);
+  if(!options.ancestors.includes($properties)) { options.ancestors.unshift($properties); }
+  if(!options.retrocursion && options.ancestors.includes(propertyDescriptor.value)) { return }
+  if(options.path) {
+    options.path = (typeOf(options.path) === 'string') ? [options.path, $propertyKey].join(options.delimiter) : $propertyKey;
+    propertyDescriptor.path = options.path;
+  }
   if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
   if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
     propertyDescriptor.value = recursiveGetOwnPropertyDescriptors(propertyDescriptor.value, options);
@@ -266,10 +287,13 @@ function recursiveGetOwnPropertyDescriptor($properties, $propertyKey, $options) 
 }
 
 function recursiveGetOwnPropertyDescriptors($properties, $options) {
-  const options = Object.assign({}, Options$1, $options);
   const propertyDescriptors = {};
-  for(const $propertyKey of Object.keys(Object.getOwnPropertyDescriptors($properties))) {
-    propertyDescriptors[$propertyKey] = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+  const options = Object.assign({}, Settings, Options$1, $options);
+  if(options.depth >= options.maxDepth) { return propertyDescriptors }
+  else { options.depth++; }
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries(Object.getOwnPropertyDescriptors($properties))) {
+    const propertyDescriptor = recursiveGetOwnPropertyDescriptor($properties, $propertyKey, options);
+    if(propertyDescriptor !== undefined) { propertyDescriptors[$propertyKey] = propertyDescriptor; }
   }
   return propertyDescriptors
 }
@@ -309,6 +333,7 @@ function recursiveDefineProperties($target, $propertyDescriptors, $options) {
 
 function recursiveFreeze($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
+    if(Object.is($propertyValue, $target)) { continue }
     if($propertyValue && typeof $propertyValue === 'object') {
       recursiveFreeze($propertyValue);
     }

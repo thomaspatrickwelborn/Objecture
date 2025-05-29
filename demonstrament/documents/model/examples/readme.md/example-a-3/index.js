@@ -26,8 +26,10 @@ const object = new Model(content, null, {
     'propertyD pushProp': eventLog,
     'propertyD.[0-9] set': eventLog,
     '** set': eventLog,
+    '** setProperty': eventLog
   },
   enableEvents: true
 })
 console.log(object.toString({ space: 2, replacer: null }))
+console.log(object.getEvents())
 console.log("pass", object.toString() === JSON.stringify(content))
