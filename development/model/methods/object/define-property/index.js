@@ -1,4 +1,4 @@
-import { impandTree, recursiveAssign, typedObjectLiteral } from 'recourse'
+import { impandTree, assign, typedObjectLiteral } from 'recourse'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
@@ -62,7 +62,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
         else { subschema = undefined }
       }
       let subtarget = typedObjectLiteral(propertyValue)
-      const suboptions = recursiveAssign({}, options, {
+      const suboptions = assign({}, options, {
         path: modelPath,
         parent: $model,
       })

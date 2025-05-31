@@ -1,4 +1,4 @@
-import { recursiveAssign, typedObjectLiteral, typeOf } from 'recourse'
+import { assign, typedObjectLiteral, typeOf } from 'recourse'
 import { ModelEvent } from '../../../events/index.js'
 export default function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options)

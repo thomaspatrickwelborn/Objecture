@@ -1,6 +1,6 @@
-import { recursiveAssign } from 'recourse'
+import { assign } from 'recourse'
 export default ($options) => {
-  const Options = recursiveAssign({
+  const Options = assign({
     autoload: false, 
     autosave: false, 
     localStorage: false, 

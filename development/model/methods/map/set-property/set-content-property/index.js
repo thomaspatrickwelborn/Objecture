@@ -1,4 +1,4 @@
-import { recursiveAssign, regularExpressions, typedObjectLiteral, typeOf } from 'recourse'
+import { assign, regularExpressions, typedObjectLiteral, typeOf } from 'recourse'
 import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
@@ -32,7 +32,7 @@ export default function setContentProperty($model, $options, $path, $value) {
           if(isNaN(Number(propertyKey))) { submodel = {} }
           else { submodel = [] }
         }
-        const submodelOptions = recursiveAssign({}, options, {
+        const submodelOptions = assign({}, options, {
           path: modelPath,
           parent: $model,
         })
@@ -83,7 +83,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         if(isNaN(Number(propertyKey))) { submodel = {} }
         else { submodel = [] }
       }
-      const submodelOptions = recursiveAssign({}, options, {
+      const submodelOptions = assign({}, options, {
         path: modelPath,
         parent: $model,
       })
@@ -156,7 +156,7 @@ export default function setContentProperty($model, $options, $path, $value) {
       const modelPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      const submodelOptions = recursiveAssign({}, options, {
+      const submodelOptions = assign({}, options, {
         path: modelPath,
         parent: $model,
       })

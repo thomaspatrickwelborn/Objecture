@@ -1,4 +1,4 @@
-import { recursiveAssign, typedObjectLiteral } from 'recourse'
+import { assign, typedObjectLiteral } from 'recourse'
 import Schema from '../../index.js'
 import Validator from '../../validator/index.js'
 export default class RequiredValidator extends Validator {

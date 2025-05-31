@@ -1,4 +1,4 @@
-import { recursiveAssign, typedObjectLiteral } from 'recourse'
+import { assign, typedObjectLiteral } from 'recourse'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($model, $options, ...$sources) {
@@ -58,7 +58,7 @@ export default function assign($model, $options, ...$sources) {
           ? [path, $sourceKey].join('.')
           : String($sourceKey)
         if(sourceTree === false) {
-          const suboptions = recursiveAssign({}, options, {
+          const suboptions = assign({}, options, {
             path: modelPath,
             parent: $model,
           })
@@ -73,7 +73,7 @@ export default function assign($model, $options, ...$sources) {
           }
           else {
             const subproperties = typedObjectLiteral($sourceValue)
-            const suboptions = recursiveAssign({}, options, {
+            const suboptions = assign({}, options, {
               path: modelPath,
               parent: $model,
             })

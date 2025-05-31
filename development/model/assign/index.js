@@ -1,4 +1,4 @@
-import { recursiveAssign, typedObjectLiteral } from 'recourse'
+import { assign, typedObjectLiteral } from 'recourse'
 const ValidArrayAssigmentMethods = Object.freeze(
   ['push', 'unshift']
 )

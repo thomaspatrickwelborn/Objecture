@@ -1,4 +1,4 @@
-import { recursiveAssign } from 'recourse'
+import { assign } from 'recourse'
 import Verification from '../verification/index.js'
 import Validation from '../validation/index.js'
 const Messages = {
@@ -23,7 +23,7 @@ export default class Validator extends EventTarget {
             type: type,
             key: $key,
             value: definition.value,
-            messages: recursiveAssign({}, messages, definition.messages),
+            messages: assign({}, messages, definition.messages),
           })
           const validation = definition.validate(...arguments)
           if(typeof validation === 'object') {
