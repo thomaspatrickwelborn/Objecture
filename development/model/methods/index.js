@@ -1,4 +1,4 @@
-import { assign, recursiveFreeze } from 'recourse'
+import { assign, freeze } from 'recourse'
 import ObjectProperty from './object/index.js'
 import ArrayProperty from './array/index.js'
 import MapProperty from './map/index.js'

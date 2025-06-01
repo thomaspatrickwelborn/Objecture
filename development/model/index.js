@@ -1,6 +1,6 @@
 import Core from 'core-plex'
 import { typedObjectLiteral, typeOf } from 'recourse'
-import LocalStorage from './local-storage/index.js'
+import { Route as LocalStorage } from 'atilax'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
@@ -83,7 +83,7 @@ export default class Model extends Core {
           let path = [window.location.pathname]
           if(this.path) { path.push(this.path) }
           path = path.join('')
-          _localStorage = new LocalStorage(path)
+          _localStorage = new LocalStorage(path, this.options.localStorage)
           Object.defineProperty(this, 'localStorage', { value: _localStorage })
           return _localStorage
         } },

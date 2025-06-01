@@ -1,6 +1,6 @@
 {
   "name": "objecture",
-  "version": "1.8.7",
+  "version": "1.8.8",
   "description": "❂  Objecture\n⏣  Object Watcher, Property Manager\n      ⊚  Capture property changes for object, array mutator methods.\n      ⊚  Schematize and validate object, array properties.\n      ⊚  Browser, NodeJS compatible.\n⁘  Uses Core-Plex - Event Listener Management System.\n⁜  Used by MVC Framework - Presentation Abtraction Control (PAC) Pattern.",
   "homepage": "https://github.com/thomaspatrickwelborn/Objecture#readme",
   "bugs": {
@@ -13,7 +13,10 @@
   "license": "ISC",
   "author": "Thomas Patrick Welborn",
   "type": "module",
-  "workspaces": ["development", "demonstrament"],
+  "workspaces": [
+    "demonstrament",
+    "development"
+  ],
   "scripts": {
     "demonstrate:start": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",
     "demonstrate:restart": "concurrently \"npm run restart --workspace development\" \"npm run restart --workspace demonstrament\"",
@@ -25,36 +28,57 @@
     "develop:delete": "npm run delete --workspace development",
     "distribute": "npm run distribute --workspace development"
   },
-  "workspaces": [
-    "demonstrament",
-    "development"
-  ],
   "devDependencies": {
     "concurrently": "^9.1.2",
     "pm2": "^5.4.3"
   },
   "exports": {
     ".": "./distributement/objecture.js",
-    "./development": "./development/index.js", 
-    "./distributement/objecture.js": "./distributement/objecture.js", 
-    "./distributement/objecture.min.js": "./distributement/objecture.min.js" ,
-    "./distributement/objecture.sans.core-plex.js": "./distributement/objecture.sans.core-plex.js" 
+    "./development": "./development/index.js",
+    "./distributement/objecture.js": "./distributement/objecture.js",
+    "./distributement/objecture.min.js": "./distributement/objecture.min.js",
+    "./distributement/objecture.sans.core-plex.js": "./distributement/objecture.sans.core-plex.js"
   },
   "keywords": [
-    "object watcher", "object observer", "object events", "array events", "object event manager",
-    "object property watcher", "object property observer", "object property events",
-    "object subproperty watcher", "object subproperty observer", "object subproperty events", 
-
-    "object manager", "object schema", "object validator", "schema validator", 
-    "object property manager", "object property validator", "schema property validator", 
-    
-    "object path", "object property path", "object string path", "object get/set/delete path",
-
-    "recursive object assign", "recursive object defineProperties", "recursive object defineProperty", 
-    "recursive object freeze", "recursive object seal", 
-    "recursive array concat", "recursive array push", "recursive array unshift", "recursive array unshift",
-
-    "object assign event", "object defineProperties event", "object defineProperty event", "object get/set/delete event",
-    "array push event", "array unshift event", "array pop event", "array splice event", "array reverse event"
+    "object watcher",
+    "object observer",
+    "object events",
+    "array events",
+    "object event manager",
+    "object property watcher",
+    "object property observer",
+    "object property events",
+    "object subproperty watcher",
+    "object subproperty observer",
+    "object subproperty events",
+    "object manager",
+    "object schema",
+    "object validator",
+    "schema validator",
+    "object property manager",
+    "object property validator",
+    "schema property validator",
+    "object path",
+    "object property path",
+    "object string path",
+    "object get/set/delete path",
+    "recursive object assign",
+    "recursive object defineProperties",
+    "recursive object defineProperty",
+    "recursive object freeze",
+    "recursive object seal",
+    "recursive array concat",
+    "recursive array push",
+    "recursive array unshift",
+    "recursive array unshift",
+    "object assign event",
+    "object defineProperties event",
+    "object defineProperty event",
+    "object get/set/delete event",
+    "array push event",
+    "array unshift event",
+    "array pop event",
+    "array splice event",
+    "array reverse event"
   ]
 }

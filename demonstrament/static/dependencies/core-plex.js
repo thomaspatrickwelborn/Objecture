@@ -78,7 +78,7 @@ function propertyDirectory($object, $options) {
   return _propertyDirectory
 }
 
-function recursiveAssign($target, ...$sources) {
+function assign($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
   for(const $source of $sources) {
@@ -92,7 +92,7 @@ function recursiveAssign($target, ...$sources) {
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
       ) {
-        $target[$sourcePropertyKey] = recursiveAssign($target[$sourcePropertyKey], $sourcePropertyValue);
+        $target[$sourcePropertyKey] = assign($target[$sourcePropertyKey], $sourcePropertyValue);
       }
       else {
         $target[$sourcePropertyKey] = $sourcePropertyValue;
@@ -746,7 +746,7 @@ var Settings = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'methods': 
-        Settings[$settingKey] = recursiveAssign(Settings[$settingKey], $settingValue);
+        Settings[$settingKey] = assign(Settings[$settingKey], $settingValue);
         break
       case 'enableEvents': break
       default: 
@@ -1000,7 +1000,7 @@ class Core extends EventTarget {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
             }
-            recursiveAssign(event, $addEvent);
+            assign(event, $addEvent);
             const eventDefinition = new EventDefinition(event, $target);
             if($enableEvents) { eventDefinition.enable = true; }
             events.push(eventDefinition);
