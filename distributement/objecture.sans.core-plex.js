@@ -280,18 +280,21 @@ function defineProperties$1($target, $propertyDescriptors, $options) {
   return $target
 }
 
-var Options$1$2 = ($options) => assign$2({
-  basename: '',
-  propertyDescriptors: false,
-  defineProperties: {
-    typeCoercion: true,
-  },
-  replacers: [function replacer($key, $value) {
-    if(typeOf($value) === 'bigint') { return String($value) }
-    else { return $value }
-  }],
-  revivers: [function reviver($key, $value) { return $value }],
-}, $options);
+var Options$1$2 = ($options) => {
+  const options = assign$2({
+    propertyDescriptors: false,
+    defineProperties: false,
+    replacers: [],
+    revivers: [],
+  }, $options);
+  if(options.propertyDescriptors?.type) {
+    options.replacers.push(function BigintReplacer($key, $value) {
+      if(typeOf($value) === 'bigint') { return String($value) }
+      else { return $value }
+    });
+  }
+  return options
+};
 
 function JSONMiddlewares($middlewares, $key, $value) {
   let value = $value;
@@ -310,31 +313,37 @@ class LocalStorageRoute extends EventTarget {
       'path': { value: $path },
       'raw': { value: function raw() { return db.getItem(this.path) } },
       'get': { value: function get() {
-        let model = db.getItem(this.path);
-        if(['undefined', undefined].includes(model)) { return }
-        const modelParsement = JSON.parse(model, JSONMiddlewares.bind(null, options.revivers));
-        if(model) {
-          const modelTypedObjectLiteral = typedObjectLiteral(modelParsement);
-          if(options.propertyDescriptors) {
-            model = defineProperties$1(modelTypedObjectLiteral, modelParsement, options.defineProperties);
-          }
-          else {
-            model = modelParsement;
-          }
-        }
-        return model
+        const { path } = this;
+        const raw = db.getItem(this.path);
+        if(['undefined', undefined].includes(raw)) { return }
+        const propertyDescriptors = JSON.parse(raw, JSONMiddlewares.bind(null, options.revivers));
+        const dataTypedObjectLiteral = typedObjectLiteral(propertyDescriptors);
+        const data = (options.propertyDescriptors) ? defineProperties$1(
+          dataTypedObjectLiteral, propertyDescriptors, options.defineProperties
+        ) : propertyDescriptors;
+        this.dispatchEvent(new CustomEvent('get', { detail: { path, raw, data } }));
+        return data
       } },
       'set': { value: function set($data) {
-        if(options.propertyDescriptors) {
-          return db.setItem(this.path, JSON.stringify(
-            getOwnPropertyDescriptors($data, options.propertyDescriptors), JSONMiddlewares.bind(null, options.replacers)
-          ))
-        }
-        else {
-          return db.setItem(this.path, JSON.stringify($data, JSONMiddlewares.bind(null, options.replacers)))
-        }
+        const data = $data;
+        const { path } = this;
+        let raw = (options.propertyDescriptors) ? JSON.stringify(
+          getOwnPropertyDescriptors(data, options.propertyDescriptors), JSONMiddlewares.bind(null, options.replacers)
+        ) : JSON.stringify(
+          data, JSONMiddlewares.bind(null, options.replacers)
+        );
+        db.setItem(this.path, raw);
+        this.dispatchEvent(new CustomEvent('set', { detail: { path, raw, data } }));
+        return 
       } },
-      'remove': { value: function remove() { return db.removeItem(this.path) } },
+      'remove': { value: function remove() {
+        const { path } = this;
+        const raw = this.raw();
+        const data = this.get();
+        db.removeItem(this.path);
+        this.dispatchEvent(new CustomEvent('remove', { detail: { path, raw, data } }));
+        return
+      } },
     });
   }
 }
@@ -2927,7 +2936,7 @@ function Assign($model, $properties, $options) {
 
 class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ propertyDirectory: { accessors: [($target, $property) => {
+    super({ compandTree: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
     }] } });

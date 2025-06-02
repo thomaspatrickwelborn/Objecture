@@ -159,13 +159,13 @@ const Options$2 = {
   accessors: [Accessors.default],
   ancestors: [],
 };
-function propertyDirectory($object, $options) {
-  const _propertyDirectory = [];
+function compandTree($object, $options) {
+  const _compandTree = [];
   const options = Object.assign({}, Options$2, $options, {
     ancestors: [].concat($options.ancestors)
   });
   options.depth++;
-  if(options.depth > options.maxDepth) { return _propertyDirectory }
+  if(options.depth > options.maxDepth) { return _compandTree }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
     const accessor = $accessor.bind($object);
@@ -173,31 +173,31 @@ function propertyDirectory($object, $options) {
     if(!object) { continue iterateAccessors }
     if(!options.ancestors.includes(object)) { options.ancestors.unshift(object); }
     for(const [$key, $value] of Object.entries(object)) {
-      if(!options.values) { _propertyDirectory.push($key); }
-      else if(options.values) { _propertyDirectory.push([$key, $value]); }
+      if(!options.values) { _compandTree.push($key); }
+      else if(options.values) { _compandTree.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         !Object.is($value, object) && 
         !options.ancestors.includes($value)
       ) {
-        const subtargets = propertyDirectory($value, options);
+        const subtargets = compandTree($value, options);
         if(!options.values) {
           for(const $subtarget of subtargets) {
             const path = [$key, $subtarget].join('.');
-            _propertyDirectory.push(path);
+            _compandTree.push(path);
           }
         }
         else if(options.values) {
           for(const [$subtargetKey, $subtarget] of subtargets) {
             const path = [$key, $subtargetKey].join('.');
-            _propertyDirectory.push([path, $subtarget]);
+            _compandTree.push([path, $subtarget]);
           }
         }
       }
     }
   }
-  return _propertyDirectory
+  return _compandTree
 }
 
 function assign($target, ...$sources) {
@@ -346,5 +346,5 @@ function freeze($target) {
   return Object.freeze($target)
 }
 
-export { assign, assignConcat, defineProperties, defineProperty, expandTree, freeze, getOwnPropertyDescriptor, getOwnPropertyDescriptors, impandTree, isArrayLike, propertyDirectory, regularExpressions, typeOf, typedObjectLiteral, index as variables };
+export { assign, assignConcat, compandTree, defineProperties, defineProperty, expandTree, freeze, getOwnPropertyDescriptor, getOwnPropertyDescriptors, impandTree, isArrayLike, regularExpressions, typeOf, typedObjectLiteral, index as variables };
 //# sourceMappingURL=recourse.js.map

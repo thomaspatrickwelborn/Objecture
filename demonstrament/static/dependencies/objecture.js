@@ -37,13 +37,13 @@ const Options$2$1 = {
   accessors: [Accessors.default],
   ancestors: [],
 };
-function propertyDirectory($object, $options) {
-  const _propertyDirectory = [];
+function compandTree($object, $options) {
+  const _compandTree = [];
   const options = Object.assign({}, Options$2$1, $options, {
     ancestors: [].concat($options.ancestors)
   });
   options.depth++;
-  if(options.depth > options.maxDepth) { return _propertyDirectory }
+  if(options.depth > options.maxDepth) { return _compandTree }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
     const accessor = $accessor.bind($object);
@@ -51,31 +51,31 @@ function propertyDirectory($object, $options) {
     if(!object) { continue iterateAccessors }
     if(!options.ancestors.includes(object)) { options.ancestors.unshift(object); }
     for(const [$key, $value] of Object.entries(object)) {
-      if(!options.values) { _propertyDirectory.push($key); }
-      else if(options.values) { _propertyDirectory.push([$key, $value]); }
+      if(!options.values) { _compandTree.push($key); }
+      else if(options.values) { _compandTree.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         !Object.is($value, object) && 
         !options.ancestors.includes($value)
       ) {
-        const subtargets = propertyDirectory($value, options);
+        const subtargets = compandTree($value, options);
         if(!options.values) {
           for(const $subtarget of subtargets) {
             const path = [$key, $subtarget].join('.');
-            _propertyDirectory.push(path);
+            _compandTree.push(path);
           }
         }
         else if(options.values) {
           for(const [$subtargetKey, $subtarget] of subtargets) {
             const path = [$key, $subtargetKey].join('.');
-            _propertyDirectory.push([path, $subtarget]);
+            _compandTree.push([path, $subtarget]);
           }
         }
       }
     }
   }
-  return _propertyDirectory
+  return _compandTree
 }
 
 function assign$4($target, ...$sources) {
@@ -150,7 +150,7 @@ var Settings$1 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
-    propertyDirectory: {
+    compandTree: {
       accessors: [accessors.default],
       scopeKey: ':scope', 
       maxDepth: 10,
@@ -168,7 +168,7 @@ var Settings$1 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
-      case 'propertyDirectory':
+      case 'compandTree':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -867,12 +867,12 @@ class EventDefinition {
         targets.push(targetElement);
       }
       else {
-        if(this.settings.propertyDirectory) {
-          const propertyDirectory = this.#propertyDirectory;
+        if(this.settings.compandTree) {
+          const compandTree = this.#compandTree;
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of compandTree) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
             if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
@@ -908,7 +908,7 @@ class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
+  get #scopeKey() { return this.settings.compandTree.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -924,10 +924,10 @@ class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #propertyDirectory() {
-    if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
-    return propertyDirectory(this.#context, propertyDirectorySettings)
+  get #compandTree() {
+    if(!this.settings.compandTree) { return null }
+    const compandTreeSettings = Object.assign(this.settings.compandTree, { values: true });
+    return compandTree(this.#context, compandTreeSettings)
   }
   emit() {
     const targets = this.#targets;
@@ -990,12 +990,12 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
+          let $addEvents = expandEvents(arguments[0], settings.compandTree.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
+              'assign', 'deassign', 'transsign', 'compandTree', 'bindListener'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -1355,18 +1355,21 @@ function defineProperties$1($target, $propertyDescriptors, $options) {
   return $target
 }
 
-var Options$1$2 = ($options) => assign$2({
-  basename: '',
-  propertyDescriptors: false,
-  defineProperties: {
-    typeCoercion: true,
-  },
-  replacers: [function replacer($key, $value) {
-    if(typeOf($value) === 'bigint') { return String($value) }
-    else { return $value }
-  }],
-  revivers: [function reviver($key, $value) { return $value }],
-}, $options);
+var Options$1$2 = ($options) => {
+  const options = assign$2({
+    propertyDescriptors: false,
+    defineProperties: false,
+    replacers: [],
+    revivers: [],
+  }, $options);
+  if(options.propertyDescriptors?.type) {
+    options.replacers.push(function BigintReplacer($key, $value) {
+      if(typeOf($value) === 'bigint') { return String($value) }
+      else { return $value }
+    });
+  }
+  return options
+};
 
 function JSONMiddlewares($middlewares, $key, $value) {
   let value = $value;
@@ -1385,31 +1388,37 @@ class LocalStorageRoute extends EventTarget {
       'path': { value: $path },
       'raw': { value: function raw() { return db.getItem(this.path) } },
       'get': { value: function get() {
-        let model = db.getItem(this.path);
-        if(['undefined', undefined].includes(model)) { return }
-        const modelParsement = JSON.parse(model, JSONMiddlewares.bind(null, options.revivers));
-        if(model) {
-          const modelTypedObjectLiteral = typedObjectLiteral(modelParsement);
-          if(options.propertyDescriptors) {
-            model = defineProperties$1(modelTypedObjectLiteral, modelParsement, options.defineProperties);
-          }
-          else {
-            model = modelParsement;
-          }
-        }
-        return model
+        const { path } = this;
+        const raw = db.getItem(this.path);
+        if(['undefined', undefined].includes(raw)) { return }
+        const propertyDescriptors = JSON.parse(raw, JSONMiddlewares.bind(null, options.revivers));
+        const dataTypedObjectLiteral = typedObjectLiteral(propertyDescriptors);
+        const data = (options.propertyDescriptors) ? defineProperties$1(
+          dataTypedObjectLiteral, propertyDescriptors, options.defineProperties
+        ) : propertyDescriptors;
+        this.dispatchEvent(new CustomEvent('get', { detail: { path, raw, data } }));
+        return data
       } },
       'set': { value: function set($data) {
-        if(options.propertyDescriptors) {
-          return db.setItem(this.path, JSON.stringify(
-            getOwnPropertyDescriptors($data, options.propertyDescriptors), JSONMiddlewares.bind(null, options.replacers)
-          ))
-        }
-        else {
-          return db.setItem(this.path, JSON.stringify($data, JSONMiddlewares.bind(null, options.replacers)))
-        }
+        const data = $data;
+        const { path } = this;
+        let raw = (options.propertyDescriptors) ? JSON.stringify(
+          getOwnPropertyDescriptors(data, options.propertyDescriptors), JSONMiddlewares.bind(null, options.replacers)
+        ) : JSON.stringify(
+          data, JSONMiddlewares.bind(null, options.replacers)
+        );
+        db.setItem(this.path, raw);
+        this.dispatchEvent(new CustomEvent('set', { detail: { path, raw, data } }));
+        return 
       } },
-      'remove': { value: function remove() { return db.removeItem(this.path) } },
+      'remove': { value: function remove() {
+        const { path } = this;
+        const raw = this.raw();
+        const data = this.get();
+        db.removeItem(this.path);
+        this.dispatchEvent(new CustomEvent('remove', { detail: { path, raw, data } }));
+        return
+      } },
     });
   }
 }
@@ -4002,7 +4011,7 @@ function Assign($model, $properties, $options) {
 
 class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ propertyDirectory: { accessors: [($target, $property) => {
+    super({ compandTree: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
     }] } });

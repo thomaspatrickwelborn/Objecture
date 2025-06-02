@@ -6,7 +6,7 @@ Example 1.
  - Property Definition Format: Impand
  - Type: All Valid
 `)
-import { propertyDirectory } from '/dependencies/recourse.js'
+import { compandTree } from '/dependencies/recourse.js'
 import { Model, Schema } from '/dependencies/objecture.js'
 function eventLog($event) { console.log($event.type, $event.path) }
 const schema = new Schema({
@@ -76,7 +76,7 @@ const object = {
 }
 const validation = schema.validate(object)
 const report = validation.report("impand")
-const reportDirectory = Object.fromEntries(propertyDirectory(report, { values: true }))
+const reportDirectory = Object.fromEntries(compandTree(report, { values: true }))
 console.log('validation', validation)
 console.log('report', report)
 console.log('reportDirectory', reportDirectory)

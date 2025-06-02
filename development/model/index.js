@@ -9,7 +9,7 @@ import Assign from './assign/index.js'
 
 export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ propertyDirectory: { accessors: [($target, $property) => {
+    super({ compandTree: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
     }] } })

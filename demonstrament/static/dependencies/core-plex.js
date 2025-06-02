@@ -37,13 +37,13 @@ const Options$2 = {
   accessors: [Accessors.default],
   ancestors: [],
 };
-function propertyDirectory($object, $options) {
-  const _propertyDirectory = [];
+function compandTree($object, $options) {
+  const _compandTree = [];
   const options = Object.assign({}, Options$2, $options, {
     ancestors: [].concat($options.ancestors)
   });
   options.depth++;
-  if(options.depth > options.maxDepth) { return _propertyDirectory }
+  if(options.depth > options.maxDepth) { return _compandTree }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
     const accessor = $accessor.bind($object);
@@ -51,31 +51,31 @@ function propertyDirectory($object, $options) {
     if(!object) { continue iterateAccessors }
     if(!options.ancestors.includes(object)) { options.ancestors.unshift(object); }
     for(const [$key, $value] of Object.entries(object)) {
-      if(!options.values) { _propertyDirectory.push($key); }
-      else if(options.values) { _propertyDirectory.push([$key, $value]); }
+      if(!options.values) { _compandTree.push($key); }
+      else if(options.values) { _compandTree.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         !Object.is($value, object) && 
         !options.ancestors.includes($value)
       ) {
-        const subtargets = propertyDirectory($value, options);
+        const subtargets = compandTree($value, options);
         if(!options.values) {
           for(const $subtarget of subtargets) {
             const path = [$key, $subtarget].join('.');
-            _propertyDirectory.push(path);
+            _compandTree.push(path);
           }
         }
         else if(options.values) {
           for(const [$subtargetKey, $subtarget] of subtargets) {
             const path = [$key, $subtargetKey].join('.');
-            _propertyDirectory.push([path, $subtarget]);
+            _compandTree.push([path, $subtarget]);
           }
         }
       }
     }
   }
-  return _propertyDirectory
+  return _compandTree
 }
 
 function assign($target, ...$sources) {
@@ -150,7 +150,7 @@ var Settings$1 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
-    propertyDirectory: {
+    compandTree: {
       accessors: [accessors.default],
       scopeKey: ':scope', 
       maxDepth: 10,
@@ -168,7 +168,7 @@ var Settings$1 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
-      case 'propertyDirectory':
+      case 'compandTree':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -867,12 +867,12 @@ class EventDefinition {
         targets.push(targetElement);
       }
       else {
-        if(this.settings.propertyDirectory) {
-          const propertyDirectory = this.#propertyDirectory;
+        if(this.settings.compandTree) {
+          const compandTree = this.#compandTree;
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of compandTree) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
             if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
@@ -908,7 +908,7 @@ class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
+  get #scopeKey() { return this.settings.compandTree.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -924,10 +924,10 @@ class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #propertyDirectory() {
-    if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
-    return propertyDirectory(this.#context, propertyDirectorySettings)
+  get #compandTree() {
+    if(!this.settings.compandTree) { return null }
+    const compandTreeSettings = Object.assign(this.settings.compandTree, { values: true });
+    return compandTree(this.#context, compandTreeSettings)
   }
   emit() {
     const targets = this.#targets;
@@ -990,12 +990,12 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
+          let $addEvents = expandEvents(arguments[0], settings.compandTree.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
+              'assign', 'deassign', 'transsign', 'compandTree', 'bindListener'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
