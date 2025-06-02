@@ -49,7 +49,7 @@ export default [{
   input: './index.js',
   cache: false,
   treeshake: true,
-  external: ['core-plex'],
+  external: ['core-plex', 'recourse'],
   output: [
     {
       file: '../distributement/objecture.sans.interdependencies.js',

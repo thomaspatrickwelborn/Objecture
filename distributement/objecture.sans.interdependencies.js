@@ -1,116 +1,5 @@
 import Core from 'core-plex';
-
-const Primitives$1 = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'bigint': BigInt,
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys = Object.keys(Primitives$1);
-const PrimitiveValues = Object.values(Primitives$1);
-const Objects$1 = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys$1 = Object.keys(Objects$1);
-const ObjectValues = Object.values(Objects$1);
-const Types$1 = Object.assign({}, Primitives$1, Objects$1);
-const TypeKeys$1 = Object.keys(Types$1);
-const TypeValues = Object.values(Types$1);
-const TypeMethods = [
- Primitives$1.String, Primitives$1.Number, Primitives$1.Boolean, 
- Objects$1.Object, Objects$1.Array
-];
-
-var index = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys$1,
-  ObjectValues: ObjectValues,
-  Objects: Objects$1,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives$1,
-  TypeKeys: TypeKeys$1,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types$1
-});
-
-var typeOf$1 = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
-function typedObjectLiteral$1($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf$1($value);
-  if(typeOfValue === 'string') {
-    const value = $value.toLowerCase();
-    if(value === 'object') { _typedObjectLiteral = {}; }
-    else if(value === 'array') { _typedObjectLiteral = []; }
-  }
-  else  {
-    if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-    else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  }
-  return _typedObjectLiteral
-}
-
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
-function get($path, $source) {
-  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
-  const key = subpaths.pop();
-  let subtarget = $source;
-  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
-  return subtarget[key]
-}
-
-function impandTree($source, $property) {
-  const typeOfProperty = typeOf$1($property);
-  const typeOfSource = typeOf$1($source);
-  if(
-    !['string', 'function'].includes(typeOfProperty) ||
-    !['array', 'object'].includes(typeOfSource)
-  ) { return $source }
-  let target = typedObjectLiteral$1($source);
-  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
-    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = impandTree(target[$sourceKey], $property);
-    }
-  }
-  return target
-}
-
-function assign$3($target, ...$sources) {
-  if(!$target) { return $target}
-  iterateSources: 
-  for(const $source of $sources) {
-    if(!$source) continue iterateSources
-    for(const [
-      $sourcePropertyKey, $sourcePropertyValue
-    ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$1($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$1($sourcePropertyValue);
-      if(
-        typeOfTargetPropertyValue === 'object' &&
-        typeOfSourcePropertyValue === 'object'
-      ) {
-        $target[$sourcePropertyKey] = assign$3($target[$sourcePropertyKey], $sourcePropertyValue);
-      }
-      else {
-        $target[$sourcePropertyKey] = $sourcePropertyValue;
-      }
-    }
-  }
-  return $target
-}
+import { typedObjectLiteral as typedObjectLiteral$1, assign as assign$3, variables, typeOf as typeOf$1, impandTree, regularExpressions } from 'recourse';
 
 const Primitives = {
   'string': String, 
@@ -532,7 +421,7 @@ class RequiredValidator extends Validator {
   }
 }
 
-const { ObjectKeys, TypeKeys } = index;
+const { ObjectKeys, TypeKeys } = variables;
 class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign({}, $definition, {
@@ -841,11 +730,11 @@ function parseProperties($properties, $schema) {
     let propertyDefinition = {};
     typeOf$1($propertyValue);
     const isPropertyDefinition = _isPropertyDefinition($propertyValue, $schema);
-    if(index.TypeValues.includes($propertyValue)) {
+    if(variables.TypeValues.includes($propertyValue)) {
       Object.assign(propertyDefinition, { type: { value: $propertyValue } });
     }
-    else if(index.TypeKeys.includes($propertyValue)) {
-      Object.assign(propertyDefinition, { type: { value: index.Types[$propertyValue] } });
+    else if(variables.TypeKeys.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: variables.Types[$propertyValue] } });
     }
     else if(!isPropertyDefinition) {
       const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
