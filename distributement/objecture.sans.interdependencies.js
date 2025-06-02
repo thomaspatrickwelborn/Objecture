@@ -3068,4 +3068,4 @@ class Model extends Core {
 }
 
 export { Model, Schema, Validation, Validator, Verification };
-//# sourceMappingURL=objecture.sans.core-plex.js.map
+//# sourceMappingURL=objecture.sans.interdependencies.js.map

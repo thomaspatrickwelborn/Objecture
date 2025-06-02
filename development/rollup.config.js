@@ -45,14 +45,14 @@ export default [{
     terser(),
   ]
 }, {
-  // Unminified, Sans Core-Plex
+  // Unminified, Sans Interdependencies
   input: './index.js',
   cache: false,
   treeshake: true,
   external: ['core-plex'],
   output: [
     {
-      file: '../distributement/objecture.sans.core-plex.js',
+      file: '../distributement/objecture.sans.interdependencies.js',
       format: 'es',
       sourcemap: true,
     }
