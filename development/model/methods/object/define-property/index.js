@@ -1,4 +1,4 @@
-import { impandTree, assign, typedObjectLiteral } from 'recourse'
+import { impand, assign, typedObjectLiteral } from 'recourse'
 import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
@@ -19,7 +19,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty(
       $propertyKey, 
-      impandTree(propertyValue, 'value') || propertyValue,
+      impand(propertyValue, 'value') || propertyValue,
       {},
       $model.valueOf()
     )

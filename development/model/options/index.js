@@ -18,6 +18,7 @@ export default ($options) => {
     subpathError: false,
     assignObject: 'set', 
     assignArray: 'set', 
+    pathParseInteger: false,
     methods: {
       map: {
         get: {

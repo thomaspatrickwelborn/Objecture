@@ -1,5 +1,5 @@
 import Core from 'core-plex';
-import { typedObjectLiteral as typedObjectLiteral$1, assign as assign$3, variables, typeOf as typeOf$1, impandTree, regularExpressions } from 'recourse';
+import { typedObjectLiteral as typedObjectLiteral$1, assign as assign$3, variables, typeOf as typeOf$1, impand, splitPath } from 'recourse';
 
 const Primitives = {
   'string': String, 
@@ -845,6 +845,7 @@ var Options = ($options) => {
     subpathError: false,
     assignObject: 'set', 
     assignArray: 'set', 
+    pathParseInteger: false,
     methods: {
       map: {
         get: {
@@ -1276,7 +1277,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty(
       $propertyKey, 
-      impandTree(propertyValue, 'value') || propertyValue,
+      impand(propertyValue, 'value') || propertyValue,
       {},
       $model.valueOf()
     );
@@ -2224,9 +2225,9 @@ function getContent($model, $options) {
 
 function getContentProperty($model, $options, $path) {
   const { target, path } = $model;
-  const { mutatorEvents, pathkey, subpathError } = $options;
+  const { mutatorEvents, pathkey, subpathError, pathParseInteger } = $options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = splitPath($path, pathParseInteger);
     const propertyKey = subpaths.shift();
     let propertyValue = target[propertyKey];
     if(subpaths.length) {
@@ -2310,11 +2311,11 @@ function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model;
   const {
     enableValidation, mutatorEvents, pathkey, 
-    recursive, subpathError, 
+    pathParseInteger, recursive, subpathError, 
     validationEvents, source, 
   } = options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = splitPath($path, pathParseInteger);
     const propertyKey = subpaths.shift();
     let propertyValue;
     const typeOfPropertyValue = typeOf$1($value);
@@ -2546,7 +2547,7 @@ function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model;
   const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = splitPath($path, pathParseInteger);
     const propertyKey = subpaths.shift();
     let propertyValue = target[propertyKey];
     if(subpaths.length) {
@@ -2825,10 +2826,10 @@ function Assign($model, $properties, $options) {
 
 class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ compandTree: { accessors: [($target, $property) => {
+    super(/*{ compand: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
-    }] } });
+    }] } }*/);
     if($properties instanceof Model) { $properties = $properties.valueOf(); }
     let parent = null;
     let path = null;
@@ -2869,7 +2870,8 @@ class Model extends Core {
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
-        const target = typedObjectLiteral$1($properties);
+        // const target = typedObjectLiteral($properties)
+        const target = $properties;
         Object.defineProperty(this, 'target', { value: target });
         return target
       } },

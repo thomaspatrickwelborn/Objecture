@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "atilax": "^1.2.3",
-    "core-plex": "^4.2.2",
-    "recourse": "^1.2.1"
+    "core-plex": "^4.3.3",
+    "recourse": "^1.3.2"
   }
 }

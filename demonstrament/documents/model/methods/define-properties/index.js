@@ -1,2 +1,4 @@
-import './example-1/index.js'
-import './example-2/index.js'
+import './examples/example-01.js'
+import './examples/example-02.js'
+import './examples/example-03.js'
+import './examples/example-04.js'

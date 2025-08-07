@@ -9,10 +9,10 @@ import Assign from './assign/index.js'
 
 export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ compandTree: { accessors: [($target, $property) => {
+    super(/*{ compand: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
       else { return $target.get($property) }
-    }] } })
+    }] } }*/)
     if($properties instanceof Model) { $properties = $properties.valueOf() }
     let parent = null
     let path = null
@@ -53,7 +53,8 @@ export default class Model extends Core {
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
-        const target = typedObjectLiteral($properties)
+        // const target = typedObjectLiteral($properties)
+        const target = $properties
         Object.defineProperty(this, 'target', { value: target })
         return target
       } },

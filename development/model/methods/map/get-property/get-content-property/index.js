@@ -1,10 +1,10 @@
-import { regularExpressions } from 'recourse'
+import { splitPath } from 'recourse'
 import { ModelEvent } from '../../../../events/index.js'
 export default function getContentProperty($model, $options, $path) {
   const { target, path } = $model
-  const { mutatorEvents, pathkey, subpathError } = $options
+  const { mutatorEvents, pathkey, subpathError, pathParseInteger } = $options
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
+    const subpaths = splitPath($path, pathParseInteger)
     const propertyKey = subpaths.shift()
     let propertyValue = target[propertyKey]
     if(subpaths.length) {

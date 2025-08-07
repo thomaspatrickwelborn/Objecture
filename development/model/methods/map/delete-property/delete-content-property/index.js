@@ -1,10 +1,10 @@
-import { regularExpressions } from 'recourse'
+import { splitPath } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model
   const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
+    const subpaths = splitPath($path, pathParseInteger)
     const propertyKey = subpaths.shift()
     let propertyValue = target[propertyKey]
     if(subpaths.length) {

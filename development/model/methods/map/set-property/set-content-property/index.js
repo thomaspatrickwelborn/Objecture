@@ -1,4 +1,4 @@
-import { assign, regularExpressions, typedObjectLiteral, typeOf } from 'recourse'
+import { assign, splitPath, typedObjectLiteral, typeOf } from 'recourse'
 import Change from '../../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($model, $options, $path, $value) {
@@ -8,11 +8,11 @@ export default function setContentProperty($model, $options, $path, $value) {
   const { target, path, schema } = $model
   const {
     enableValidation, mutatorEvents, pathkey, 
-    recursive, subpathError, 
+    pathParseInteger, recursive, subpathError, 
     validationEvents, source, 
   } = options
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
+    const subpaths = splitPath($path, pathParseInteger)
     const propertyKey = subpaths.shift()
     let propertyValue
     const typeOfPropertyValue = typeOf($value)
