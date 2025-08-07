@@ -5,7 +5,7 @@ export default function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options)
   const assignObject = 'set'
   const assignArray = options.assignArray || 'set'
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const {
     enableValidation, mutatorEvents, pathkey, 
     pathParseInteger, recursive, subpathError, 
@@ -20,10 +20,10 @@ export default function setContentProperty($model, $options, $path, $value) {
       ? [path, propertyKey].join('.')
       : String(propertyKey)
     if(subpaths.length) {
-      if(recursive && target[propertyKey] === undefined) {
+      if(recursive && receiver[propertyKey] === undefined) {
         let subschema
-        if(schema?.type === 'array') { subschema = schema.target[0].type.value }
-        else if(schema?.type === 'object') { subschema = schema.target[propertyKey].type.value }
+        if(schema?.type === 'array') { subschema = schema.receiver[0].type.value }
+        else if(schema?.type === 'object') { subschema = schema.receiver[propertyKey].type.value }
         else { subschema = undefined }
         let submodel
         if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -39,7 +39,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
       }
       else {
-        propertyValue = target[propertyKey]
+        propertyValue = receiver[propertyKey]
       }
       if(subpathError === false && propertyValue === undefined) { return undefined }
       if(propertyValue.type === 'array') {
@@ -74,8 +74,8 @@ export default function setContentProperty($model, $options, $path, $value) {
       const typeOfPropertyValue= typeOf($value)
       let subschema
       let submodel
-      if(schema?.type === 'array') { subschema = schema.target[0].type.value }
-      else if(schema?.type === 'object') { subschema = schema.target[propertyKey].type.value }
+      if(schema?.type === 'array') { subschema = schema.receiver[0].type.value }
+      else if(schema?.type === 'object') { subschema = schema.receiver[propertyKey].type.value }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }
       else if(typeOfPropertyValue === 'object') { submodel = {} }
@@ -88,7 +88,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         parent: $model,
       })
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
-      target[propertyKey] = propertyValue
+      receiver[propertyKey] = propertyValue
       $model.retroReenableEvents()
       if(propertyValue.type === 'array') {
         if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value) }
@@ -98,7 +98,7 @@ export default function setContentProperty($model, $options, $path, $value) {
     }
     else {
       propertyValue = $value
-      target[propertyKey] = propertyValue
+      receiver[propertyKey] = propertyValue
     }
     // const _propertyValue = (propertyValue === null) ? null : propertyValue.valueOf()
     const _propertyValue = propertyValue.valueOf()
@@ -141,10 +141,10 @@ export default function setContentProperty($model, $options, $path, $value) {
       let subschema
       let submodel
       if(schema?.type === 'array') {
-        subschema = schema.target[0].type.value
+        subschema = schema.receiver[0].type.value
       }
       if(schema?.type === 'object') {
-        subschema = schema.target[propertyKey].type.value
+        subschema = schema.receiver[propertyKey].type.value
       }
       else { subschema = undefined }
       if(typeOfPropertyValue === 'array') { submodel = [] }
@@ -161,7 +161,7 @@ export default function setContentProperty($model, $options, $path, $value) {
         parent: $model,
       })
       propertyValue = new $model.constructor(submodel, subschema, submodelOptions)
-      target[propertyKey] = propertyValue
+      receiver[propertyKey] = propertyValue
       $model.retroReenableEvents()
       if(propertyValue.type === 'array') {
         if(['push', 'unshift'].includes(assignArray)) { propertyValue[assignArray](...$value) }
@@ -171,7 +171,7 @@ export default function setContentProperty($model, $options, $path, $value) {
     }
     else {
       propertyValue = $value
-      target[propertyKey] = propertyValue
+      receiver[propertyKey] = propertyValue
     }
     if(mutatorEvents) {
       const modelEventPath = (path)

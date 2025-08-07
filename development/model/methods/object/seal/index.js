@@ -1,12 +1,12 @@
 import { ModelEvent } from '../../../events/index.js'
 export default function seal($model, $options) {
   const { recursive, mutatorEvents } = $options
-  const { target } = $model
+  const { receiver } = $model
   if(recursive === true) {
     iterateProperties: 
     for(const [
       $propertyKey, $propertyValue
-    ] of Object.entries(target)) {
+    ] of Object.entries(receiver)) {
       if($propertyValue instanceof $model.constructor) {
         $propertyValue.seal()
         if(mutatorEvents && mutatorEvents['sealProperty']) {
@@ -21,7 +21,7 @@ export default function seal($model, $options) {
       }
     }
   }
-  Object.seal(target)
+  Object.seal(receiver)
   if(mutatorEvents && mutatorEvents['seal']) {
     $model.dispatchEvent(
       new ModelEvent(

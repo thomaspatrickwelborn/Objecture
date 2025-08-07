@@ -5,18 +5,18 @@ export default function splice($model, $options) {
   const assignObject = options.assignObject
   const assignArray = options.assignArray || assignObject
   const { mutatorEvents, source } = options
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const { enableValidation, validationEvents } = options
   const $arguments = [...arguments]
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
-    : target.length + $arguments[0]
+    : receiver.length + $arguments[0]
   const $deleteCount = ($arguments[1] <= 0)
     ? 0
     : (
       $arguments[1] === undefined ||
-      $start + $arguments[1] >= target.length
-    ) ? target.length - $start
+      $start + $arguments[1] >= receiver.length
+    ) ? receiver.length - $start
       : $arguments[1]
   const $addItems = $arguments.slice(2)
   const addCount = $addItems.length
@@ -24,7 +24,7 @@ export default function splice($model, $options) {
   let deleteItemsIndex = 0
   spliceDelete:
   while(deleteItemsIndex < $deleteCount) {
-    const deleteItem = Array.prototype.splice.call(target, $start, 1)[0]
+    const deleteItem = Array.prototype.splice.call(receiver, $start, 1)[0]
     deleteItems.push(deleteItem)
     if(mutatorEvents) {
       const modelEventPath = (path)
@@ -93,14 +93,14 @@ export default function splice($model, $options) {
     let startIndex = $start + addItemsIndex
     if(addItem && typeof addItem === 'object') {
       if(addItem instanceof $model.constructor) { addItem = addItem.valueOf() }
-      const subschema = schema?.target[0].type.value || null
+      const subschema = schema?.receiver[0].type.value || null
       const subproperties = typedObjectLiteral(addItem)
       const suboptions = assign({}, options, {
         path: modelPath,
         parent: $model,
       })
       addItem = new $model.constructor(subproperties, subschema, suboptions)
-      Array.prototype.splice.call(target, startIndex, 0, addItem)
+      Array.prototype.splice.call(receiver, startIndex, 0, addItem)
       $model.retroReenableEvents()
       if(addItem.type === 'array') {
         if(['push', 'unshift'].includes(assignArray)) { addItem[assignArray](...$value) }
@@ -109,7 +109,7 @@ export default function splice($model, $options) {
       else if(addItem.type === 'object') { addItem[assignObject]($value) }
     }
     else {
-      Array.prototype.splice.call(target, startIndex, 0, addItem)
+      Array.prototype.splice.call(receiver, startIndex, 0, addItem)
     }
     if(mutatorEvents) {
       const modelEventPath = (path)
@@ -153,7 +153,7 @@ export default function splice($model, $options) {
           $start,
           deleted: deleteItems,
           added: $addItems,
-          length: target.length,
+          length: receiver.length,
         },
       },
       $model)

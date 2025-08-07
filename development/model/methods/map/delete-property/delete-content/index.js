@@ -1,8 +1,8 @@
 import { ModelEvent } from '../../../../events/index.js'
 export default function deleteContent($model, $options) {
-  const { target } = $model
-  for(const [$targetPropertyKey, $targetPropertyValue] of Object.entries(target)) {
-    $model.delete($targetPropertyKey, $options)
+  const { receiver } = $model
+  for(const [$receiverPropertyKey, $receiverPropertyValue] of Object.entries(receiver)) {
+    $model.delete($receiverPropertyKey, $options)
   }
   const { path } = $model
   const { mutatorEvents } = $options

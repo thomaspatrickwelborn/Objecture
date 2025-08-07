@@ -1,12 +1,12 @@
 import { splitPath } from 'recourse'
 import { ModelEvent } from '../../../../events/index.js'
 export default function getContentProperty($model, $options, $path) {
-  const { target, path } = $model
+  const { receiver, path } = $model
   const { mutatorEvents, pathkey, subpathError, pathParseInteger } = $options
   if(pathkey === true) {
     const subpaths = splitPath($path, pathParseInteger)
     const propertyKey = subpaths.shift()
-    let propertyValue = target[propertyKey]
+    let propertyValue = receiver[propertyKey]
     if(subpaths.length) {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.get(subpaths.join('.'), $options)
@@ -40,7 +40,7 @@ export default function getContentProperty($model, $options, $path) {
     return propertyValue
   }
   else if(pathkey === false) {
-    const propertyValue = target[propertyKey]
+    const propertyValue = receiver[propertyKey]
     return propertyValue
   }
 }

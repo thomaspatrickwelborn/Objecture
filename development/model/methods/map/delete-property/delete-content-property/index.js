@@ -1,12 +1,12 @@
 import { splitPath } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function deleteContentProperty($model, $options, $path) {
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options
   if(pathkey === true) {
     const subpaths = splitPath($path, pathParseInteger)
     const propertyKey = subpaths.shift()
-    let propertyValue = target[propertyKey]
+    let propertyValue = receiver[propertyKey]
     if(subpaths.length) {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), $options)
@@ -41,7 +41,7 @@ export default function deleteContentProperty($model, $options, $path) {
     if(propertyValue && typeof propertyValue === 'object') {
       propertyValue.delete($options)
     }
-    delete target[propertyKey]
+    delete receiver[propertyKey]
     if(mutatorEvents) {
       if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(
@@ -73,7 +73,7 @@ export default function deleteContentProperty($model, $options, $path) {
   }
   else if(pathkey === false) {
     const propertyKey = $path
-    const propertyValue = target[propertyKey]
+    const propertyValue = receiver[propertyKey]
 
     if(schema && enableValidation) {
       const differedPropertyProxy = $model.valueOf()
@@ -104,7 +104,7 @@ export default function deleteContentProperty($model, $options, $path) {
     if(propertyValue instanceof $model.constructor) {
       propertyValue.delete($options)
     }
-    delete target[propertyKey]
+    delete receiver[propertyKey]
     if(mutatorEvents) {
       if(mutatorEvents['deleteProperty']) {
         $model.dispatchEvent(

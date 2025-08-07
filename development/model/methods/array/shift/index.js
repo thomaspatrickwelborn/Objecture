@@ -1,8 +1,8 @@
 import { ModelEvent } from '../../../events/index.js'
 export default function shift($model, $options) {
   const { mutatorEvents } = $options
-  const { target, path } = $model
-  const shiftElement = Array.prototype.shift.call(target)
+  const { receiver, path } = $model
+  const shiftElement = Array.prototype.shift.call(receiver)
   const shiftElementIndex = 0
   $model.retroReenableEvents()
   if(mutatorEvents && mutatorEvents['shift']) {

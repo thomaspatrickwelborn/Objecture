@@ -2,7 +2,7 @@ import { typedObjectLiteral } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function fill($model, $options, ...$arguments) {
   const options = Object.assign({}, $options)
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const assignObject = options.assignObject
   const assignArray = options.assignArray || assignObject
   const { enableValidation, lengthen, mutatorEvents, validationEvents } = options
@@ -11,20 +11,20 @@ export default function fill($model, $options, ...$arguments) {
   if(typeof $arguments[1] === 'number') {
     $start = ($arguments[1] >= 0)
       ? $arguments[1]
-      : target.length + $arguments[1]
+      : receiver.length + $arguments[1]
   }
   else { $start = 0 }
   let $end
   if(typeof $arguments[2] === 'number') {
     $end = ($arguments[2] >= 0)
       ? $arguments[2]
-      : target.length + $arguments[2]
-  } else { $end = target.length }
-  if(lengthen && target.length < $end) { target.length = $end }
+      : receiver.length + $arguments[2]
+  } else { $end = receiver.length }
+  if(lengthen && receiver.length < $end) { receiver.length = $end }
   let fillIndex = $start
   iterateFillIndexes: 
   while(
-    fillIndex < target.length &&
+    fillIndex < receiver.length &&
     fillIndex < $end
   ) {
     if(schema && enableValidation) {
@@ -55,7 +55,7 @@ export default function fill($model, $options, ...$arguments) {
     let value
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf() }
-      const subschema = schema?.target[0].type.value || null
+      const subschema = schema?.receiver[0].type.value || null
       const subproperties = typedObjectLiteral($value)
       const suboptions = Object.assign({}, options, {
         path: modelPath,
@@ -63,7 +63,7 @@ export default function fill($model, $options, ...$arguments) {
       })
       value = new $model.constructor(subproperties, subschema, suboptions)
     }
-    Array.prototype.fill.call(target, value, fillIndex, fillIndex + 1)
+    Array.prototype.fill.call(receiver, value, fillIndex, fillIndex + 1)
     $model.retroReenableEvents()
     if(value.type === 'array') {
       if(['push', 'unshift'].includes(assignArray)) { value[assignArray](...$value) }

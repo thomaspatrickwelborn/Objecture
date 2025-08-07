@@ -9,13 +9,13 @@ export default function defineProperty($model, $options, $propertyKey, $property
     descriptorTree, enableValidation, mutatorEvents, 
     validation, validationEvents, validationReport
   } = options
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const propertyValue = $propertyDescriptor.value
-  const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {}
-  const targetPropertyValue = targetPropertyDescriptor.value
-  const definePropertyChange = new Change({ preter: targetPropertyValue })
-  const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
-  const targetPropertyValueIsModelInstance = targetPropertyValue instanceof $model.constructor
+  const receiverPropertyDescriptor = Object.getOwnPropertyDescriptor(receiver, $propertyKey) || {}
+  const receiverPropertyValue = receiverPropertyDescriptor.value
+  const definePropertyChange = new Change({ preter: receiverPropertyValue })
+  const definePropertyKeyChange = new Change({ preter: receiverPropertyValue })
+  const receiverPropertyValueIsModelInstance = receiverPropertyValue instanceof $model.constructor
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty(
       $propertyKey, 
@@ -46,31 +46,31 @@ export default function defineProperty($model, $options, $propertyKey, $property
     const modelPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey)
-    if(targetPropertyValueIsModelInstance) {
+    if(receiverPropertyValueIsModelInstance) {
       if(descriptorTree === true) {
-        targetPropertyValue.defineProperties($propertyDescriptor)
+        receiverPropertyValue.defineProperties($propertyDescriptor)
       }
       else {
-        Object.defineProperty(target, $propertyKey, $propertyDescriptor)
+        Object.defineProperty(receiver, $propertyKey, $propertyDescriptor)
       }
     }
     else {
       let subschema
       if(schema) {
-        if(schema.type === 'array') { subschema = schema.target[0].type.value }
-        else if(schema.type === 'object') { subschema = schema.target[$propertyKey].type.value }
+        if(schema.type === 'array') { subschema = schema.receiver[0].type.value }
+        else if(schema.type === 'object') { subschema = schema.receiver[$propertyKey].type.value }
         else { subschema = undefined }
       }
-      let subtarget = typedObjectLiteral(propertyValue)
+      let subreceiver = typedObjectLiteral(propertyValue)
       const suboptions = assign({}, options, {
         path: modelPath,
         parent: $model,
       })
       const submodel = new $model.constructor(
-        subtarget, subschema, suboptions
+        subreceiver, subschema, suboptions
       )
       if(descriptorTree === true) {
-        target[$propertyKey] = submodel
+        receiver[$propertyKey] = submodel
         $model.retroReenableEvents()
         if(submodel.type === 'array') {
           if(['push', 'unshift'].includes(assignArray)) { submodel[assignArray](...propertyValue) }
@@ -79,19 +79,19 @@ export default function defineProperty($model, $options, $propertyKey, $property
         else if(submodel.type === 'object') { submodel[assignObject](propertyValue) }
       }
       else if(descriptorTree === false) {
-        Object.defineProperty(target, $propertyKey, $propertyDescriptor)
+        Object.defineProperty(receiver, $propertyKey, $propertyDescriptor)
       }
     }
   }
   else {
-    Object.defineProperty(target, $propertyKey, $propertyDescriptor)
+    Object.defineProperty(receiver, $propertyKey, $propertyDescriptor)
   }
   if(mutatorEvents) {
     const modelEventPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey)
     if(mutatorEvents['defineProperty:$key']) {
-      definePropertyKeyChange.anter = target[$propertyKey]
+      definePropertyKeyChange.anter = receiver[$propertyKey]
       const type = ['defineProperty', $propertyKey].join(':')
       $model.dispatchEvent(
         new ModelEvent(type, {
@@ -106,7 +106,7 @@ export default function defineProperty($model, $options, $propertyKey, $property
       ))
     }
     if(mutatorEvents['defineProperty']) {
-      definePropertyChange.anter = target[$propertyKey]
+      definePropertyChange.anter = receiver[$propertyKey]
       $model.dispatchEvent(
         new ModelEvent('defineProperty', {
           path: modelEventPath,

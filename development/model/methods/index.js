@@ -46,8 +46,8 @@ const Defaults = Object.freeze({
     keys: ['length'], 
     methodDescriptor: function($propertyName, $model, $options) {
       return {
-        get() { return $model.target.length },
-        set($propertyValue) { $model.target.length = $propertyValue },
+        get() { return $model.receiver.length },
+        set($propertyValue) { $model.receiver.length = $propertyValue },
       }
     }
   }, {

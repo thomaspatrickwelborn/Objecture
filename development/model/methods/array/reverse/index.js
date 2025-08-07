@@ -1,8 +1,8 @@
 import { ModelEvent } from '../../../events/index.js'
 export default function reverse($model, $options) {
   const { mutatorEvents } = $options
-  const { target, path } = $model
-  Array.prototype.reverse.call(target, ...arguments)
+  const { receiver, path } = $model
+  Array.prototype.reverse.call(receiver, ...arguments)
   $model.retroReenableEvents()
   if(mutatorEvents && mutatorEvents['reverse']) {
     $model.dispatchEvent(
@@ -11,7 +11,7 @@ export default function reverse($model, $options) {
         {
           path,
           detail: {
-            reference: target
+            reference: receiver
           },
         },
         $model

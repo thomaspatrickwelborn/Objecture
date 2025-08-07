@@ -1,11 +1,11 @@
 import { Recourse } from '/dependencies/recourse.js'
 import { Model } from '/dependencies/objecture.js'
+// throw Model
 console.log("------------------")
 console.log("Assign | Example 1")
 console.log("------------------")
 const options = {}
-const object = {}
-const objectAssignment = {
+const object = {
   propertyA: [{
     propertyB: {
       propertyC: [{
@@ -16,8 +16,7 @@ const objectAssignment = {
     }
   }]
 }
-const model = new Model(object)
-model.assign({
+const objectAssignment = {
   propertyA: [{
     propertyB: {
       propertyC: [{
@@ -27,15 +26,20 @@ model.assign({
       }]
     }
   }]
+}
+const model = new Model(object)
+model.assign(objectAssignment)
+const modelObject = model.parse()
+const modelString = model.parse({
+  type: 'string', space: 2
 })
-const modelString = JSON.stringify(object, null, 2)
-console.log("object", model.parse())
-// const objectModifiedString = JSON.stringify(object, null, 2)
-// console.log("object", objectString)
-// console.log("objectModified", objectModifiedString)
-// console.log(`Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.2')`, Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.2'))
-// console.log("pass", (
-//   (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.2') === "555") &&
-//   (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.1') === 55) &&
-//   (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.0') === "5")
-// ))
+console.log("object", object)
+console.log("model", model)
+console.log("modelObject", modelObject)
+console.log("modelString", modelString)
+console.log("object", object)
+console.log("pass", (
+  (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.2') === "555") &&
+  (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.1') === 55) &&
+  (Recourse.get(object, 'propertyA.0.propertyB.propertyC.0.propertyD.propertyE.0') === "5")
+))

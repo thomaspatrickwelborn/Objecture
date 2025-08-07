@@ -9,9 +9,9 @@ import Assign from './assign/index.js'
 
 export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super(/*{ compand: { accessors: [($target, $property) => {
-      if($property === undefined) { return $target.target }
-      else { return $target.get($property) }
+    super(/*{ compand: { accessors: [($receiver, $property) => {
+      if($property === undefined) { return $receiver.receiver }
+      else { return $receiver.get($property) }
     }] } }*/)
     if($properties instanceof Model) { $properties = $properties.valueOf() }
     let parent = null
@@ -52,14 +52,10 @@ export default class Model extends Core {
       'parent': { get() { return parent } },
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
-      'target': { configurable: true, get() {
-        // const target = typedObjectLiteral($properties)
-        const target = $properties
-        Object.defineProperty(this, 'target', { value: target })
-        return target
-      } },
+      'target': { value: $properties },
+      'receiver': { value: typedObjectLiteral($properties) },
       'type': { configurable: true, get() {
-        const type = typeOf(this.target)
+        const type = typeOf(this.receiver)
         Object.defineProperty(this, 'type', { value: type })
         return type
       } },
@@ -120,7 +116,7 @@ export default class Model extends Core {
     for(const [
       $propertyDescriptorName, $propertyDescriptor
     ] of Object.entries(
-      Object.getOwnPropertyDescriptors(this.target))
+      Object.getOwnPropertyDescriptors(this.receiver))
     ) {
       let { enumerable, value, writable, configurable } = $propertyDescriptor
       if(value instanceof Model) {

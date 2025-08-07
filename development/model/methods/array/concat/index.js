@@ -1,12 +1,12 @@
 import { typedObjectLiteral } from 'recourse'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
 export default function concat($model, $options) {
-  const { target, path, schema } = $model
+  const { receiver, path, schema } = $model
   const { enableValidation, mutatorEvents, source, validationEvents } = $options
   const $arguments = [].concat(...arguments)
-  let valueIndex = target.length
+  let valueIndex = receiver.length
   const values = []
-  let targetConcat = [...Array.from(target)]
+  let receiverConcat = [...Array.from(receiver)]
   let model
   iterateValues: 
   for(let $value of $arguments) {
@@ -38,7 +38,7 @@ export default function concat($model, $options) {
       : String(valueIndex)
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf() }
-      let subschema = schema?.target[0].type.value || null
+      let subschema = schema?.receiver[0].type.value || null
       const submodel = typedObjectLiteral($value)
       let value = new $model.constructor(submodel, subschema, {
         path: modelPath,
@@ -50,7 +50,7 @@ export default function concat($model, $options) {
     else {
       values[valueIndex] = $value
     }
-    targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex])
+    receiverConcat = Array.prototype.concat.call(receiverConcat, values[valueIndex])
     if(mutatorEvents) {
       const modelEventPath = (path)
         ? [path, valueIndex].join('.')
@@ -83,7 +83,7 @@ export default function concat($model, $options) {
     }
     valueIndex++
   }
-  model = new $model.constructor(targetConcat, schema, $model.options)
+  model = new $model.constructor(receiverConcat, schema, $model.options)
   if(mutatorEvents && mutatorEvents['concat']) {
     $model.dispatchEvent(
       new ModelEvent('concat', {

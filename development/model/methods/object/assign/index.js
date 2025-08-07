@@ -5,7 +5,7 @@ export default function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)
   const assignObject = 'assign'
   const assignArray = options.assignArray || 'assign'
-  const { path, schema, source, target } = $model
+  const { path, schema, source, receiver, target } = $model
   const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options
   const assignedSources = []
   const assignChange = new Change({ preter: $model })
@@ -22,8 +22,8 @@ export default function assign($model, $options, ...$sources) {
     }
     iterateSourceProperties:
     for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
-      const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })
-      const assignSourcePropertyKeyChange = new Change({ preter: target[$sourceKey] })
+      const assignSourcePropertyChange = new Change({ preter: receiver[$sourceKey] })
+      const assignSourcePropertyKeyChange = new Change({ preter: receiver[$sourceKey] })
       if(schema && enableValidation) {
         const validatorTarget = $model.valueOf()
         const validatorSource = $source
@@ -51,8 +51,8 @@ export default function assign($model, $options, ...$sources) {
           sourceValue = $sourceValue.valueOf()
         }
         let subschema
-        if(schema?.type === 'array') { subschema = schema.target[0].type.value }
-        else if(schema?.type === 'object') { subschema = schema.target[$sourceKey].type.value }
+        if(schema?.type === 'array') { subschema = schema.receiver[0].type.value }
+        else if(schema?.type === 'object') { subschema = schema.receiver[$sourceKey].type.value }
         else { subschema = null }
         const modelPath = (path)
           ? [path, $sourceKey].join('.')
@@ -64,12 +64,12 @@ export default function assign($model, $options, ...$sources) {
           })
           sourceValue = new $model.constructor($sourceValue, subschema, suboptions)
           const assignment = { [$sourceKey]: sourceValue }
-          Object.assign(target, assignment)
+          Object.assign(target, { [$sourceKey]: $sourceValue})
           Object.assign(assignedSource, assignment)
         }
         else {
-          if(target[$sourceKey] instanceof $model.constructor) {
-            sourceValue = target[$sourceKey]
+          if(receiver[$sourceKey] instanceof $model.constructor) {
+            sourceValue = receiver[$sourceKey]
           }
           else {
             const subproperties = typedObjectLiteral($sourceValue)
@@ -80,7 +80,7 @@ export default function assign($model, $options, ...$sources) {
             sourceValue = new $model.constructor(subproperties, subschema, suboptions)
           }
           const assignment = { [$sourceKey]: sourceValue }
-          Object.assign(target, assignment)
+          Object.assign(target, { [$sourceKey]: $sourceValue})
           Object.assign(assignedSource, assignment)
           $model.retroReenableEvents()
           if(sourceValue.type === 'array') {
@@ -93,14 +93,14 @@ export default function assign($model, $options, ...$sources) {
       else {
         sourceValue = $sourceValue
         const assignment = { [$sourceKey]: sourceValue }
-        Object.assign(target, assignment)
+        Object.assign(target, { [$sourceKey]: $sourceValue})
         Object.assign(assignedSource, assignment)
       }
       if(mutatorEvents) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
         if(mutatorEvents['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':')
-          assignSourcePropertyKeyChange.anter = target[$sourceKey]
+          assignSourcePropertyKeyChange.anter = receiver[$sourceKey]
           $model.dispatchEvent(
             new ModelEvent(type, {
               path: modelEventPath,
@@ -113,7 +113,7 @@ export default function assign($model, $options, ...$sources) {
           )
         }
         if(mutatorEvents['assignSourceProperty']) {
-          assignSourcePropertyChange.anter = target[$sourceKey]
+          assignSourcePropertyChange.anter = receiver[$sourceKey]
           $model.dispatchEvent(
             new ModelEvent('assignSourceProperty', {
               path: modelEventPath,

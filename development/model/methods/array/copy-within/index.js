@@ -1,33 +1,33 @@
 import { ModelEvent } from '../../../events/index.js'
 export default function copyWithin($model, $options) {
-  const { target, path } = $model
+  const { receiver, path } = $model
   const { enableValidation, validationEvents, mutatorEvents } = $options
   const $arguments = [...arguments]
   const copyTarget = (
     arguments[0] >= 0
   ) ? arguments[0]
-    : target.length = arguments[0]
+    : receiver.length = arguments[0]
   const start = (
     arguments[1] >= 0
   ) ? arguments[1]
-    : target.length + arguments[1]
+    : receiver.length + arguments[1]
   const end = (
     arguments[2] === undefined
-  ) ? target.length
+  ) ? receiver.length
     : (
     arguments[2] >= 0
   ) ? arguments[2]
-    : target.length + arguments[2]
+    : receiver.length + arguments[2]
   const copiedItems = []
   let copyIndex = start
-  let targetIndex = copyTarget
+  let receiverIndex = copyTarget
   iterateCopyIndex: 
   while(copyIndex < end) {
-    const copyItem = target[copyIndex]
+    const copyItem = receiver[copyIndex]
     copiedItems.push(copyItem)
     Array.prototype.copyWithin.call(
-      target,
-      targetIndex,
+      receiver,
+      receiverIndex,
       copyIndex,
       copyIndex + 1
     )
@@ -44,7 +44,7 @@ export default function copyWithin($model, $options) {
               path: modelEventPath,
               value: copyItem,
               detail: {
-                target: targetIndex,
+                receiver: receiverIndex,
                 start: copyIndex,
                 end: copyIndex + 1,
                 item: copyItem,
@@ -63,7 +63,7 @@ export default function copyWithin($model, $options) {
               path: modelEventPath,
               value: copyItem,
               detail: {
-                target: targetIndex,
+                receiver: receiverIndex,
                 start: copyIndex,
                 end: copyIndex + 1,
                 item: copyItem,
@@ -75,7 +75,7 @@ export default function copyWithin($model, $options) {
       }
     }
     copyIndex++
-    targetIndex++
+    receiverIndex++
   }
   // Array Copy Within Event
   if(mutatorEvents && mutatorEvents['copyWithin']) {
@@ -85,7 +85,7 @@ export default function copyWithin($model, $options) {
         {
           path,
           detail: {
-            target: copyTarget,
+            receiver: copyTarget,
             start: start,
             end: end,
             items: copiedItems,
