@@ -2374,7 +2374,7 @@ function isMapLike($source, $options) {
   return isMapLike
 }
 
-function typedObjectLiteral$1($source) {
+function typedObjectLiteral$1($source, $strict = true) {
   const typeOfSource = typeOf$1($source);
   if(typeOfSource === 'string') {
     const source = $source.toLowerCase();
@@ -2385,8 +2385,8 @@ function typedObjectLiteral$1($source) {
   }
   else  {
     if(typeOfSource === 'object') { return Object() }
-    else if(isArrayLike$1($source, { strict: true })) { return Array() }
-    else if(isMapLike($source, { strict: true })) { return new Map() }
+    else if(isArrayLike$1($source, { strict: $strict })) { return Array() }
+    else if(isMapLike($source, { strict: $strict })) { return new Map() }
     else ;
   }
 }
@@ -2472,9 +2472,32 @@ function assignSources($target, $type, ...$sources) {
 
 var assign$3 = ($target, ...$sources) => assignSources($target, 'assign', ...$sources);
 
-({
+const Options$2$1 = {
   getters: [Getters.Object, Getters.Map],
-  typeValidators: [TypeValidators.Object, TypeValidators.Map]});
+  typeValidators: [TypeValidators.Object, TypeValidators.Map],
+  ancestors: [], 
+  depth: 0, maxDepth: 10,
+};
+function freeze$1($target, $options = {}) {
+  const options = Object.assign({}, Options$2$1, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
+  const { ancestors, values } = options;
+  if(options.depth > options.maxDepth) { return } else { options.depth++; }
+  const target = new Tensors(options.getters, options.typeValidators).cess($target);
+  if(!ancestors.includes(target)) { ancestors.unshift(target); }
+  const targetEntities = entities($target, 'entries', Object.assign(options, {
+    recurse: false
+  }));
+  iterateTargetEntities: 
+  for(const [$propertyKey, $propertyValue] of targetEntities) {
+    if(ancestors.includes($propertyValue)) { continue iterateTargetEntities }
+    else if(ObjectKeys$1.includes(typeOf$1($propertyValue))) {
+      freeze$1($propertyValue, options);
+    }
+  }
+  return Object.freeze($target)
+}
 
 ({
   getters: [Getters.Object, Getters.Map],
@@ -3484,46 +3507,6 @@ class ModelEvent extends CustomEvent {
   }
 }
 
-class Change {
-  #_keyter = false 
-  #_preter = false 
-  #_anter = false 
-  #_conter = false
-  #keyter
-  #preter
-  #anter
-  #conter
-  constructor($settings = {}) {
-    for(const [$key, $value] of Object.entries($settings)) { this[$key] = $value; }
-  }
-  get preter() { return this.#preter }
-  set preter($preter) {
-    if(this.#_preter === true) { return this.#preter }
-    this.#preter = $preter?.valueOf();
-    this.#_preter = true;
-  }
-  get anter() { return this.#anter }
-  set anter($anter) {
-    if(this.#_anter === true) { return this.#anter }
-    this.#anter = $anter?.valueOf();
-    this.#_anter = true;
-  }
-  get conter() {
-    if(
-      this.#_conter === true ||
-      [this.#_preter, this.#_anter].includes(false)
-    ) { return this.#conter }
-    const preter = JSON.stringify(this.preter);
-    const anter = JSON.stringify(this.anter);
-    let conter;
-    if(anter !== preter) { conter = true; }
-    else { conter = false; }
-    this.#conter = conter;
-    this.#_conter = true;
-    return this.#conter
-  }
-}
-
 let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   constructor($type, $settings, $model) {
     super($type);
@@ -3561,10 +3544,10 @@ function assign$1($model, $options, ...$sources) {
   const { path, schema, source, receiver, target } = $model;
   const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options;
   const assignedSources = [];
-  const assignChange = new Change({ preter: $model });
+  // const assignChange = new Change({ preter: $model })
   for(let $source of $sources) {
     let assignedSource;
-    const assignSourceChange = new Change({ preter: $model });
+    // const assignSourceChange = new Change({ preter: $model })
     if(Array.isArray($source)) { assignedSource = []; }
     else if($source && typeof $source === 'object') { assignedSource = {}; }
     let validObject;
@@ -3574,8 +3557,8 @@ function assign$1($model, $options, ...$sources) {
     }
     iterateSourceProperties:
     for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
-      const assignSourcePropertyChange = new Change({ preter: receiver[$sourceKey] });
-      const assignSourcePropertyKeyChange = new Change({ preter: receiver[$sourceKey] });
+      // const assignSourcePropertyChange = new Change({ preter: receiver[$sourceKey] })
+      // const assignSourcePropertyKeyChange = new Change({ preter: receiver[$sourceKey] })
       if(schema && enableValidation) {
         const validatorTarget = $model.valueOf();
         const validatorSource = $source;
@@ -3651,12 +3634,12 @@ function assign$1($model, $options, ...$sources) {
         const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey);
         if(mutatorEvents['assignSourceProperty:$key']) {
           const type = ['assignSourceProperty', $sourceKey].join(':');
-          assignSourcePropertyKeyChange.anter = receiver[$sourceKey];
+          // assignSourcePropertyKeyChange.anter = receiver[$sourceKey]
           $model.dispatchEvent(
             new ModelEvent(type, {
               path: modelEventPath,
               value: sourceValue,
-              change: assignSourcePropertyKeyChange,
+              // change: assignSourcePropertyKeyChange,
               detail: {
                 source: assignedSource,
               }
@@ -3664,12 +3647,12 @@ function assign$1($model, $options, ...$sources) {
           );
         }
         if(mutatorEvents['assignSourceProperty']) {
-          assignSourcePropertyChange.anter = receiver[$sourceKey];
+          // assignSourcePropertyChange.anter = receiver[$sourceKey]
           $model.dispatchEvent(
             new ModelEvent('assignSourceProperty', {
               path: modelEventPath,
               value: sourceValue,
-              change: assignSourcePropertyChange,
+              // change: assignSourcePropertyChange,
               detail: {
                 source: assignedSource,
               }
@@ -3680,11 +3663,11 @@ function assign$1($model, $options, ...$sources) {
     }
     assignedSources.push(assignedSource);
     if(mutatorEvents && mutatorEvents['assignSource']) {
-      assignSourceChange.anter = $model;
+      // assignSourceChange.anter = $model
       $model.dispatchEvent(
         new ModelEvent('assignSource', {
           path,
-          change: assignSourceChange,
+          // change: assignSourceChange,
           detail: {
             source: assignedSource,
           },
@@ -3693,11 +3676,11 @@ function assign$1($model, $options, ...$sources) {
     }
   }
   if(mutatorEvents && mutatorEvents['assign']) {
-    assignChange.anter = $model;
+    // assignChange.anter = $model
     $model.dispatchEvent(
       new ModelEvent('assign', { 
         path,
-        change: assignChange,
+        // change: assignChange,
         detail: {
           sources: assignedSources,
         },
@@ -3705,6 +3688,46 @@ function assign$1($model, $options, ...$sources) {
     );
   }
   return $model
+}
+
+class Change {
+  #_keyter = false 
+  #_preter = false 
+  #_anter = false 
+  #_conter = false
+  #keyter
+  #preter
+  #anter
+  #conter
+  constructor($settings = {}) {
+    for(const [$key, $value] of Object.entries($settings)) { this[$key] = $value; }
+  }
+  get preter() { return this.#preter }
+  set preter($preter) {
+    if(this.#_preter === true) { return this.#preter }
+    this.#preter = $preter?.valueOf();
+    this.#_preter = true;
+  }
+  get anter() { return this.#anter }
+  set anter($anter) {
+    if(this.#_anter === true) { return this.#anter }
+    this.#anter = $anter?.valueOf();
+    this.#_anter = true;
+  }
+  get conter() {
+    if(
+      this.#_conter === true ||
+      [this.#_preter, this.#_anter].includes(false)
+    ) { return this.#conter }
+    const preter = JSON.stringify(this.preter);
+    const anter = JSON.stringify(this.anter);
+    let conter;
+    if(anter !== preter) { conter = true; }
+    else { conter = false; }
+    this.#conter = conter;
+    this.#_conter = true;
+    return this.#conter
+  }
 }
 
 function defineProperties($model, $options, $propertyDescriptors) {
@@ -5178,14 +5201,14 @@ var MapProperty = {
   delete: deleteProperty,
 };
 
-const Defaults = Object.freeze({
+const MethodDefinitionGroups = freeze$1({
   object: [{
-    keys: ['valueOf'],
+    methodNames: ['valueOf'],
     methodDescriptor: function($methodName, $model) {
       return { value: function valueOf() { return $model.parse({ type: 'object' }) } }
     },
   }, {
-    keys: ['toString'],
+    methodNames: ['toString'],
     methodDescriptor: function($methodName, $model) {
       return { value: function toString($parseSettings = {}) {
         const replacer = ($parseSettings.replacer !== undefined)
@@ -5196,7 +5219,7 @@ const Defaults = Object.freeze({
       } }
     }, 
   }, {
-    keys: [
+    methodNames: [
       'entries', 'fromEntries', 'getOwnPropertyDescriptors', 
       'getOwnPropertyDescriptor', 'getOwnPropertyNames', 
       /* 'getOwnPropertySymbols', */ 'groupBy', 'hasOwn', 'is', 
@@ -5207,19 +5230,21 @@ const Defaults = Object.freeze({
       return { value: Object[$methodName].bind(null, $model.valueOf()) }
     },
   }, {
-    keys: ['propertyIsEnumerable', 'hasOwnProperty'], 
+    // type: 'accessors',
+    type: 'introspectors',
+    methodNames: ['propertyIsEnumerable', 'hasOwnProperty'], 
     methodDescriptor: function($methodName, $model) {
       return { value: () => $model.parse({ type: 'object' })[$methodName] }
     },
   }, {
     type: 'mutators',
-    keys: Object.keys(ObjectProperty), 
+    methodNames: Object.keys(ObjectProperty), 
     methodDescriptor: function($methodName, $model, $options) {
       return { value: ObjectProperty[$methodName].bind(null, $model, $options) }
     }
   }],
   array: [{
-    keys: ['length'], 
+    methodNames: ['length'], 
     methodDescriptor: function($propertyName, $model, $options) {
       return {
         get() { return $model.receiver.length },
@@ -5227,14 +5252,12 @@ const Defaults = Object.freeze({
       }
     }
   }, {
-    keys: [
-      'from', 'fromAsync', 'isArray', 'of', 
-    ], 
+    methodNames: ['from', 'fromAsync', 'isArray', 'of'], 
     methodDescriptor: function($methodName, $model) {
       return { value: Array[$methodName] }
     }, 
   }, {
-    keys: [
+    methodNames: [
       'at', 'every', 'filter', 'find', 'findIndex', 'findLast',
       'findLastIndex', 'flat', 'flatMap', 'forEach', 'includes', 
       'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight', 
@@ -5246,28 +5269,35 @@ const Defaults = Object.freeze({
     }
   }, {
     type: 'mutators',
-    keys: Object.keys(ArrayProperty), 
+    methodNames: Object.keys(ArrayProperty), 
     methodDescriptor: function($methodName, $model, $options) {
       return { value: ArrayProperty[$methodName].bind(null, $model, $options) }
     }
   }],
+  // 
   map: [{
     type: 'mutators',
-    keys: Object.keys(MapProperty),
+    methodNames: Object.keys(MapProperty),
     methodDescriptor: function($methodName, $model, $options) {
       return { value: MapProperty[$methodName].bind(null, $model, $options) }
     }
-  }]
+  }/*, {
+    type: 'stat',
+    methodNames: ['has'],
+    methodDescriptor: function($methodName, $model, $options) {
+      return { value: MapProperty[$methodName].bind(null, $model, $options) }
+    }
+  }*/]
 });
 function Methods($model) {
   // Object, Array, Map
-  for(const [$propertyClassName, $propertyClasses] of Object.entries(Defaults)) {
-    for(const $propertyClass of $propertyClasses) {
-      const { keys, methodDescriptor, type } = $propertyClass;
-      for(const $methodName of keys) {
-        if($propertyClassName === 'map' || type === 'mutators') {
+  for(const [$methodDefinitionGroup, $methodDefinitions] of Object.entries(MethodDefinitionGroups)) {
+    for(const $methodDefinition of $methodDefinitions) {
+      const { methodNames, methodDescriptor, type } = $methodDefinition;
+      for(const $methodName of methodNames) {
+        if($methodDefinitionGroup === 'map' || type === 'mutators') {
           const modelMethodOptions = structuredClone(
-            $model.options.methods[$propertyClassName][$methodName]
+            $model.options.methods[$methodDefinitionGroup][$methodName]
           );
           const methodOptions = Object.assign({}, $model.options, modelMethodOptions);
           delete methodOptions.mutatorEvents;
@@ -5308,10 +5338,8 @@ function Assign($model, $properties, $options) {
 
 class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super(/*{ compand: { accessors: [($receiver, $property) => {
-      if($property === undefined) { return $receiver.receiver }
-      else { return $receiver.get($property) }
-    }] } }*/);
+    super();
+    console.log(typedObjectLiteral$1($properties));
     if($properties instanceof Model) { $properties = $properties.valueOf(); }
     let parent = null;
     let path = null;
@@ -5368,6 +5396,7 @@ class Model extends Core {
         return schema
       } },
     });
+    console.log(this.receiver);
     this.mount({
       parent: this.options.parent,
       path: this.options.path

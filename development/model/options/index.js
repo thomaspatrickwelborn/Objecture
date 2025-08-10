@@ -1,6 +1,20 @@
-import { assign } from 'recourse'
+import {
+  assign, TypeValidators, Tensors, Getters, Setters
+} from 'recourse'
+import {
+  TypeValidator as ModelTypeValidator,
+  Getter as ModelGetter,
+  Setter as ModelSetter,
+  Deleter as ModelDeleter,
+} from '../objecture-tensors/index.js'
 export default ($options) => {
   const Options = assign({
+    tensors: {
+      typeValidators: [ModelTypeValidator, TypeValidators.Object, TypeValidators.Map],
+      getters: [ModelGetter, Getters.Object, Getters.Map],
+      setters: [ModelSetter, Setters.Object, Setters.Map],
+      deleters: [ModelDeleter, Deleters.Object, Deleters.Map]
+    },
     autoload: false, 
     autosave: false, 
     localStorage: false, 
@@ -18,6 +32,7 @@ export default ($options) => {
     subpathError: false,
     assignObject: 'set', 
     assignArray: 'set', 
+    assignMap: 'set', 
     pathParseInteger: false,
     methods: {
       map: {

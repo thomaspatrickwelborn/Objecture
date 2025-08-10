@@ -1014,7 +1014,7 @@ function isMapLike($source, $options) {
   return isMapLike
 }
 
-function typedObjectLiteral($source) {
+function typedObjectLiteral($source, $strict = true) {
   const typeOfSource = typeOf($source);
   if(typeOfSource === 'string') {
     const source = $source.toLowerCase();
@@ -1025,8 +1025,8 @@ function typedObjectLiteral($source) {
   }
   else  {
     if(typeOfSource === 'object') { return Object() }
-    else if(isArrayLike($source, { strict: true })) { return Array() }
-    else if(isMapLike($source, { strict: true })) { return new Map() }
+    else if(isArrayLike($source, { strict: $strict })) { return Array() }
+    else if(isMapLike($source, { strict: $strict })) { return new Map() }
     else ;
   }
 }

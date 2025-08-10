@@ -9,10 +9,8 @@ import Assign from './assign/index.js'
 
 export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
-    super(/*{ compand: { accessors: [($receiver, $property) => {
-      if($property === undefined) { return $receiver.receiver }
-      else { return $receiver.get($property) }
-    }] } }*/)
+    super()
+    console.log(typedObjectLiteral($properties))
     if($properties instanceof Model) { $properties = $properties.valueOf() }
     let parent = null
     let path = null
@@ -69,6 +67,7 @@ export default class Model extends Core {
         return schema
       } },
     })
+    console.log(this.receiver)
     this.mount({
       parent: this.options.parent,
       path: this.options.path
