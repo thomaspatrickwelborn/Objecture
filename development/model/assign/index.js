@@ -1,19 +1,19 @@
 import { assign, typedObjectLiteral } from 'recourse'
-const ValidArrayAssigmentMethods = Object.freeze(
-  ['push', 'unshift']
-)
-const ValidObjectAssigmentMethods = Object.freeze(
-  ['assign', 'defineProperties', 'set']
-)
+// const ValidArrayAssigmentMethods = Object.freeze(
+//   ['push', 'unshift']
+// )
+// const ValidObjectAssigmentMethods = Object.freeze(
+//   ['assign', 'defineProperties', 'set']
+// )
 
 export default function Assign($model, $properties, $options) {
   const { type } = $model
-  const { assignObject, assignArray /*, autoload */ } = $options
-  if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
-    $model[assignArray](...$properties)
+  const { propertyAssignments } = $options
+  if(type === 'array'/* && ValidArrayAssigmentMethods.includes(assignArray)*/) {
+    $model[propertyAssignments[type]](...$properties)
   }
-  else if(type === 'object' && ValidObjectAssigmentMethods.includes(assignObject)) {
-    $model[assignObject]($properties)
+  else {
+    $model[propertyAssignments[type]]($properties)
   }
   return $model
 }

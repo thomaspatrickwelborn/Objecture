@@ -4,13 +4,12 @@ import { Route as LocalStorage } from 'atilax'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
-import Methods from './methods/index.js'
+import DefineMethods from './methods/index.js'
 import Assign from './assign/index.js'
 
 export default class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
     super()
-    console.log(typedObjectLiteral($properties))
     if($properties instanceof Model) { $properties = $properties.valueOf() }
     let parent = null
     let path = null
@@ -33,6 +32,7 @@ export default class Model extends Core {
     }
     catch($err) { console.error($err) }
     Object.defineProperties(this, {
+      'key': { get() { return (path) ? path.pop() : path } },
       'options': { configurable: true, get() {
         const options = Options($options)
         if(options.events) {
@@ -49,14 +49,7 @@ export default class Model extends Core {
       } },
       'parent': { get() { return parent } },
       'path': { get() { return path } },
-      'key': { get() { return (path) ? path.pop() : path } },
-      'target': { value: $properties },
       'receiver': { value: typedObjectLiteral($properties) },
-      'type': { configurable: true, get() {
-        const type = typeOf(this.receiver)
-        Object.defineProperty(this, 'type', { value: type })
-        return type
-      } },
       'schema': { configurable: true, get() {
         const typeOfSchema = typeOf($schema)
         let schema
@@ -66,8 +59,13 @@ export default class Model extends Core {
         Object.defineProperty(this, 'schema', { value: schema })
         return schema
       } },
+      'target': { value: $properties },
+      'type': { configurable: true, get() {
+        const type = typeOf(this.receiver)
+        Object.defineProperty(this, 'type', { value: type })
+        return type
+      } },
     })
-    console.log(this.receiver)
     this.mount({
       parent: this.options.parent,
       path: this.options.path
@@ -94,7 +92,7 @@ export default class Model extends Core {
         } },
       })
     }
-    Methods(this)
+    DefineMethods(this)
     if(this.options.autoload) {
       Assign(this, this.load() || $properties, this.options)
     }

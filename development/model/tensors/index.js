@@ -1,8 +1,12 @@
+import { tensors } from 'recourse'
+const {
+  TypeValidators, Tensors, Getters, Setters, Deleters
+} = tensors
 import { Model } from '../../index.js'
-// Map Type Validator
-const TypeValidator = ($target) => ($target instanceof Model)
-// Map Getter
-function Getter(...$arguments) {
+// Model Type Validator
+const ModelTypeValidator = ($target) => ($target instanceof Model)
+// Model Getter
+function ModelGetter(...$arguments) {
   if($arguments.length === 1) {
     let [$receiver] = $arguments
     return $receiver
@@ -12,8 +16,8 @@ function Getter(...$arguments) {
     return $receiver.get($property)
   }
 }
-// Map Setter
-function Setter(...$arguments) {
+// Model Setter
+function ModelSetter(...$arguments) {
   if($arguments.length === 2) {
     let [$receiver, $source] = $arguments
     $receiver.clear()
@@ -29,8 +33,8 @@ function Setter(...$arguments) {
     return $receiver.get($property)
   }
 }
-// Map Deleter
-function Deleter(...$arguments) {
+// Model Deleter
+function ModelDeleter(...$arguments) {
   if($arguments.length === 2) {
     let [$receiver, $property] = $arguments
     return $receiver.delete($property)
@@ -40,4 +44,9 @@ function Deleter(...$arguments) {
     return $receiver.clear()
   } 
 }
-export { TypeValidator, Getter, Setter, Deleter }
+export default {
+  typeValidators: [ModelTypeValidator/*, TypeValidators.Object, TypeValidators.Map*/],
+  getters: [ModelGetter/*, Getters.Object, Getters.Map*/],
+  setters: [ModelSetter/*, Setters.Object, Setters.Map*/],
+  deleters: [ModelDeleter/*, Deleters.Object, Deleters.Map*/],
+}

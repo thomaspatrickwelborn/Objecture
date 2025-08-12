@@ -552,8 +552,9 @@ Object.values(Primitives);
 const Objects = {
   'object': Object,
   'array': Array,
-  'eventTarget': EventTarget,
+  'eventtarget': EventTarget,
   'map': Map,
+  // 'set': Set, 
 };
 const ObjectKeys = Object.keys(Objects);
 Object.values(Objects);
@@ -630,7 +631,10 @@ function Setter(...$arguments) {
   if($arguments.length === 2) {
     let [$receiver, $source] = $arguments;
     $receiver.clear();
-    for(const [$sourceKey, $sourceValue] of Object.entries(source)) {
+    const sourceEntries = (typeOf($source) === 'map')
+      ? $source.entries()
+      : Object.entries($source);
+    for(const [$sourceKey, $sourceValue] of sourceEntries) {
       $receiver.set($sourceKey, $sourceValue);
     }
     return $receiver
@@ -653,21 +657,26 @@ function Deleter(...$arguments) {
   } 
 }
 
+// import * as SetTensors from './set/index.js'
 const Getters = {
   Object: Getter$1, 
   Map: Getter, 
+  // Set: SetTensors.Getter, 
 };
 const Setters = {
   Object: Setter$1, 
   Map: Setter, 
+  // Set: SetTensors.Setter, 
 };
 const Deleters = {
   Object: Deleter$1, 
   Map: Deleter, 
+  // Set: SetTensors.Deleter, 
 };
 const TypeValidators = {
   Object: TypeValidator$1, 
   Map: TypeValidator, 
+  // Set: SetTensors.TypeValidator, 
 };
 class Tensors extends EventTarget {
   constructor($tensors, $typeValidators) {

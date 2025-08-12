@@ -4,7 +4,11 @@ import { Model } from '/dependencies/objecture.js'
 console.log("------------------")
 console.log("Assign | Example 1")
 console.log("------------------")
-const options = {}
+const options = {
+  propertyAssignments: {
+    object: 'assign', array: 'assign'
+  }
+}
 const object = {
   propertyA: [{
     propertyB: {
@@ -27,8 +31,9 @@ const objectAssignment = {
     }
   }]
 }
-const model = new Model(object)
+const model = new Model(object, null, options)
 model.assign(objectAssignment)
+// throw model
 const modelObject = model.parse()
 const modelString = model.parse({
   type: 'string', space: 2

@@ -1,5 +1,5 @@
 import Core from 'core-plex';
-import { typedObjectLiteral as typedObjectLiteral$1, assign as assign$3, variables, typeOf as typeOf$1, impand, splitPath, freeze as freeze$1 } from 'recourse';
+import { typedObjectLiteral as typedObjectLiteral$2, assign as assign$3, variables as variables$1, typeOf as typeOf$2, tensors as tensors$1, entities, impand, splitPath, freeze as freeze$1 } from 'recourse';
 
 const Primitives = {
   'string': String, 
@@ -22,14 +22,14 @@ Object.values(Types);
  Objects.Object, Objects.Array
 ];
 
-var typeOf = ($data) => Object
+var typeOf$1 = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
-function typedObjectLiteral($value) {
+function typedObjectLiteral$1($value) {
   let _typedObjectLiteral;
-  const typeOfValue = typeOf($value);
+  const typeOfValue = typeOf$1($value);
   if(typeOfValue === 'string') {
     const value = $value.toLowerCase();
     if(value === 'object') { _typedObjectLiteral = {}; }
@@ -44,7 +44,7 @@ function typedObjectLiteral($value) {
 
 var isArrayLike = ($source) => {
   let isArrayLike;
-  const typeOfSource = typeOf($source);
+  const typeOfSource = typeOf$1($source);
   if(typeOfSource === 'array') { isArrayLike = true; }
   else if(
     typeOfSource === 'object' &&
@@ -71,8 +71,8 @@ function assign$2($target, ...$sources) {
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf($sourcePropertyValue);
+      const typeOfTargetPropertyValue = typeOf$1($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$1($sourcePropertyValue);
       if(
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
@@ -108,13 +108,13 @@ function getOwnPropertyDescriptor($properties, $propertyKey, $options) {
   if(!options.ancestors.includes($properties)) { options.ancestors.unshift($properties); }
   if(options.ancestors.includes(propertyDescriptor.value)) { return }
   if(options.path) {
-    options.path = (typeOf(options.path) === 'string') ? [options.path, $propertyKey].join(options.delimiter) : $propertyKey;
+    options.path = (typeOf$1(options.path) === 'string') ? [options.path, $propertyKey].join(options.delimiter) : $propertyKey;
     propertyDescriptor.path = options.path;
   }
-  if(options.type) { propertyDescriptor.type = typeOf(propertyDescriptor.value); }
+  if(options.type) { propertyDescriptor.type = typeOf$1(propertyDescriptor.value); }
   if(options.frozen) { propertyDescriptor.frozen = Object.isFrozen(propertyDescriptor.value); }
   if(options.sealed) { propertyDescriptor.sealed = Object.isSealed(propertyDescriptor.value); }
-  if(['array', 'object'].includes(typeOf(propertyDescriptor.value))) {
+  if(['array', 'object'].includes(typeOf$1(propertyDescriptor.value))) {
     propertyDescriptor.value = getOwnPropertyDescriptors(propertyDescriptor.value, options);
   }
   return propertyDescriptor
@@ -139,10 +139,10 @@ var Options$2 = {
 function defineProperty$1($target, $propertyKey, $propertyDescriptor, $options) {
   const propertyDescriptor = Object.assign({}, $propertyDescriptor);
   const options = Object.assign({}, Options$2, $options);
-  const typeOfPropertyValue = typeOf(propertyDescriptor.value);
+  const typeOfPropertyValue = typeOf$1(propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
-      typedObjectLiteral(typeOfPropertyValue), propertyDescriptor.value
+      typedObjectLiteral$1(typeOfPropertyValue), propertyDescriptor.value
     )) ? [] : {};
     propertyDescriptor.value = defineProperties$1(propertyValue, propertyDescriptor.value, options);
   }
@@ -178,7 +178,7 @@ var Options$1$2 = ($options) => {
   }, $options);
   if(options.propertyDescriptors?.type) {
     options.replacers.push(function BigintReplacer($key, $value) {
-      if(typeOf($value) === 'bigint') { return String($value) }
+      if(typeOf$1($value) === 'bigint') { return String($value) }
       else { return $value }
     });
   }
@@ -206,7 +206,7 @@ class LocalStorageRoute extends EventTarget {
         const raw = db.getItem(this.path);
         if(['undefined', undefined].includes(raw)) { return }
         const propertyDescriptors = JSON.parse(raw, JSONMiddlewares.bind(null, options.revivers));
-        const dataTypedObjectLiteral = typedObjectLiteral(propertyDescriptors);
+        const dataTypedObjectLiteral = typedObjectLiteral$1(propertyDescriptors);
         const data = (options.propertyDescriptors) ? defineProperties$1(
           dataTypedObjectLiteral, propertyDescriptors, options.defineProperties
         ) : propertyDescriptors;
@@ -273,7 +273,7 @@ function report($format = "expand", $prevalidation) {
     prevalidation.advance, prevalidation.deadvance, prevalidation.unadvance
   );
   if($format === "expand") {
-    const _report = typedObjectLiteral$1(schema.type);
+    const _report = typedObjectLiteral$2(schema.type);
     for(const $validation of validations) {
       const verifications = [].concat(
         $validation.advance, $validation.deadvance, $validation.unadvance
@@ -293,7 +293,7 @@ function report($format = "expand", $prevalidation) {
   }
   if($format === "impand") {
     if(prevalidation.valid === false) { return false }
-    const _report = typedObjectLiteral$1(schema.type);
+    const _report = typedObjectLiteral$2(schema.type);
     for(const $validation of validations) {
       const verifications = [].concat(
         $validation.advance, $validation.deadvance, $validation.unadvance
@@ -388,170 +388,141 @@ class Validator extends EventTarget {
   }
 }
 
-class RequiredValidator extends Validator {
-  constructor($definition, $schema) {
-    super(Object.assign({}, $definition, {
-      type: 'required',
-      validate: ($key, $value, $source, $target) => {
-        const { requiredProperties, requiredPropertiesSize, type } = $schema;
-        const corequiredProperties = Object.assign({}, requiredProperties);
-        let corequiredPropertiesSize = requiredPropertiesSize;
-        Object.assign(typedObjectLiteral$1(type), $source, $target);
-        this.definition;
-        let pass;
-        if(!requiredPropertiesSize) { pass = true; }
-        else {
-          if(Object.hasOwn(corequiredProperties, $key)) {
-            delete corequiredProperties[$key];
-            corequiredPropertiesSize--;
+const { ObjectKeys: ObjectKeys$2, TypeKeys } = variables$1;
+
+function parseValidateArguments(...$arguments) {
+  let $sourceName, $source, $target;
+  if($arguments.length === 1) {
+    $sourceName = null; $source = $arguments.shift(); $target = null;
+  }
+  else if($arguments.length === 2) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null;
+    }
+    else if($arguments[0] && typeof $arguments[0] === 'object') {
+      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift();
+    }
+  }
+  else if($arguments.length === 3) {
+    if(['number', 'string'].includes(typeof $arguments[0])) {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift();
+    }
+  }
+  return { $sourceName, $source, $target }
+}
+function parseValidatePropertyArguments(...$arguments) {
+  let [$key, $value, $source, $target] = $arguments;
+  return { $key, $value, $source, $target }
+}
+function parseProperties($properties, $schema) {
+  const properties = typedObjectLiteral($properties);
+  if(isPropertyDefinition($properties, $schema)) { return $properties }
+  for(const [
+    $propertyKey, $propertyValue
+  ] of Object.entries($properties)) {
+    let propertyDefinition = {};
+    typeOf($propertyValue);
+    const propertyValueIsPropertyDefinition = isPropertyDefinition($propertyValue, $schema);
+    if(variables.TypeValues.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: $propertyValue } });
+    }
+    else if(variables.TypeKeys.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: variables.Types[$propertyValue] } });
+    }
+    else if(!propertyValueIsPropertyDefinition) {
+      const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
+      Object.assign(propertyDefinition, {
+        type: { type: 'type', value: new $schema.constructor($propertyValue, Object.assign({}, $schema.options, {
+          parent: $schema,
+          path: subpropertyPath
+        })) }
+      });
+    }
+    else if(propertyValueIsPropertyDefinition) {
+      for(const [$propertyValidatorName, $propertyValidator] of Object.entries($propertyValue)) {
+        const propertyValidatorIsValidatorDefinition = isValidatorDefinition($propertyValidator, $schema);
+        if(!propertyValidatorIsValidatorDefinition) {
+          let propertyValidator;
+          if($propertyValidatorName === 'type') {
+            if($propertyValidator && typeof $propertyValidator === 'object') {
+              const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
+              propertyValidator = new $schema.constructor($propertyValidator, Object.assign({}, $schema.options, {
+                parent: $schema, 
+                path: subpropertyPath,
+              }));
+            }
+            else {
+              propertyValidator = $propertyValidator;
+            }
           }
-          if(corequiredPropertiesSize) {
-            const coschema = new Schema(corequiredProperties, {
-              path: $schema.path,
-              parent: $schema.parent,
-            });
-            const comodel = Object.assign({}, $target, $source);
-            const covalidation = coschema.validate(comodel);
-            pass = covalidation.valid;
+          else {
+            propertyValidator = $propertyValidator;
           }
+          propertyDefinition[$propertyValidatorName] = {
+            type: $propertyValidatorName, value: propertyValidator
+          };
         }
-        return pass
+        else if(propertyValidatorIsValidatorDefinition) {
+          propertyDefinition[$propertyValidatorName] = $propertyValidator;
+        }
       }
-    }), $schema);
+    }
+    propertyDefinition.validators = [];
+    properties[$propertyKey] = propertyDefinition;
+    const validators = new Map();
+    validators.set('type', Object.assign({}, {
+      type: 'type', validator: TypeValidator, value: propertyDefinition.type.value
+    }));
+    validators.set('required', Object.assign({}, {
+      type: 'required', validator: RequiredValidator, value: propertyDefinition.required?.value || false
+    }));
+    if(propertyDefinition.range) { validators.set('range', Object.assign({}, propertyDefinition.range, {
+      type: 'range', validator: RangeValidator
+    })); }
+    else if(propertyDefinition.min || propertyDefinition.max) { validators.set('range', Object.assign({}, {
+      type: 'range', min: propertyDefinition.min, max: propertyDefinition.max, validator: RangeValidator
+    })); }
+    if(propertyDefinition.length) { validators.set('length', Object.assign({}, propertyDefinition.length, {
+      type: 'length', validator: LengthValidator
+    })); }
+    else if(propertyDefinition.minLength || propertyDefinition.maxLength) { validators.set('length', Object.assign({}, {
+      type: 'length', min: propertyDefinition.minLength, max: maxLength, validator: LengthValidator
+    })); }
+    if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
+      type: 'enum', validator: EnumValidator
+    })); }
+    if(propertyDefinition.match) { validators.set('match', Object.assign({}, propertyDefinition.match, {
+      type: 'match', validator: MatchValidator
+    })); }
+    delete propertyDefinition.min;
+    delete propertyDefinition.max;
+    delete propertyDefinition.minLength;
+    delete propertyDefinition.maxLength;
+    for(const [
+      $validatorName, $validatorSettings
+    ] of validators.entries()) {
+      const ValidatorClass = $validatorSettings.validator;
+      propertyDefinition[$validatorName] = $validatorSettings;
+      propertyDefinition.validators.push(new ValidatorClass($validatorSettings, $schema));
+    }
   }
+  return properties
+}
+function isPropertyDefinition($object, $schema) {
+  if(!$object || $object instanceof Schema) { return false }
+  const typeKey = $schema.options.properties.type;
+  return Object.hasOwn($object, typeKey)
+}
+function isValidatorDefinition($object, $schema) {
+  if(!$object) { return false }
+  const valueKey = $schema.options.properties.value;
+  return Object.hasOwn($object, valueKey)
 }
 
-const { ObjectKeys, TypeKeys } = variables;
-class TypeValidator extends Validator {
-  constructor($definition = {}, $schema) {
-    super(Object.assign({}, $definition, {
-      type: 'type',
-      validate: ($key, $value, $source, $target) => {
-        let pass;
-        const definition = this.definition;
-        let typeOfDefinitionValue = typeOf$1(definition.value);
-        if(typeOfDefinitionValue === 'function') {
-          typeOfDefinitionValue = typeOf$1(definition.value());
-        }
-        else if(definition.value instanceof Schema) {
-          typeOfDefinitionValue = definition.value.type;
-        }
-        else {
-          typeOfDefinitionValue = typeOf$1(definition.value);
-        }
-        if(TypeKeys.includes(typeOfDefinitionValue)) {
-          const typeOfValue = typeOf$1($value);
-          if(typeOfValue === 'undefined') { pass = false; }
-          else if(typeOfDefinitionValue === 'undefined') { pass = true; }
-          else if(definition.value instanceof Schema) {
-            const validation = definition.value.validate($value, $source);
-            pass = validation;
-          }
-          else { pass = (typeOfDefinitionValue === typeOfValue); }
-        }
-        else { pass = false; }
-        return pass
-      },
-    }), $schema);
-  }
-}
-
-class RangeValidator extends Validator {
-  constructor($definition = {}, $schema) {
-    super(Object.assign($definition, {
-      type: 'range',
-      validate: ($key, $value) => {
-        const definition = this.definition;
-        let pass;
-        if(typeof $value !== 'number') { pass = false; }
-        else {
-          const { min, max } = definition;
-          let validMin, validMax;
-          if(min !== undefined) { validMin = ($value >= min.value); }
-          else { validMin = true; }
-          if(max !== undefined) { validMax = ($value <= max.value); }
-          else { validMax = true; }
-          if(validMin && validMax) { pass = true; }
-          else { pass = false;}
-        }
-        return pass
-      }
-    }), $schema);
-  }
-}
-
-class LengthValidator extends Validator {
-  constructor($definition = {}, $schema) {
-    super(Object.assign($definition, {
-      type: 'length',
-      validate: ($key, $value) => {
-        const definition = this.definition;
-        let pass;
-        if(typeof $value !== 'string') { pass = false; }
-        else {
-          const { min, max } = definition;
-          let validMin, validMax;
-          if(min !== undefined) {
-            validMin = ($value.length >= min.value);
-          }
-          else { validMin = true; }
-          if(max !== undefined) {
-            validMax = ($value.length <= max.value);
-          }
-          else { validMax = true; }
-          if(validMin && validMax) { pass = true; }          
-          else { pass = false;}
-        }
-        return pass
-      },
-    }), $schema);
-  }
-}
-
-class EnumValidator extends Validator {
-  constructor($definition = {}, $schema) {
-    super(Object.assign($definition, {
-      type: 'enum',
-      validate: ($key, $value) => {
-        const definition = this.definition;
-        let pass;
-        if(![
-          'string', 'number', 'boolean'
-        ].includes(typeof $value)) { pass = false;}
-        else {
-          const enumeration = definition.value;
-          pass = enumeration.includes($value);
-        }
-        return pass
-      },
-    }), $schema);
-  }
-}
-
-class MatchValidator extends Validator {
-  constructor($settings = {}, $schema) {
-    super(Object.assign($settings, {
-      type: 'match',
-      validate: ($key, $value) => {
-        const definition = this.settings;
-        let pass;
-        if(![
-          'string', 'number', 'boolean'
-        ].includes(typeof $value)) { pass = false;}
-        else {
-          const match = definition;
-          (match.value.exec($value) !== null);
-        }
-        return pass ? true : false
-      },
-    }), $schema);
-  }
-}
-
+const verificationTypes = ['all', 'one'];
 var Options$1 = (...$options) => Object.assign({
   required: false,
-  verificationType: 'all', 
-  // verificationType: 'one',
+  verificationType: verificationTypes[0], 
   strict: false,
   properties: {
     type: 'type',
@@ -559,12 +530,12 @@ var Options$1 = (...$options) => Object.assign({
   },
 }, ...$options);
 
-class Schema extends EventTarget {
+let Schema$1 = class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super();
     Object.defineProperties(this, {
       'options': { value: Options$1($options) },
-      'type': { value: typeOf$1($properties) },
+      'type': { value: typeOf$2($properties) },
       'parent': { configurable: true, get() {
         const { options } = this;
         const parent = (options.parent) ? options.parent : null;
@@ -600,7 +571,7 @@ class Schema extends EventTarget {
         return required
       } },
       'requiredProperties': { configurable: true, get() {
-        const requiredProperties = typedObjectLiteral$1(this.type);
+        const requiredProperties = typedObjectLiteral$2(this.type);
         for(const [$propertyKey, $propertyDefinition] of Object.entries(this.target)) {
           if($propertyDefinition.required?.value === true) {
             requiredProperties[$propertyKey] = $propertyDefinition;
@@ -630,7 +601,7 @@ class Schema extends EventTarget {
       } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments);
-        $target = $target || typedObjectLiteral$1($source);
+        $target = $target || typedObjectLiteral$2($source);
         const { target, path, required, type, verificationType } = this;
         let validation = new Validation({
           required, verificationType,
@@ -696,274 +667,208 @@ class Schema extends EventTarget {
       } },
     });
   }
-}
-function parseValidateArguments(...$arguments) {
-  let $sourceName, $source, $target;
-  if($arguments.length === 1) {
-    $sourceName = null; $source = $arguments.shift(); $target = null;
-  }
-  else if($arguments.length === 2) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null;
-    }
-    else if($arguments[0] && typeof $arguments[0] === 'object') {
-      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift();
-    }
-  }
-  else if($arguments.length === 3) {
-    if(['number', 'string'].includes(typeof $arguments[0])) {
-      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift();
-    }
-  }
-  return { $sourceName, $source, $target }
-}
-function parseValidatePropertyArguments(...$arguments) {
-  let [$key, $value, $source, $target] = $arguments;
-  return { $key, $value, $source, $target }
-}
-function parseProperties($properties, $schema) {
-  const properties = typedObjectLiteral$1($properties);
-  if(_isPropertyDefinition($properties, $schema)) { return $properties }
-  for(const [
-    $propertyKey, $propertyValue
-  ] of Object.entries($properties)) {
-    let propertyDefinition = {};
-    typeOf$1($propertyValue);
-    const isPropertyDefinition = _isPropertyDefinition($propertyValue, $schema);
-    if(variables.TypeValues.includes($propertyValue)) {
-      Object.assign(propertyDefinition, { type: { value: $propertyValue } });
-    }
-    else if(variables.TypeKeys.includes($propertyValue)) {
-      Object.assign(propertyDefinition, { type: { value: variables.Types[$propertyValue] } });
-    }
-    else if(!isPropertyDefinition) {
-      const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
-      Object.assign(propertyDefinition, {
-        type: { type: 'type', value: new Schema($propertyValue, Object.assign({}, $schema.options, {
-          parent: $schema,
-          path: subpropertyPath
-        })) }
-      });
-    }
-    else if(isPropertyDefinition) {
-      for(const [$propertyValidatorName, $propertyValidator] of Object.entries($propertyValue)) {
-        const isValidatorDefinition = _isValidatorDefinition($propertyValidator, $schema);
-        if(!isValidatorDefinition) {
-          let propertyValidator;
-          if($propertyValidatorName === 'type') {
-            if($propertyValidator && typeof $propertyValidator === 'object') {
-              const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
-              propertyValidator = new Schema($propertyValidator, Object.assign({}, $schema.options, {
-                parent: $schema, 
-                path: subpropertyPath,
-              }));
-            }
-            else {
-              propertyValidator = $propertyValidator;
-            }
-          }
-          else {
-            propertyValidator = $propertyValidator;
-          }
-          propertyDefinition[$propertyValidatorName] = {
-            type: $propertyValidatorName, value: propertyValidator
-          };
-        }
-        else if(isValidatorDefinition) {
-          propertyDefinition[$propertyValidatorName] = $propertyValidator;
-        }
-      }
-    }
-    propertyDefinition.validators = [];
-    properties[$propertyKey] = propertyDefinition;
-    const validators = new Map();
-    validators.set('type', Object.assign({}, {
-      type: 'type', validator: TypeValidator, value: propertyDefinition.type.value
-    }));
-    validators.set('required', Object.assign({}, {
-      type: 'required', validator: RequiredValidator, value: propertyDefinition.required?.value || false
-    }));
-    if(propertyDefinition.range) { validators.set('range', Object.assign({}, propertyDefinition.range, {
-      type: 'range', validator: RangeValidator
-    })); }
-    else if(propertyDefinition.min || propertyDefinition.max) { validators.set('range', Object.assign({}, {
-      type: 'range', min: propertyDefinition.min, max: propertyDefinition.max, validator: RangeValidator
-    })); }
-    if(propertyDefinition.length) { validators.set('length', Object.assign({}, propertyDefinition.length, {
-      type: 'length', validator: LengthValidator
-    })); }
-    else if(propertyDefinition.minLength || propertyDefinition.maxLength) { validators.set('length', Object.assign({}, {
-      type: 'length', min: propertyDefinition.minLength, max: maxLength, validator: LengthValidator
-    })); }
-    if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
-      type: 'enum', validator: EnumValidator
-    })); }
-    if(propertyDefinition.match) { validators.set('match', Object.assign({}, propertyDefinition.match, {
-      type: 'match', validator: MatchValidator
-    })); }
-    delete propertyDefinition.min;
-    delete propertyDefinition.max;
-    delete propertyDefinition.minLength;
-    delete propertyDefinition.maxLength;
-    for(const [
-      $validatorName, $validatorSettings
-    ] of validators.entries()) {
-      const ValidatorClass = $validatorSettings.validator;
-      propertyDefinition[$validatorName] = $validatorSettings;
-      propertyDefinition.validators.push(new ValidatorClass($validatorSettings, $schema));
-    }
-  }
-  return properties
-}
-function _isPropertyDefinition($object, $schema) {
-  if(!$object || $object instanceof Schema) { return false }
-  const typeKey = $schema.options.properties.type;
-  return Object.hasOwn($object, typeKey)
-}
-function _isValidatorDefinition($object, $schema) {
-  if(!$object) { return false }
-  const valueKey = $schema.options.properties.value;
-  return Object.hasOwn($object, valueKey)
-}
+};
 
+const {
+  TypeValidators: TypeValidators$1, Tensors: Tensors$1, Getters: Getters$1, Setters: Setters$1, Deleters
+} = tensors$1;
+// Model Type Validator
+const ModelTypeValidator = ($target) => ($target instanceof Model);
+// Model Getter
+function ModelGetter(...$arguments) {
+  if($arguments.length === 1) {
+    let [$receiver] = $arguments;
+    return $receiver
+  }
+  else {
+    let [$receiver, $property] = $arguments;
+    return $receiver.get($property)
+  }
+}
+// Model Setter
+function ModelSetter(...$arguments) {
+  if($arguments.length === 2) {
+    let [$receiver, $source] = $arguments;
+    $receiver.clear();
+    for(const [$sourceKey, $sourceValue] of Object.entries(source)) {
+      $receiver.set($sourceKey, $sourceValue);
+    }
+    return $receiver
+  }
+  else {
+    let [$receiver, $property, $value] = $arguments;
+    $receiver.set($property, $value);
+    return $receiver.get($property)
+  }
+}
+// Model Deleter
+function ModelDeleter(...$arguments) {
+  if($arguments.length === 2) {
+    let [$receiver, $property] = $arguments;
+    return $receiver.delete($property)
+  }
+  else {
+    let [$receiver] = $arguments;
+    return $receiver.clear()
+  } 
+}
+var tensors = {
+  typeValidators: [ModelTypeValidator/*, TypeValidators.Object, TypeValidators.Map*/],
+  getters: [ModelGetter/*, Getters.Object, Getters.Map*/],
+  setters: [ModelSetter/*, Setters.Object, Setters.Map*/],
+  deleters: [ModelDeleter/*, Deleters.Object, Deleters.Map*/],
+};
+
+const Methods = {
+  map: {
+    get: {
+      mutatorEvents: {
+        'get': true,
+        'getProperty': true,
+        'getProperty:$key': true,
+      },
+    },
+    set: {
+      recursive: true,
+      mutatorEvents: {
+        'set': true,
+        'setProperty': true,
+        'setProperty:$key': true,
+      },
+    },
+    delete: {
+      mutatorEvents: {
+        'delete': true,
+        'deleteProperty': true,
+        'deleteProperty:$key': true,
+      },
+    },
+  },
+  array: {
+    concat: {
+      mutatorEvents: {
+        'concatElement:$index': true,
+        'concatElement': true,
+        'concat': true,
+      }
+    },
+    copyWithin: {
+      mutatorEvents: {
+        'copyWithinElement:$index': true,
+        'copyWithinElement': true,
+        'copyWithin': true,
+      }
+    },
+    fill: {
+      lengthen: true,
+      mutatorEvents: {
+        'fillElement:$index': true,
+        'fillElement': true,
+        'fill': true,
+      }
+    },
+    pop: {
+      mutatorEvents: { 'pop': true  },
+    },
+    push: {
+      mutatorEvents: {
+        'pushElement:$index': true,
+        'pushElement': true,
+        'push': true,
+      }
+    },
+    reverse: {
+      mutatorEvents: { 'reverse': true  },
+    },
+    shift: {
+      mutatorEvents: { 'shift': true  },
+    },
+    splice: {
+      mutatorEvents: {
+        'spliceDeleteElement:$index': true,
+        'spliceDeleteElement': true,
+        'spliceAddElement:$index': true,
+        'spliceAddElement': true,
+        'splice': true,
+      }
+    },
+    unshift: {
+      mutatorEvents: {
+        'unshiftElement:$index': true,
+        'unshiftElement': true,
+        'unshift': true,
+      }
+    },
+  },
+  object: {
+    assign: {
+      mutatorEvents: {
+        'assignSourceProperty:$key': true,
+        'assignSourceProperty': true,
+        'assignSource': true,
+        'assign': true,
+      },
+      sourceTree: true,
+      targetTypedObjectLiteral: false,
+    },
+    defineProperties: {
+      descriptorTree: true,
+      mutatorEvents: { 'defineProperties': true },
+    },
+    defineProperty: {
+      descriptorTree: true,
+      mutatorEvents: {
+        'defineProperty': true,
+        'defineProperty:$key': true,
+      },
+    },
+    freeze: {
+      recursive: true,
+      mutatorEvents: {
+        'freezeProperty': true,
+        'freeze': true,
+      },
+    },
+    seal: {
+      recursive: true,
+      mutatorEvents: {
+        'sealProperty': true,
+        'seal': true,
+      },
+    },
+  },
+};
+const PropertyAssignments = {
+  object: 'set', 
+  array: 'set', 
+  map: 'set', 
+  set: 'add', 
+};
+const ValidationEvents = {
+  'validProperty:$key': true,
+  'validProperty': true,
+  'nonvalidProperty:$key': true,
+  'nonvalidProperty': true,
+};
 var Options = ($options) => {
   const Options = assign$3({
     autoload: false, 
     autosave: false, 
     localStorage: false, 
     path: null, 
+    pathMatch: false, 
     parent: null, 
     enableEvents: false,
     enableValidation: true, 
-    validationEvents: {
-      'validProperty:$key': true,
-      'validProperty': true,
-      'nonvalidProperty:$key': true,
-      'nonvalidProperty': true,
-    },
+    validationEvents: ValidationEvents,
+    methods: Methods,
+    nonenumerable: false, 
+    // pathMatch: true,
     pathkey: true,
-    subpathError: false,
-    assignObject: 'set', 
-    assignArray: 'set', 
     pathParseInteger: false,
-    methods: {
-      map: {
-        get: {
-          mutatorEvents: {
-            'get': true,
-            'getProperty': true,
-            'getProperty:$key': true,
-          },
-        },
-        set: {
-          recursive: true,
-          mutatorEvents: {
-            'set': true,
-            'setProperty': true,
-            'setProperty:$key': true,
-          },
-        },
-        delete: {
-          mutatorEvents: {
-            'delete': true,
-            'deleteProperty': true,
-            'deleteProperty:$key': true,
-          },
-        },
-      },
-      array: {
-        concat: {
-          mutatorEvents: {
-            'concatElement:$index': true,
-            'concatElement': true,
-            'concat': true,
-          }
-        },
-        copyWithin: {
-          mutatorEvents: {
-            'copyWithinElement:$index': true,
-            'copyWithinElement': true,
-            'copyWithin': true,
-          }
-        },
-        fill: {
-          lengthen: true,
-          mutatorEvents: {
-            'fillElement:$index': true,
-            'fillElement': true,
-            'fill': true,
-          }
-        },
-        pop: {
-          mutatorEvents: { 'pop': true  },
-        },
-        push: {
-          mutatorEvents: {
-            'pushElement:$index': true,
-            'pushElement': true,
-            'push': true,
-          }
-        },
-        reverse: {
-          mutatorEvents: { 'reverse': true  },
-        },
-        shift: {
-          mutatorEvents: { 'shift': true  },
-        },
-        splice: {
-          mutatorEvents: {
-            'spliceDeleteElement:$index': true,
-            'spliceDeleteElement': true,
-            'spliceAddElement:$index': true,
-            'spliceAddElement': true,
-            'splice': true,
-          }
-        },
-        unshift: {
-          mutatorEvents: {
-            'unshiftElement:$index': true,
-            'unshiftElement': true,
-            'unshift': true,
-          }
-        },
-      },
-      object: {
-        assign: {
-          sourceTree: true,
-          mutatorEvents: {
-            'assignSourceProperty:$key': true,
-            'assignSourceProperty': true,
-            'assignSource': true,
-            'assign': true,
-          },
-        },
-        defineProperties: {
-          descriptorTree: true,
-          mutatorEvents: { 'defineProperties': true },
-        },
-        defineProperty: {
-          descriptorTree: true,
-          mutatorEvents: {
-            'defineProperty': true,
-            'defineProperty:$key': true,
-          },
-        },
-        freeze: {
-          recursive: true,
-          mutatorEvents: {
-            'freezeProperty': true,
-            'freeze': true,
-          },
-        },
-        seal: {
-          recursive: true,
-          mutatorEvents: {
-            'sealProperty': true,
-            'seal': true,
-          },
-        },
-      },
-    },
+    propertyAssignments: PropertyAssignments,
+    subpathError: false,
+    tensors,
   }, $options);
   return Options
 };
@@ -1032,155 +937,56 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   }
 };
 
+// import Options from '../options/index.js'
+const { ObjectKeys: ObjectKeys$1 } = variables$1;
+const { TypeValidators, Tensors, Getters, Setters } = tensors$1;
+
 function assign$1($model, $options, ...$sources) {
+  if(!$model) { return $model}
+  const { path, schema, source, receiver, target, type } = $model;
   const options = Object.assign({}, $options);
-  const assignObject = 'assign';
-  const assignArray = options.assignArray || 'assign';
-  const { path, schema, source, receiver, target } = $model;
-  const { enableValidation, mutatorEvents, required, sourceTree, validationEvents } = options;
-  const assignedSources = [];
-  // const assignChange = new Change({ preter: $model })
-  for(let $source of $sources) {
-    let assignedSource;
-    // const assignSourceChange = new Change({ preter: $model })
-    if(Array.isArray($source)) { assignedSource = []; }
-    else if($source && typeof $source === 'object') { assignedSource = {}; }
-    let validObject;
-    if(enableValidation && schema) {
-      validObject = schema.validate($source, $model.valueOf());
-      validObject.report();
-    }
-    iterateSourceProperties:
-    for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
-      // const assignSourcePropertyChange = new Change({ preter: receiver[$sourceKey] })
-      // const assignSourcePropertyKeyChange = new Change({ preter: receiver[$sourceKey] })
-      if(schema && enableValidation) {
-        const validatorTarget = $model.valueOf();
-        const validatorSource = $source;
-        const validSourceProperty = schema.validateProperty($sourceKey, $sourceValue, validatorSource, validatorTarget);
-        if(validationEvents) {
-          let type, propertyType;
-          if(validSourceProperty.valid) {
-            type = 'validProperty';
-            propertyType = ['validProperty', $sourceKey].join(':');
-          }
-          else {
-            type = 'nonvalidProperty';
-            propertyType = ['nonvalidProperty', $sourceKey].join(':');
-          }
-          for(const $eventType of [type, propertyType]) {
-            $model.dispatchEvent(new ValidatorEvent$1($eventType, validSourceProperty, $model));
-          }
-        }
-        if(!validSourceProperty.valid) { continue iterateSourceProperties }
-      }
-      let sourceValue;
-      if($sourceValue && typeof $sourceValue === 'object') {
-        if($sourceValue instanceof $model.constructor) {
-          sourceValue = $sourceValue.valueOf();
-        }
-        let subschema;
-        if(schema?.type === 'array') { subschema = schema.receiver[0].type.value; }
-        else if(schema?.type === 'object') { subschema = schema.receiver[$sourceKey].type.value; }
-        else { subschema = null; }
-        const modelPath = (path)
-          ? [path, $sourceKey].join('.')
-          : String($sourceKey);
-        if(sourceTree === false) {
-          const suboptions = assign$3({}, options, {
-            path: modelPath,
-            parent: $model,
-          });
-          sourceValue = new $model.constructor($sourceValue, subschema, suboptions);
-          const assignment = { [$sourceKey]: sourceValue };
-          Object.assign(target, { [$sourceKey]: $sourceValue});
-          Object.assign(assignedSource, assignment);
-        }
-        else {
-          if(receiver[$sourceKey] instanceof $model.constructor) {
-            sourceValue = receiver[$sourceKey];
-          }
-          else {
-            const subproperties = typedObjectLiteral$1($sourceValue);
-            const suboptions = assign$3({}, options, {
-              path: modelPath,
-              parent: $model,
-            });
-            sourceValue = new $model.constructor(subproperties, subschema, suboptions);
-          }
-          const assignment = { [$sourceKey]: sourceValue };
-          Object.assign(target, { [$sourceKey]: $sourceValue});
-          Object.assign(assignedSource, assignment);
-          $model.retroReenableEvents();
-          if(sourceValue.type === 'array') {
-            if(['push', 'unshift'].includes(assignArray)) { sourceValue[assignArray](...$sourceValue); }
-            else { sourceValue[assignArray]($sourceValue); }
-          }
-          else if(sourceValue.type === 'object') { sourceValue[assignObject]($sourceValue); }
-        }
-      }
-      else {
-        sourceValue = $sourceValue;
-        const assignment = { [$sourceKey]: sourceValue };
-        Object.assign(target, { [$sourceKey]: $sourceValue});
-        Object.assign(assignedSource, assignment);
-      }
-      if(mutatorEvents) {
-        const modelEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey);
-        if(mutatorEvents['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', $sourceKey].join(':');
-          // assignSourcePropertyKeyChange.anter = receiver[$sourceKey]
-          $model.dispatchEvent(
-            new ModelEvent(type, {
-              path: modelEventPath,
-              value: sourceValue,
-              // change: assignSourcePropertyKeyChange,
-              detail: {
-                source: assignedSource,
-              }
-            }, $model)
-          );
-        }
-        if(mutatorEvents['assignSourceProperty']) {
-          // assignSourcePropertyChange.anter = receiver[$sourceKey]
-          $model.dispatchEvent(
-            new ModelEvent('assignSourceProperty', {
-              path: modelEventPath,
-              value: sourceValue,
-              // change: assignSourcePropertyChange,
-              detail: {
-                source: assignedSource,
-              }
-            }, $model)
-          );
-        }
-      }
-    }
-    assignedSources.push(assignedSource);
-    if(mutatorEvents && mutatorEvents['assignSource']) {
-      // assignSourceChange.anter = $model
-      $model.dispatchEvent(
-        new ModelEvent('assignSource', {
-          path,
-          // change: assignSourceChange,
-          detail: {
-            source: assignedSource,
-          },
-        }, $model)
-      );
-    }
+  const {
+    enableValidation, mutatorEvents, nonenumerable, propertyAssignments, 
+    required, sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
+  } = options;
+  const getters = new Tensors(tensors.getters, tensors.typeValidators);
+  const setters = new Tensors(tensors.setters, tensors.typeValidators);
+  typeOf$2($model);
+  let validObject;
+  if(schema && enableValidation) {
+    validObject = schema.validate($source, $model.valueOf());
+    validObject.report();
   }
-  if(mutatorEvents && mutatorEvents['assign']) {
-    // assignChange.anter = $model
-    $model.dispatchEvent(
-      new ModelEvent('assign', { 
-        path,
-        // change: assignChange,
-        detail: {
-          sources: assignedSources,
-        },
-      }, $model)
-    );
+  iterateSources: 
+  for(const $source of $sources) {
+    typedObjectLiteral$2($source);
+    if(!variables$1.ObjectKeys.includes(typeOf$2($source))) continue iterateSources
+    const sourceEntries = entities($source, 'entries', { recurse: false });
+    iterateSourceEntries: 
+    for(const [
+      $sourcePropertyKey, $sourcePropertyValue
+    ] of sourceEntries) {
+      try {
+        const targetPropertyValue = getters.cess($model, $sourcePropertyKey);
+        const typeOfModelPropertyValue = typeOf$2(targetPropertyValue);
+        const typeOfSourcePropertyValue = typeOf$2($sourcePropertyValue);
+        if(ObjectKeys$1.includes(typeOfSourcePropertyValue)) {
+          const subschema = (schema) ? schema.target[$sourcePropertyKey] : null;
+          let subtarget = (targetTypedObjectLiteral)
+            ? typedObjectLiteral$2(targetPropertyValue)
+            : targetPropertyValue;
+          subtarget = new $model.constructor(subtarget, subschema, options);
+          if(sourceTree) {
+            subtarget[propertyAssignments[type]]($sourcePropertyValue);
+            continue iterateSourceEntries
+          }
+        }
+        throw new Error(null)
+      }
+      catch($err) {
+        setters.cess($model, $sourcePropertyKey, $sourcePropertyValue);
+      }
+    }
   }
   return $model
 }
@@ -1316,7 +1122,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
         else if(schema.type === 'object') { subschema = schema.receiver[$propertyKey].type.value; }
         else { subschema = undefined; }
       }
-      let subreceiver = typedObjectLiteral$1(propertyValue);
+      let subreceiver = typedObjectLiteral$2(propertyValue);
       const suboptions = assign$3({}, options, {
         path: modelPath,
         parent: $model,
@@ -1446,12 +1252,31 @@ function seal($model, $options) {
   return $model
 }
 
-var ObjectProperty = {
+const { ObjectKeys } = variables$1;
+function valueOf($model, $options = {}) {
+  return $model.target
+  // const modelEntries = $model.entries()
+  // iterateModelEntries: 
+  // for(const [$modelKey, $modelValue] of $model.entries()) {
+  //   if($modelValue instanceof $model.constructor) {
+
+  //   }
+  // }
+  // const options = Object.assign({}, $options)
+  // if(options.returnValue === 'receiver') { return $source }
+  // else {
+  //   const target = typedObjectLiteral(typeOf($source))
+  //   return defineProperties(target, getOwnPropertyDescriptors($source, $options))
+  // }
+}
+
+var ObjectMethods = {
   assign: assign$1,
   defineProperties,
   defineProperty,
   freeze,
   seal,
+  valueOf,
 };
 
 function concat($model, $options) {
@@ -1466,7 +1291,7 @@ function concat($model, $options) {
   for(let $value of $arguments) {
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$1(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
       const validValue = schema.validateProperty(valueIndex, $subvalue, validatorSource, validatorTarget);
       if(schema &&validationEvents) {
         let type, propertyType;
@@ -1490,7 +1315,7 @@ function concat($model, $options) {
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       let subschema = schema?.receiver[0].type.value || null;
-      const submodel = typedObjectLiteral$1($value);
+      const submodel = typedObjectLiteral$2($value);
       let value = new $model.constructor(submodel, subschema, {
         path: modelPath,
         parent: $model,
@@ -1697,7 +1522,7 @@ function fill($model, $options, ...$arguments) {
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       const subschema = schema?.receiver[0].type.value || null;
-      const subproperties = typedObjectLiteral$1($value);
+      const subproperties = typedObjectLiteral$2($value);
       const suboptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -1801,7 +1626,7 @@ function push($model, $options, ...$elements) {
     let element;
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$1(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
       const validElement = schema.validateProperty(elementsIndex, $element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -1825,7 +1650,7 @@ function push($model, $options, ...$elements) {
     if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.receiver[0].type.value || null;
-      const subproperties = typedObjectLiteral$1(typeOf$1($element));
+      const subproperties = typedObjectLiteral$2(typeOf$2($element));
       const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -2004,7 +1829,7 @@ function splice($model, $options) {
     let addItem = $addItems[addItemsIndex];
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$1(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
       const validAddItem = schema.validateProperty(elementIndex, element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -2029,7 +1854,7 @@ function splice($model, $options) {
     if(addItem && typeof addItem === 'object') {
       if(addItem instanceof $model.constructor) { addItem = addItem.valueOf(); }
       const subschema = schema?.receiver[0].type.value || null;
-      const subproperties = typedObjectLiteral$1(addItem);
+      const subproperties = typedObjectLiteral$2(addItem);
       const suboptions = assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -2109,7 +1934,7 @@ function unshift($model, $options, ...$elements) {
     let element;
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$1(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
       const validElement = schema.validateProperty(elementsIndex, $element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -2133,7 +1958,7 @@ function unshift($model, $options, ...$elements) {
     if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.receiver[0].type.value || null;
-      const subproperties = typedObjectLiteral$1(typeOf$1($element));
+      const subproperties = typedObjectLiteral$2(typeOf$2($element));
       const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -2194,7 +2019,7 @@ function unshift($model, $options, ...$elements) {
   return receiver.length
 }
 
-var ArrayProperty = {
+var ArrayMethods = {
   concat: concat,
   copyWithin: copyWithin,
   fill: fill,
@@ -2318,7 +2143,7 @@ function setContentProperty($model, $options, $path, $value) {
     const subpaths = splitPath($path, pathParseInteger);
     const propertyKey = subpaths.shift();
     let propertyValue;
-    const typeOfPropertyValue = typeOf$1($value);
+    const typeOfPropertyValue = typeOf$2($value);
     const modelPath = (path)
       ? [path, propertyKey].join('.')
       : String(propertyKey);
@@ -2354,7 +2179,7 @@ function setContentProperty($model, $options, $path, $value) {
     }
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$1(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
       const validTargetProp = schema.validateProperty(propertyKey, $value, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -2374,7 +2199,7 @@ function setContentProperty($model, $options, $path, $value) {
     }
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
-      const typeOfPropertyValue= typeOf$1($value);
+      const typeOfPropertyValue= typeOf$2($value);
       let subschema;
       let submodel;
       if(schema?.type === 'array') { subschema = schema.receiver[0].type.value; }
@@ -2440,7 +2265,7 @@ function setContentProperty($model, $options, $path, $value) {
     let propertyKey = $path;
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
-      const typeOfPropertyValue = typeOf$1($value);
+      const typeOfPropertyValue = typeOf$2($value);
       let subschema;
       let submodel;
       if(schema?.type === 'array') {
@@ -2690,143 +2515,183 @@ function deleteProperty($model, $options, ...$arguments) {
   return deleteProperty
 }
 
-var MapProperty = {
+// import clearProperties from './clear-properties/index.js'
+var MapMethods = {
+  // clear: clearProperties,
   get: getProperty,
   set: setProperty,
   delete: deleteProperty,
 };
 
 const MethodDefinitionGroups = freeze$1({
-  object: [{
-    methodNames: ['valueOf'],
-    methodDescriptor: function($methodName, $model) {
-      return { value: function valueOf() { return $model.parse({ type: 'object' }) } }
+  // -----
+  // Array
+  // -----
+  array: [
+    {
+      type: 'mutators', 
+      methodNames: Object.keys(ArrayMethods), 
+      /* methodNames: ['concat', 'copyWithin', 'fill', 'pop', 'push',
+      'reverse', 'shift', 'sort', 'splice', 'unshift',] */
+      methodDescriptor: function($methodName, $model, $options) {
+        return { value: ArrayMethods[$methodName].bind(null, $model, $options) }
+      },
     },
-  }, {
-    methodNames: ['toString'],
-    methodDescriptor: function($methodName, $model) {
-      return { value: function toString($parseSettings = {}) {
-        const replacer = ($parseSettings.replacer !== undefined)
-          ? $parseSettings.replacer : null;
-        const space = ($parseSettings.space !== undefined)
-          ? $parseSettings.space : 0;
-        return $model.parse({ type: 'string', replacer, space })
-      } }
+    {
+      type: 'accessors', 
+      methodNames: [
+        'at', 'includes', 'indexOf', 'join', 'lastIndexOf', 
+        'slice', 'toReversed', 'toSorted', 'toSpliced', 'with', 
+      ],
+      methodDescriptor: function($methodName, $model) {
+        return { value: Array.prototype[$methodName].bind(null, $model) }
+      },
+    },
+    {
+      type: 'iterators', 
+      methodNames: [
+        'every', 'filter', 'find', 'findIndex', 'findLast',
+        'findLastIndex', 'flat', 'flatMap', 'forEach', 'map', 
+        'reduce', 'reduceRight', 'some', 'sort',   
+      ], 
+      methodDescriptor: function($methodName, $model) {
+        return { value: Array.prototype[$methodName].bind(null, $model) }
+      },
+    },
+    {
+      type: 'static', 
+      methodNames: ['from', 'fromAsync', 'isArray', 'of'], 
+      methodDescriptor: function($methodName, $model) {
+        return { value: Array[$methodName] }
+      }, 
+    },
+    {
+      type: 'properties', 
+      methodNames: ['length'], 
+      methodDescriptor: function($propertyName, $model, $options) {
+        return {
+          get() { return $model.receiver.length },
+          set($propertyValue) { $model.receiver.length = $propertyValue; },
+        }
+      },
+    },
+  ],
+  // ------
+  // Object
+  // ------
+  object: [
+    {
+      type: 'mutators',
+      /* methodNames: [
+        'assign', 'defineProperties', 'defineProperty', 'freeze', 'seal',
+        'toString', 'valueOf',
+      ], */
+      methodNames: Object.keys(ObjectMethods), 
+      methodDescriptor: function($methodName, $model, $options) {
+        return { value: ObjectMethods[$methodName].bind(null, $model, $options) }
+      },
+    },
+    {
+      type: 'mutators',
+      methodNames: ['preventExtensions', 'setPrototypeOf'],
+      methodDescriptor: function($methodName, $model) {
+        return { value: Object[$methodName].bind(null, $model.valueOf()) }
+      },
+    },
+    {
+      type: 'creators',
+      methodNames: ['create', 'fromEntries', 'groupBy'],
+      methodDescriptor: function($methodName, $model, $options) {
+        return { value: Object[$methodName].bind(null, $model, $options) }
+      },
+    },
+    // {
+    //   type: 'accessors', 
+    //   methodNames: ['toString', 'valueOf'],
+    //   methodDescriptor: function($methodName, $model, $options) {
+    //     return { value: ObjectMethods[$methodName].bind(null, $model, $options) }
+    //   },
+    // },
+    {
+      type: 'accessors',
+      methodNames: [
+        'entries', 'getOwnPropertyDescriptors', 'getOwnPropertyDescriptor', 
+        'getOwnPropertyNames', 'getPrototypeOf', 
+        'hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed', 
+        'keys', 'toLocaleString', 'values',
+      ],
+      methodDescriptor: function($methodName, $model) {
+        return { value: Object[$methodName].bind(null, $model.valueOf()) }
+      },
+    },
+    // {
+    //   type: 'inspectors',
+    //   methodNames: [
+    //     'hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed', 
+    //     'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 
+    //   ],
+    //   methodDescriptor: function($methodName, $model) {
+    //     return { value: Object[$methodName].bind(null, $model) }
+    //   },
+    // },
+  ],
+  // ---
+  // Map
+  // ---
+  map: [
+    {
+      type: 'mutators',
+      /* methodNames: ['delete', 'get', 'set', 'clear'], */
+      methodNames: Object.keys(MapMethods),
+      methodDescriptor: function($methodName, $model, $options) {
+        return { value: MapMethods[$methodName].bind(null, $model, $options) }
+      },
     }, 
-  }, {
-    methodNames: [
-      'entries', 'fromEntries', 'getOwnPropertyDescriptors', 
-      'getOwnPropertyDescriptor', 'getOwnPropertyNames', 
-      /* 'getOwnPropertySymbols', */ 'groupBy', 'hasOwn', 'is', 
-      'getPrototypeOf', 'isExtensible', 'isFrozen', 'isSealed', 
-      'keys', 'preventExtensions', 'values',
-    ],
-    methodDescriptor: function($methodName, $model) {
-      return { value: Object[$methodName].bind(null, $model.valueOf()) }
-    },
-  }, {
-    // type: 'accessors',
-    type: 'introspectors',
-    methodNames: ['propertyIsEnumerable', 'hasOwnProperty'], 
-    methodDescriptor: function($methodName, $model) {
-      return { value: () => $model.parse({ type: 'object' })[$methodName] }
-    },
-  }, {
-    type: 'mutators',
-    methodNames: Object.keys(ObjectProperty), 
-    methodDescriptor: function($methodName, $model, $options) {
-      return { value: ObjectProperty[$methodName].bind(null, $model, $options) }
-    }
-  }],
-  array: [{
-    methodNames: ['length'], 
-    methodDescriptor: function($propertyName, $model, $options) {
-      return {
-        get() { return $model.receiver.length },
-        set($propertyValue) { $model.receiver.length = $propertyValue; },
-      }
-    }
-  }, {
-    methodNames: ['from', 'fromAsync', 'isArray', 'of'], 
-    methodDescriptor: function($methodName, $model) {
-      return { value: Array[$methodName] }
-    }, 
-  }, {
-    methodNames: [
-      'at', 'every', 'filter', 'find', 'findIndex', 'findLast',
-      'findLastIndex', 'flat', 'flatMap', 'forEach', 'includes', 
-      'indexOf', 'join', 'lastIndexOf', 'map', 'reduce', 'reduceRight', 
-      'slice', 'some', 'sort', 'toReversed',  'toSorted', 'toSpliced', 
-      'with', 
-    ], 
-    methodDescriptor: function($methodName, $model) {
-      return { value: Array.prototype[$methodName].bind(null, $model) }
-    }
-  }, {
-    type: 'mutators',
-    methodNames: Object.keys(ArrayProperty), 
-    methodDescriptor: function($methodName, $model, $options) {
-      return { value: ArrayProperty[$methodName].bind(null, $model, $options) }
-    }
-  }],
-  // 
-  map: [{
-    type: 'mutators',
-    methodNames: Object.keys(MapProperty),
-    methodDescriptor: function($methodName, $model, $options) {
-      return { value: MapProperty[$methodName].bind(null, $model, $options) }
-    }
-  }/*, {
-    type: 'stat',
-    methodNames: ['has'],
-    methodDescriptor: function($methodName, $model, $options) {
-      return { value: MapProperty[$methodName].bind(null, $model, $options) }
-    }
-  }*/]
+    // {
+    //   type: 'iterators',
+    //   methodNames: ['entries', 'forEach', 'keys', 'values'],
+    //   methodDescriptor: function($methodName, $model, $options) {
+    //     return { value: $model[$methodName] }
+    //   },
+    // },
+  ]
 });
-function Methods($model) {
+function DefineMethods($model) {
   // Object, Array, Map
   for(const [$methodDefinitionGroup, $methodDefinitions] of Object.entries(MethodDefinitionGroups)) {
     for(const $methodDefinition of $methodDefinitions) {
       const { methodNames, methodDescriptor, type } = $methodDefinition;
       for(const $methodName of methodNames) {
-        if($methodDefinitionGroup === 'map' || type === 'mutators') {
-          const modelMethodOptions = structuredClone(
-            $model.options.methods[$methodDefinitionGroup][$methodName]
-          );
-          const methodOptions = Object.assign({}, $model.options, modelMethodOptions);
-          delete methodOptions.mutatorEvents;
-          methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents;
-          Object.defineProperty(
-            $model, $methodName, methodDescriptor($methodName, $model, methodOptions)
-          );
-        }
-        else {
-          Object.defineProperty(
-            $model, $methodName, methodDescriptor($methodName,  $model)
-          );
-        }
+        const modelMethodOptions = assign$3(
+          {}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]
+        );
+        const methodOptions = assign$3({}, $model.options, modelMethodOptions);
+        delete methodOptions.methods;
+        methodOptions.mutatorEvents = modelMethodOptions.mutatorEvents;
+        Object.defineProperty(
+          $model, $methodName, methodDescriptor($methodName, $model, methodOptions)
+        );
       }
     }
   }
   return $model
 }
 
-const ValidArrayAssigmentMethods = Object.freeze(
-  ['push', 'unshift']
-);
-const ValidObjectAssigmentMethods = Object.freeze(
-  ['assign', 'defineProperties', 'set']
-);
+// const ValidArrayAssigmentMethods = Object.freeze(
+//   ['push', 'unshift']
+// )
+// const ValidObjectAssigmentMethods = Object.freeze(
+//   ['assign', 'defineProperties', 'set']
+// )
 
 function Assign($model, $properties, $options) {
   const { type } = $model;
-  const { assignObject, assignArray /*, autoload */ } = $options;
-  if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
-    $model[assignArray](...$properties);
+  const { propertyAssignments } = $options;
+  if(type === 'array'/* && ValidArrayAssigmentMethods.includes(assignArray)*/) {
+    $model[propertyAssignments[type]](...$properties);
   }
-  else if(type === 'object' && ValidObjectAssigmentMethods.includes(assignObject)) {
-    $model[assignObject]($properties);
+  else {
+    $model[propertyAssignments[type]]($properties);
   }
   return $model
 }
@@ -2834,7 +2699,6 @@ function Assign($model, $properties, $options) {
 class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
     super();
-    console.log(typedObjectLiteral$1($properties));
     if($properties instanceof Model) { $properties = $properties.valueOf(); }
     let parent = null;
     let path = null;
@@ -2857,6 +2721,7 @@ class Model extends Core {
     }
     catch($err) { console.error($err); }
     Object.defineProperties(this, {
+      'key': { get() { return (path) ? path.pop() : path } },
       'options': { configurable: true, get() {
         const options = Options($options);
         if(options.events) {
@@ -2873,25 +2738,23 @@ class Model extends Core {
       } },
       'parent': { get() { return parent } },
       'path': { get() { return path } },
-      'key': { get() { return (path) ? path.pop() : path } },
-      'target': { value: $properties },
-      'receiver': { value: typedObjectLiteral$1($properties) },
-      'type': { configurable: true, get() {
-        const type = typeOf$1(this.receiver);
-        Object.defineProperty(this, 'type', { value: type });
-        return type
-      } },
+      'receiver': { value: typedObjectLiteral$2($properties) },
       'schema': { configurable: true, get() {
-        const typeOfSchema = typeOf$1($schema);
+        const typeOfSchema = typeOf$2($schema);
         let schema;
         if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
-        else if($schema instanceof Schema) { schema = $schema; }
-        else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema); }
+        else if($schema instanceof Schema$1) { schema = $schema; }
+        else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema$1($schema); }
         Object.defineProperty(this, 'schema', { value: schema });
         return schema
       } },
+      'target': { value: $properties },
+      'type': { configurable: true, get() {
+        const type = typeOf$2(this.receiver);
+        Object.defineProperty(this, 'type', { value: type });
+        return type
+      } },
     });
-    console.log(this.receiver);
     this.mount({
       parent: this.options.parent,
       path: this.options.path
@@ -2918,7 +2781,7 @@ class Model extends Core {
         } },
       });
     }
-    Methods(this);
+    DefineMethods(this);
     if(this.options.autoload) {
       Assign(this, this.load() || $properties, this.options);
     }
@@ -2935,7 +2798,7 @@ class Model extends Core {
     return this
   }
   parse($settings = { type: 'object', replacer: null, space: 0 }) {
-    let parsement = typedObjectLiteral$1(this.type);
+    let parsement = typedObjectLiteral$2(this.type);
     for(const [
       $propertyDescriptorName, $propertyDescriptor
     ] of Object.entries(
@@ -2960,5 +2823,5 @@ class Model extends Core {
   }
 }
 
-export { Model, Schema, Validation, Validator, Verification };
+export { Model, Schema$1 as Schema, Validation, Validator, Verification };
 //# sourceMappingURL=objecture.sans.interdependencies.js.map
