@@ -3,6 +3,7 @@ import defineProperties from './define-properties/index.js'
 import defineProperty from './define-property/index.js'
 import freeze from './freeze/index.js'
 import seal from './seal/index.js'
+import toString from './to-string/index.js'
 import valueOf from './value-of/index.js'
 export default {
   assign,
@@ -10,5 +11,6 @@ export default {
   defineProperty,
   freeze,
   seal,
+  toString,
   valueOf,
 }

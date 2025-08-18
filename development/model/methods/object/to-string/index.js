@@ -1,10 +1,7 @@
-import valueOf from '../value-of/index.js'
-import { Getters } from '../tensors/index.js'
-import { ObjectKeys } from '../variables/index.js'
 const Options = { space: 0, replacer: null, returnValue: 'target', nonenumerable: true }
-export default function toString($source, $options) {
+export default function toString($model, $options) {
   const options = Object.assign({}, Options, $options)
   return JSON.stringify(
-    valueOf($source, options), options.replacer, options.space
+    $model.valueOf($model, options), options.replacer, options.space
   )
 }

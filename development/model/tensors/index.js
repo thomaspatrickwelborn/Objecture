@@ -9,44 +9,69 @@ const ModelTypeValidator = ($target) => ($target instanceof Model)
 function ModelGetter(...$arguments) {
   if($arguments.length === 1) {
     let [$receiver] = $arguments
+    // ----->
     return $receiver
   }
   else {
     let [$receiver, $property] = $arguments
-    return $receiver.get($property)
+    // ----->
+    return $receiver.target[$property]
   }
 }
 // Model Setter
 function ModelSetter(...$arguments) {
   if($arguments.length === 2) {
     let [$receiver, $source] = $arguments
-    $receiver.clear()
+    ModelDeleter(...$arguments)
     iterateSourceEntries: 
     for(const [$sourceKey, $sourceValue] of Object.entries(source)) {
-      $receiver.set($sourceKey, $sourceValue)
+      $receiver.target[$sourceKey] = $sourceValue
     }
+    // ----->
     return $receiver
   }
   else {
     let [$receiver, $property, $value] = $arguments
-    $receiver.set($property, $value)
-    return $receiver.get($property)
+    $receiver.target[$property] = $value
+    // ----->
+    return $receiver.target[$property]
   }
 }
 // Model Deleter
 function ModelDeleter(...$arguments) {
   if($arguments.length === 2) {
     let [$receiver, $property] = $arguments
-    return $receiver.delete($property)
+    delete $receiver.target[$property]
+    // ----->
+    return $receiver.target[$property]
   }
   else {
-    let [$receiver] = $arguments
-    return $receiver.clear()
+    for(const [$propertyKey, $propertyDescriptor] of Object.entries(
+      Object.getOwnPropertyDescriptors($receiver.target)
+    )) {
+      const { enumerable, configurable, writable } = $propertyDescriptor
+      if(configurable) {
+        Object.defineProperty($receiver.target, $propertyKey, {
+          configurable: true, value: undefined
+        })
+        delete $receiver.target[$propertyKey]
+      }
+    }
+    // ----->
+    return
   } 
 }
+
 export default {
-  typeValidators: [ModelTypeValidator/*, TypeValidators.Object, TypeValidators.Map*/],
-  getters: [ModelGetter/*, Getters.Object, Getters.Map*/],
-  setters: [ModelSetter/*, Setters.Object, Setters.Map*/],
-  deleters: [ModelDeleter/*, Deleters.Object, Deleters.Map*/],
+  typeValidators: [TypeValidators.Object, TypeValidators.Map],
+  getters: [Getters.Object, Getters.Map],
+  setters: [Setters.Object, Setters.Map],
+  deleters: [Deleters.Object, Deleters.Map],
 }
+
+// export default {
+//   typeValidators: [ModelTypeValidator/*, TypeValidators.Object, TypeValidators.Map*/],
+//   getters: [ModelGetter/*, Getters.Object, Getters.Map*/],
+//   setters: [ModelSetter/*, Setters.Object, Setters.Map*/],
+//   deleters: [ModelDeleter/*, Deleters.Object, Deleters.Map*/],
+// }

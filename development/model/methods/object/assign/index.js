@@ -6,60 +6,71 @@ import {
 } from 'recourse'
 // import Change from '../../../change/index.js'
 import { ModelEvent, ValidatorEvent } from '../../../events/index.js'
-// import Options from '../options/index.js'
+import Options from '../../../options/index.js'
 const { ObjectKeys } = Variables
 const { TypeValidators, Tensors, Getters, Setters } = tensors
 
 function assign($model, $options, ...$sources) {
-  if(!$model) { return $model}
+  // if(!$model) { return $model}
   const { path, schema, source, receiver, target, type } = $model
-  const options = Object.assign({}, $options)
+  const options = Options($options)
   const {
     enableValidation, mutatorEvents, nonenumerable, propertyAssignments, 
     required, sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
   } = options
+  // const propertyAssignmentType = propertyAssignments[type]
+  propertyAssignments[type] = 'assign'
+  propertyAssignments.array
+  propertyAssignments.map
+  propertyAssignments.object
   const assignedSources = []
   const getters = new Tensors(tensors.getters, tensors.typeValidators)
   const setters = new Tensors(tensors.setters, tensors.typeValidators)
-  const typeOfModel = typeOf($model)
   let validObject, validObjectReport
   if(schema && enableValidation) {
     validObject = schema.validate($source, $model.valueOf())
     validObjectReport = validObject.report()
+  }
+  if(targetTypedObjectLiteral) {
+    $sources.unshift(typedObjectLiteral($model.type))
   }
   iterateSources: 
   for(const $source of $sources) {
     const assignedSource = typedObjectLiteral($source)
     if(!Variables.ObjectKeys.includes(typeOf($source))) continue iterateSources
     const sourceEntries = recourseEntities($source, 'entries', { recurse: false })
+    // const sourceEntries = Object.entries($source)
     iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of sourceEntries) {
+      // Try Objects
       try {
-        const targetPropertyValue = getters.cess($model, $sourcePropertyKey)
+        const targetPropertyValue = getters.cess($model.target, $sourcePropertyKey)
         const typeOfModelPropertyValue = typeOf(targetPropertyValue)
         const typeOfSourcePropertyValue = typeOf($sourcePropertyValue)
         if(ObjectKeys.includes(typeOfSourcePropertyValue)) {
           const subschema = (schema) ? schema.target[$sourcePropertyKey] : null
-          let subtarget = (targetTypedObjectLiteral)
-            ? typedObjectLiteral(targetPropertyValue)
-            : targetPropertyValue
-          subtarget = new $model.constructor(subtarget, subschema, options)
+          // let subtarget = (targetTypedObjectLiteral)
+          //   ? typedObjectLiteral(targetPropertyValue)
+          //   : targetPropertyValue
+          const subtarget = new $model.constructor(targetPropertyValue, subschema, options)
           if(sourceTree) {
-            subtarget[propertyAssignments[type]]($sourcePropertyValue)
+            subtarget[propertyAssignments[subtarget.type]]($sourcePropertyValue)
             continue iterateSourceEntries
           }
         }
         throw new Error(null)
       }
+      // Catch Primitives
       catch($err) {
-        setters.cess($model, $sourcePropertyKey, $sourcePropertyValue)
+        setters.cess($model.target, $sourcePropertyKey, $sourcePropertyValue)
       }
     }
   }
   return $model
 }
+
 /*
 function _assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options)

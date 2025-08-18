@@ -117,6 +117,10 @@ const Methods = {
         'seal': true,
       },
     },
+    toString: {
+      space: 0,
+      replacer: null,
+    },
   },
 }
 const PropertyAssignments = {
@@ -131,25 +135,21 @@ const ValidationEvents = {
   'nonvalidProperty:$key': true,
   'nonvalidProperty': true,
 }
-export default ($options) => {
-  const Options = assign({
-    autoload: false, 
-    autosave: false, 
-    localStorage: false, 
-    path: null, 
-    pathMatch: false, 
-    parent: null, 
-    enableEvents: false,
-    enableValidation: true, 
-    validationEvents: ValidationEvents,
-    methods: Methods,
-    nonenumerable: false, 
-    // pathMatch: true,
-    pathkey: true,
-    pathParseInteger: false,
-    propertyAssignments: PropertyAssignments,
-    subpathError: false,
-    tensors,
-  }, $options)
-  return Options
-}
+export default ($options) => assign({
+  autoload: false, 
+  autosave: false, 
+  enableEvents: false,
+  enableValidation: true, 
+  localStorage: false, 
+  methods: Methods,
+  nonenumerable: false, 
+  parent: null, 
+  path: null, 
+  pathkey: true,
+  pathMatch: false, 
+  pathParseInteger: false,
+  propertyAssignments: PropertyAssignments,
+  subpathError: false,
+  tensors,
+  validationEvents: ValidationEvents,
+}, $options)

@@ -6,8 +6,9 @@ console.log("Assign | Example 1")
 console.log("------------------")
 const options = {
   propertyAssignments: {
-    object: 'assign', array: 'assign'
-  }
+    object: 'assign', array: 'assign', map: 'assign', 
+  },
+  methods: { object: { toString: { space: 2, replacer: null } }}
 }
 const object = {
   propertyA: [{
@@ -33,11 +34,8 @@ const objectAssignment = {
 }
 const model = new Model(object, null, options)
 model.assign(objectAssignment)
-// throw model
-const modelObject = model.parse()
-const modelString = model.parse({
-  type: 'string', space: 2
-})
+const modelObject = model.valueOf()
+const modelString = model.toString()
 console.log("object", object)
 console.log("model", model)
 console.log("modelObject", modelObject)
