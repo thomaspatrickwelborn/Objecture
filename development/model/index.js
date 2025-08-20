@@ -1,5 +1,5 @@
 import Core from 'core-plex'
-import { typedObjectLiteral, typeOf } from 'recourse'
+import { Recourse, typedObjectLiteral, typeOf } from 'recourse'
 import { Route as LocalStorage } from 'atilax'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
@@ -10,7 +10,9 @@ import ArrayMethods from './methods/array/index.js'
 import MapMethods from './methods/map/index.js'
 
 function modelOptions($model, $methodDefinitionGroup, $methodName) {
-  const methodOptions = Object.assign({}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName])
+  const methodOptions = Object.assign(
+    {}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]
+  )
   delete methodOptions.methods
   return methodOptions
 }
@@ -211,7 +213,7 @@ export default class Model extends Core {
     this, 'reduce', Array.prototype['reduce'].bind(null, this)
   )['reduce'] }
   get reduceRight() { return Object.defineProperty(
-    $model, this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
+    this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
   )['reduceRight'] }
   get some() { return Object.defineProperty(
     this, 'some', Array.prototype['some'].bind(null, this)
@@ -250,12 +252,15 @@ export default class Model extends Core {
   get seal() { return Object.defineProperty(this, 'seal', {
     value: ObjectMethods['seal'].bind(null, this, modelOptions(this, 'object', 'seal'))
   })['seal'] }
+
   get toString() { return Object.defineProperty(this, 'toString', {
-    value: ObjectMethods['toString'].bind(null, this, modelOptions(this, 'object', 'toString'))
+    value: Recourse['toString'].bind(null, this.target, modelOptions(this, 'object', 'toString'))
   })['toString'] }
+
   get valueOf() { return Object.defineProperty(this, 'valueOf', {
-    value: ObjectMethods['valueOf'].bind(null, this, modelOptions(this, 'object', 'valueOf'))
+    value: Recourse['valueOf'].bind(null, this.target, modelOptions(this, 'object', 'valueOf'))
   })['valueOf'] }
+
   // OBJECT | MUTATORS
   get preventExtensions() { return Object.defineProperty(this, 'preventExtensions', {
     value: Object['preventExtensions'].bind(null, this.valueOf())

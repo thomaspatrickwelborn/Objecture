@@ -127,7 +127,7 @@ const PropertyAssignments = {
   object: 'set', 
   array: 'set', 
   map: 'set', 
-  set: 'add', 
+  // set: 'add', 
 }
 const ValidationEvents = {
   'validProperty:$key': true,

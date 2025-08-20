@@ -4,7 +4,8 @@ console.log("------------------")
 console.log("Assign | Example 2")
 console.log("------------------")
 const options = {
-  propertyAssignments: { array: 'assign',  map: 'assign' }
+  propertyAssignments: { array: 'assign',  map: 'assign' },
+  methods: { object: { toString: { space: 2, replacer: null } } },
 }
 const object = {
   propertyA: [{
@@ -17,10 +18,13 @@ const object = {
     }
   }]
 }
-const objectString = Recourse.toString(object, { space: 2, replacer: null })
 const model = new Model(object, null, options)
-console.log(model.valueOf())
-console.log(model.toString())
+const originalObjectString = Recourse.toString(object, options.methods.object.toString)
+const originalModelString = model.toString()
+console.log("originalObjectString", originalObjectString)
+console.log("originalModelString", originalModelString)
+// console.log(model.valueOf())
+// console.log(model.toString())
 // model.assign({
 //   propertyA: [{
 //     propertyB: {

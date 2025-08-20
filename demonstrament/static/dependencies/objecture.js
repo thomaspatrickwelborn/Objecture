@@ -2417,16 +2417,117 @@ function typedObjectLiteral$2($source, $strict = true) {
   }
 }
 
-({
+const Options$8 = {
+  pathMatch: false,
+  pathMatchMaxResults: 1000,
+  pathParseInteger: false, 
   getters: [Getters$2.Object, Getters$2.Map], 
   setters: [Setters$2.Object, Setters$2.Map],
   typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map],
-});
+};
+function setProperty$1() {
+  const $arguments = [...arguments];
+  const [$target, $path, $value, $options] = $arguments;
+  const options = Object.assign({}, Options$8, $options);
+  const getters = new Tensors$2(options.getters, options.typeValidators);
+  const setters = new Tensors$2(options.setters, options.typeValidators);
+  if(!options.pathMatch) {
+    if(typeOf$2($arguments[1]) === 'string') {
+      const { enumerable, nonenumerable } = options;
+      getters.cess($target);
+      const subpaths = splitPath($path, options.pathParseInteger);
+      const key = subpaths.pop();
+      let subtarget = $target;
+      iterateSubpaths: 
+      for(const $subpath of subpaths) {
+        subtarget = getters.cess(subtarget, $subpath, options) || setters.cess(
+          subtarget, $subpath, isNaN($subpath) ? {} : []
+        );
+        if(subtarget === undefined) { break iterateSubpaths } 
+      }
+      setters.cess(subtarget, key, $value, options);
+      return $target
+    }
+    else {
+      const [$target, $value] = $arguments;
+      return $target
+    }
+  }
+  else {
+    const subtargets = [];
+    const compandEntries = compand($target, Object.assign({}, options, { values: true }));
+    const propertyPathMatcher = outmatch($path, { separator: '.' });
+    for(const [$propertyPath, $propertyValue] of compandEntries) {
+      const propertyPathMatch = propertyPathMatcher($propertyPath, { separator: '.' });
+      if(propertyPathMatch === true) {
+        setProperty$1($target, $propertyPath, $value, {
+          pathMatch: false, pathParseInteger: options.pathParseInteger
+        });
+        subtargets.push([$propertyPath, $value]);
+      }
+    }
+    return subtargets
+  }
+}
 
-({
+const Options$7 = {
+  pathMatch: false,
+  pathMatchMax: 100,
+  pathParseInteger: false, 
   deleters: [Deleters$1.Object, Deleters$1.Map],
   typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map],
-});
+};
+function deleteProperty$1($target, $path, $options) {
+  const options = Object.assign ({}, Options$7, $options);
+  const deleters = new Tensors$2(options.deleters, options.typeValidators);
+  if(!options.pathMatch) {
+    const subpaths = splitPath($path, options.pathParseInteger);
+    const key = subpaths.pop();
+    const subtarget = getProperty$1($target, subpaths.join('.'), options) || $target;
+    deleters.cess(subtarget, key);
+  }
+  else {
+    const subtargets = [];
+    const compandEntries = compand($target, Object.assign({}, options, { values: true }));
+    const propertyPathMatcher = outmatch($path, { separator: '.' });
+    for(const [$propertyPath, $propertyValue] of compandEntries) {
+      const propertyPathMatch = propertyPathMatcher($propertyPath, { separator: '.' });
+      if(propertyPathMatch === true) {
+        deleteProperty$1($target, $propertyPath, {
+          pathMatch: false, pathParseInteger: options.pathParseInteger
+        });
+        subtargets.push([$propertyPath, undefined]);
+      }
+    }
+    return subtargets
+  }
+}
+
+const ValidPathTypes = ['string', 'function'];
+function expand($source, $path, $options = {}) {
+  const options = Object.assign({}, $options);
+  const typeOfPath = typeOf$2($path);
+  const typeOfSource = typeOf$2($source);
+  if(
+    !ValidPathTypes.includes(typeOfPath) ||
+    !ObjectKeys$2.includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral$2($source);
+  for(const [$sourceKey, $sourceValue] of entities(
+    $source, 'entries', Object.assign({}, options, { recurse: false })
+  )) {
+    const targetValue = (
+      ObjectKeys$2.includes(typeOf$2($sourceValue))
+    ) ? expand($sourceValue, $path, options) : $sourceValue;
+    if(typeOfPath === ValidPathTypes[0]) {
+      target[$sourceKey] = setProperty$1({}, $path, targetValue, options);
+    }
+    else if(typeOfPath === ValidPathTypes[1]) {
+      target[$sourceKey] = $path(targetValue);
+    }
+  }
+  return target
+}
 
 const Options$6 = {
   ancestors: [], 
@@ -2456,9 +2557,22 @@ function impand($source, $property, $options = {}) {
   return target
 }
 
-({
+const Options$5 = {
   setters: [Setters$2.Object, Setters$2.Map],
-});
+};
+function decompand($source, $options) {
+  const options = Object.assign({}, Options$5, $options);
+  const typeofSource= typeOf$2($source);
+  const sourceEntries = (
+    typeofSource === 'object'
+  ) ? entities($source, 'entries', options) : $source;
+  if(!sourceEntries) { return }
+  const target = (isNaN(sourceEntries[0][0])) ? {} : [];
+  for(const [$propertyPath, $propertyValue] of sourceEntries) {
+    setProperty$1(target, $propertyPath, $propertyValue, options);
+  }
+  return target
+}
 
 const Options$4 = {
   getters: [Getters$2.Object, Getters$2.Map],
@@ -2470,7 +2584,7 @@ function assignSources($target, $type, ...$sources) {
   const options = Object.assign({}, Options$4);
   const getters = new Tensors$2(options.getters, options.typeValidators);
   const setters = new Tensors$2(options.setters, options.typeValidators);
-  typeOf$2($target);
+  const typeOfTarget = typeOf$2($target);
   iterateSources: 
   for(const $source of $sources) {
     if(!ObjectKeys$2.includes(typeOf$2($source))) continue iterateSources
@@ -2479,7 +2593,10 @@ function assignSources($target, $type, ...$sources) {
       const targetPropertyValue = getters.cess($target, $sourcePropertyKey);
       const typeOfTargetPropertyValue = typeOf$2(targetPropertyValue);
       const typeOfSourcePropertyValue = typeOf$2($sourcePropertyValue);
-      if(
+      if(typeOfTarget === 'array' && $type === 'assignConcat') {
+        setters.cess($target, $target.length, $sourcePropertyValue);
+      }
+      else if(
         ObjectKeys$2.includes(typeOfSourcePropertyValue) &&
         ObjectKeys$2.includes(typeOfTargetPropertyValue)
       ) {
@@ -2498,16 +2615,179 @@ function assignSources($target, $type, ...$sources) {
 
 var assign$3 = ($target, ...$sources) => assignSources($target, 'assign', ...$sources);
 
-({
-  getters: [Getters$2.Object, Getters$2.Map],
-  typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map]});
+var assignConcat = ($target, ...$sources) => assignSources($target, 'assignConcat', ...$sources);
 
-({
+const Options$3 = { typeCoercion: false };
+function defineProperty$2($target, $propertyKey, $propertyDescriptor, $options) {
+  const propertyDescriptor = Object.assign({}, $propertyDescriptor);
+  let propertyDescriptorValue = propertyDescriptor.value;
+  const options = Object.assign({}, Options$3, $options);
+  const typeOfPropertyDescriptorValue = typeOf$2(propertyDescriptor.value);
+  const targetPropertyValue = $target[$propertyKey];
+  const typeOfTargetPropertyValue = typeOf$2(targetPropertyValue);
+  if(ObjectKeys$2.includes(typeOfPropertyDescriptorValue)) {
+    if(ObjectKeys$2.includes(typeOfTargetPropertyValue)) {
+      propertyDescriptor.value = defineProperties$2(targetPropertyValue, propertyDescriptorValue, options);
+    }
+    else {
+      const propertyValueTarget = typedObjectLiteral$2(isArrayLike$1(
+        Object.defineProperties({}, propertyDescriptorValue)
+      ) ? 'array' : 'object');
+      propertyDescriptor.value = defineProperties$2(propertyValueTarget, propertyDescriptorValue, options);
+    }
+  }
+  else if(
+    options.typeCoercion && 
+    Object.getOwnPropertyDescriptor(propertyDescriptor, 'type') !== undefined &&
+    !['undefined'/*, 'null'*/].includes(typeOfPropertyDescriptorValue)
+  ) {
+    propertyDescriptor.value = new Primitives$1[propertyDescriptor.type](propertyDescriptorValue);
+  }
+  Object.defineProperty($target, $propertyKey, propertyDescriptor);
+  if($propertyDescriptor.sealed) { Object.seal($target[$propertyKey]); }
+  if($propertyDescriptor.frozen) { Object.freeze($target[$propertyKey]); }
+  return $target
+}
+
+function defineProperties$2($target, $propertyDescriptors, $options) {
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries($propertyDescriptors)) {
+    defineProperty$2($target, $propertyKey, $propertyDescriptor, $options);
+  }
+  return $target
+}
+
+const Options$2$1 = {
   getters: [Getters$2.Object, Getters$2.Map],
-  typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map]});
+  typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map],
+  ancestors: [], 
+  depth: 0, maxDepth: 10,
+};
+function freeze$1($target, $options = {}) {
+  const options = Object.assign({}, Options$2$1, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
+  const { ancestors, values } = options;
+  if(options.depth > options.maxDepth) { return } else { options.depth++; }
+  const target = new Tensors$2(options.getters, options.typeValidators).cess($target);
+  if(!ancestors.includes(target)) { ancestors.unshift(target); }
+  const targetEntities = entities($target, 'entries', Object.assign(options, {
+    recurse: false
+  }));
+  iterateTargetEntities: 
+  for(const [$propertyKey, $propertyValue] of targetEntities) {
+    if(ancestors.includes($propertyValue)) { continue iterateTargetEntities }
+    else if(ObjectKeys$2.includes(typeOf$2($propertyValue))) {
+      freeze$1($propertyValue, options);
+    }
+  }
+  return Object.freeze($target)
+}
+
+const Options$1$3 = {
+  getters: [Getters$2.Object, Getters$2.Map],
+  typeValidators: [TypeValidators$2.Object, TypeValidators$2.Map],
+  ancestors: [], 
+  depth: 0, maxDepth: 10,
+};
+function seal$1($target, $options = {}) {
+  const options = Object.assign({}, Options$1$3, $options, {
+    ancestors: Object.assign([], $options.ancestors)
+  });
+  const { ancestors, values } = options;
+  if(options.depth > options.maxDepth) { return } else { options.depth++; }
+  const target = new Tensors$2(options.getters, options.typeValidators).cess($target);
+  if(!ancestors.includes(target)) { ancestors.unshift(target); }
+  const targetEntities = entities($target, 'entries', Object.assign(options, {
+    recurse: false
+  }));
+  iterateTargetEntities: 
+  for(const [$propertyKey, $propertyValue] of targetEntities) {
+    if(ancestors.includes($propertyValue)) { continue iterateTargetEntities }
+    else if(ObjectKeys$2.includes(typeOf$2($propertyValue))) {
+      seal$1($propertyValue, options);
+    }
+  }
+  return Object.seal($target)
+}
+
+var keys = ($target, $options) => entities($target, 'keys', $options);
+
+var values = ($target, $options) => entities($target, 'values', $options);
+
+var entries = ($target, $options) => entities($target, 'entries', $options);
 
 ({
   getters: [Getters$2.Object, Getters$2.Map]});
+function valueOf($source, $options = {}) {
+  const options = Object.assign({}, $options);
+  if(options.returnValue === 'receiver') { return $source }
+  else {
+    const target = typedObjectLiteral$2(typeOf$2($source));
+    return defineProperties$2(target, getOwnPropertyDescriptors$1($source, $options))
+  }
+}
+
+const Options$f = { space: 0, replacer: null, returnValue: 'target', nonenumerable: true };
+function toString($source, $options) {
+  const options = Object.assign({}, Options$f, $options);
+  return JSON.stringify(valueOf($source, options), options.replacer, options.space)
+}
+
+class Recourse extends EventTarget {
+  #target
+  #options
+  static compand = compand
+  static decompand = decompand
+  static expand = expand
+  static impand = impand
+  static keys = keys
+  static values = values
+  static entries = entries
+  static entities = entities
+  static get = getProperty$1
+  static set = setProperty$1
+  static delete = deleteProperty$1
+  static assign = assign$3
+  static assignConcat = assignConcat
+  static defineProperties = defineProperties$2
+  static defineProperty = defineProperty$2
+  static freeze = freeze$1
+  static seal = seal$1
+  static getOwnPropertyDescriptors = getOwnPropertyDescriptors$1
+  static getOwnPropertyDescriptor = getOwnPropertyDescriptor$1
+  static isArrayLike = isArrayLike$1
+  static isMapLike = isMapLike
+  static typeOf = typeOf$2
+  static toString = toString
+  get toString() { return Object.defineProperty(this, $staticMethodName, {
+    value: $staticMethod.bind(null, this.#target, this.#options)
+  }) }
+  static valueOf = valueOf
+  constructor($target, $options = {}) {
+    super();
+    this.#target = $target;
+    this.#options = $options;
+    for(const [$staticMethodName, $staticMethod] of Object.entries({
+      compand: Recourse.compand, decompand: Recourse.decompand, 
+      expand: Recourse.expand, impand: Recourse.impand,
+      entities: Recourse.entities,
+      keys: Recourse.keys, values: Recourse.values, entries: Recourse.entries, 
+      get: Recourse.get, set: Recourse.set, delete: Recourse.delete,
+      assign: Recourse.assign, assignConcat: Recourse.assignConcat, 
+      defineProperties: Recourse.defineProperties, 
+      defineProperty: Recourse.defineProperty,
+      freeze: Recourse.freeze, seal: Recourse.seal,
+      getOwnPropertyDescriptors: Recourse.getOwnPropertyDescriptors, 
+      getOwnPropertyDescriptor: Recourse.getOwnPropertyDescriptor,
+      isArrayLike: Recourse.isArrayLike, isMapLike: Recourse.isMapLike,
+      typeOf: Recourse.typeOf,
+    })) {
+      Object.defineProperty(this, $staticMethodName, {
+        value: $staticMethod.bind(null, $target)
+      });
+    }
+  }
+}
 
 const Primitives = {
   'string': String, 
@@ -2640,13 +2920,13 @@ function getOwnPropertyDescriptors($properties, $options) {
   return propertyDescriptors
 }
 
-var Options$2$1 = {
+var Options$2 = {
   typeCoercion: false,
 };
 
 function defineProperty$1($target, $propertyKey, $propertyDescriptor, $options) {
   const propertyDescriptor = Object.assign({}, $propertyDescriptor);
-  const options = Object.assign({}, Options$2$1, $options);
+  const options = Object.assign({}, Options$2, $options);
   const typeOfPropertyValue = typeOf$1(propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
@@ -2668,7 +2948,7 @@ function defineProperty$1($target, $propertyKey, $propertyDescriptor, $options) 
 }
 
 function defineProperties$1($target, $propertyDescriptors, $options) {
-  const options = Object.assign({}, Options$2$1, $options);
+  const options = Object.assign({}, Options$2, $options);
   for(const [
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {
@@ -3028,7 +3308,7 @@ function isValidatorDefinition($object, $schema) {
 }
 
 const verificationTypes = ['all', 'one'];
-var Options$2 = (...$options) => Object.assign({
+var Options$1 = (...$options) => Object.assign({
   required: false,
   verificationType: verificationTypes[0], 
   strict: false,
@@ -3042,7 +3322,7 @@ let Schema$1 = class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super();
     Object.defineProperties(this, {
-      'options': { value: Options$2($options) },
+      'options': { value: Options$1($options) },
       'type': { value: typeOf$2($properties) },
       'parent': { configurable: true, get() {
         const { options } = this;
@@ -3328,7 +3608,7 @@ const PropertyAssignments = {
   object: 'set', 
   array: 'set', 
   map: 'set', 
-  set: 'add', 
+  // set: 'add', 
 };
 const ValidationEvents = {
   'validProperty:$key': true,
@@ -3336,7 +3616,7 @@ const ValidationEvents = {
   'nonvalidProperty:$key': true,
   'nonvalidProperty': true,
 };
-var Options$1 = ($options) => assign$3({
+var Options = ($options) => assign$3({
   autoload: false, 
   autosave: false, 
   enableEvents: false,
@@ -3444,7 +3724,7 @@ const { TypeValidators, Tensors, Getters, Setters } = index;
 function assign$1($model, $options, ...$sources) {
   // if(!$model) { return $model}
   const { path, schema, source, receiver, target, type } = $model;
-  const options = Options$1($options);
+  const options = Options($options);
   const {
     enableValidation, mutatorEvents, nonenumerable, propertyAssignments, required, 
     sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
@@ -3767,19 +4047,8 @@ function seal($model, $options) {
   return $model
 }
 
-const Options = { space: 0, replacer: null, returnValue: 'target', nonenumerable: true };
-function toString($model, $options) {
-  Object.assign({}, Options, $options);
-  // REQUIREMENT: 
-  // Must be able to generate string representations of Map instances
-
-  // return JSON.stringify(
-  //   $model.valueOf($model, options), options.replacer, options.space
-  // )
-}
-
-function valueOf($model) { return $model.target }
-
+// import toString from './to-string/index.js'
+// import valueOf from './value-of/index.js'
 var ObjectMethods = {
   assign: assign$1, 
   defineProperties, 
@@ -3787,8 +4056,8 @@ var ObjectMethods = {
   freeze, 
   hasOwn: hasOwn$1, 
   seal, 
-  toString, 
-  valueOf, 
+  // toString, 
+  // valueOf, 
 };
 
 function concat($model, $options) {
@@ -5041,7 +5310,9 @@ var MapMethods = {
 };
 
 function modelOptions($model, $methodDefinitionGroup, $methodName) {
-  const methodOptions = Object.assign({}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]);
+  const methodOptions = Object.assign(
+    {}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]
+  );
   delete methodOptions.methods;
   return methodOptions
 }
@@ -5072,7 +5343,7 @@ class Model extends Core {
     Object.defineProperties(this, {
       'key': { get() { return (path) ? path.pop() : path } },
       'options': { configurable: true, get() {
-        const options = Options$1($options);
+        const options = Options($options);
         if(options.events) {
           this.addEvents(options.events);
           delete options.events;
@@ -5242,7 +5513,7 @@ class Model extends Core {
     this, 'reduce', Array.prototype['reduce'].bind(null, this)
   )['reduce'] }
   get reduceRight() { return Object.defineProperty(
-    $model, this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
+    this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
   )['reduceRight'] }
   get some() { return Object.defineProperty(
     this, 'some', Array.prototype['some'].bind(null, this)
@@ -5281,12 +5552,15 @@ class Model extends Core {
   get seal() { return Object.defineProperty(this, 'seal', {
     value: ObjectMethods['seal'].bind(null, this, modelOptions(this, 'object', 'seal'))
   })['seal'] }
+
   get toString() { return Object.defineProperty(this, 'toString', {
-    value: ObjectMethods['toString'].bind(null, this, modelOptions(this, 'object', 'toString'))
+    value: Recourse['toString'].bind(null, this.target, modelOptions(this, 'object', 'toString'))
   })['toString'] }
+
   get valueOf() { return Object.defineProperty(this, 'valueOf', {
-    value: ObjectMethods['valueOf'].bind(null, this, modelOptions(this, 'object', 'valueOf'))
+    value: Recourse['valueOf'].bind(null, this.target, modelOptions(this, 'object', 'valueOf'))
   })['valueOf'] }
+
   // OBJECT | MUTATORS
   get preventExtensions() { return Object.defineProperty(this, 'preventExtensions', {
     value: Object['preventExtensions'].bind(null, this.valueOf())

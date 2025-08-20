@@ -1,5 +1,5 @@
 import Core from 'core-plex';
-import { typedObjectLiteral as typedObjectLiteral$2, assign as assign$3, variables as variables$1, typeOf as typeOf$2, tensors as tensors$1, entities, impand, splitPath } from 'recourse';
+import { typedObjectLiteral as typedObjectLiteral$2, assign as assign$3, variables as variables$1, typeOf as typeOf$2, tensors as tensors$1, entities, impand, splitPath, Recourse } from 'recourse';
 
 const Primitives = {
   'string': String, 
@@ -132,13 +132,13 @@ function getOwnPropertyDescriptors($properties, $options) {
   return propertyDescriptors
 }
 
-var Options$2$1 = {
+var Options$2 = {
   typeCoercion: false,
 };
 
 function defineProperty$1($target, $propertyKey, $propertyDescriptor, $options) {
   const propertyDescriptor = Object.assign({}, $propertyDescriptor);
-  const options = Object.assign({}, Options$2$1, $options);
+  const options = Object.assign({}, Options$2, $options);
   const typeOfPropertyValue = typeOf$1(propertyDescriptor.value);
   if(['array', 'object'].includes(typeOfPropertyValue)) {
     const propertyValue = isArrayLike(Object.defineProperties(
@@ -160,7 +160,7 @@ function defineProperty$1($target, $propertyKey, $propertyDescriptor, $options) 
 }
 
 function defineProperties$1($target, $propertyDescriptors, $options) {
-  const options = Object.assign({}, Options$2$1, $options);
+  const options = Object.assign({}, Options$2, $options);
   for(const [
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {
@@ -520,7 +520,7 @@ function isValidatorDefinition($object, $schema) {
 }
 
 const verificationTypes = ['all', 'one'];
-var Options$2 = (...$options) => Object.assign({
+var Options$1 = (...$options) => Object.assign({
   required: false,
   verificationType: verificationTypes[0], 
   strict: false,
@@ -534,7 +534,7 @@ let Schema$1 = class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super();
     Object.defineProperties(this, {
-      'options': { value: Options$2($options) },
+      'options': { value: Options$1($options) },
       'type': { value: typeOf$2($properties) },
       'parent': { configurable: true, get() {
         const { options } = this;
@@ -820,7 +820,7 @@ const PropertyAssignments = {
   object: 'set', 
   array: 'set', 
   map: 'set', 
-  set: 'add', 
+  // set: 'add', 
 };
 const ValidationEvents = {
   'validProperty:$key': true,
@@ -828,7 +828,7 @@ const ValidationEvents = {
   'nonvalidProperty:$key': true,
   'nonvalidProperty': true,
 };
-var Options$1 = ($options) => assign$3({
+var Options = ($options) => assign$3({
   autoload: false, 
   autosave: false, 
   enableEvents: false,
@@ -936,7 +936,7 @@ const { TypeValidators, Tensors, Getters, Setters } = tensors$1;
 function assign$1($model, $options, ...$sources) {
   // if(!$model) { return $model}
   const { path, schema, source, receiver, target, type } = $model;
-  const options = Options$1($options);
+  const options = Options($options);
   const {
     enableValidation, mutatorEvents, nonenumerable, propertyAssignments, required, 
     sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
@@ -1259,19 +1259,8 @@ function seal($model, $options) {
   return $model
 }
 
-const Options = { space: 0, replacer: null, returnValue: 'target', nonenumerable: true };
-function toString($model, $options) {
-  Object.assign({}, Options, $options);
-  // REQUIREMENT: 
-  // Must be able to generate string representations of Map instances
-
-  // return JSON.stringify(
-  //   $model.valueOf($model, options), options.replacer, options.space
-  // )
-}
-
-function valueOf($model) { return $model.target }
-
+// import toString from './to-string/index.js'
+// import valueOf from './value-of/index.js'
 var ObjectMethods = {
   assign: assign$1, 
   defineProperties, 
@@ -1279,8 +1268,8 @@ var ObjectMethods = {
   freeze, 
   hasOwn: hasOwn$1, 
   seal, 
-  toString, 
-  valueOf, 
+  // toString, 
+  // valueOf, 
 };
 
 function concat($model, $options) {
@@ -2533,7 +2522,9 @@ var MapMethods = {
 };
 
 function modelOptions($model, $methodDefinitionGroup, $methodName) {
-  const methodOptions = Object.assign({}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]);
+  const methodOptions = Object.assign(
+    {}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]
+  );
   delete methodOptions.methods;
   return methodOptions
 }
@@ -2564,7 +2555,7 @@ class Model extends Core {
     Object.defineProperties(this, {
       'key': { get() { return (path) ? path.pop() : path } },
       'options': { configurable: true, get() {
-        const options = Options$1($options);
+        const options = Options($options);
         if(options.events) {
           this.addEvents(options.events);
           delete options.events;
@@ -2734,7 +2725,7 @@ class Model extends Core {
     this, 'reduce', Array.prototype['reduce'].bind(null, this)
   )['reduce'] }
   get reduceRight() { return Object.defineProperty(
-    $model, this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
+    this, 'reduceRight'.prototype[$methodName].bind('reduceRight', this)
   )['reduceRight'] }
   get some() { return Object.defineProperty(
     this, 'some', Array.prototype['some'].bind(null, this)
@@ -2773,12 +2764,15 @@ class Model extends Core {
   get seal() { return Object.defineProperty(this, 'seal', {
     value: ObjectMethods['seal'].bind(null, this, modelOptions(this, 'object', 'seal'))
   })['seal'] }
+
   get toString() { return Object.defineProperty(this, 'toString', {
-    value: ObjectMethods['toString'].bind(null, this, modelOptions(this, 'object', 'toString'))
+    value: Recourse['toString'].bind(null, this.target, modelOptions(this, 'object', 'toString'))
   })['toString'] }
+
   get valueOf() { return Object.defineProperty(this, 'valueOf', {
-    value: ObjectMethods['valueOf'].bind(null, this, modelOptions(this, 'object', 'valueOf'))
+    value: Recourse['valueOf'].bind(null, this.target, modelOptions(this, 'object', 'valueOf'))
   })['valueOf'] }
+
   // OBJECT | MUTATORS
   get preventExtensions() { return Object.defineProperty(this, 'preventExtensions', {
     value: Object['preventExtensions'].bind(null, this.valueOf())

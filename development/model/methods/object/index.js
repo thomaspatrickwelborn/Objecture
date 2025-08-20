@@ -5,8 +5,8 @@ import freeze from './freeze/index.js'
 import hasOwn from './has-own/index.js'
 import hasOwnProperty from './has-own-property/index.js'
 import seal from './seal/index.js'
-import toString from './to-string/index.js'
-import valueOf from './value-of/index.js'
+// import toString from './to-string/index.js'
+// import valueOf from './value-of/index.js'
 export default {
   assign, 
   defineProperties, 
@@ -15,6 +15,6 @@ export default {
   hasOwn, 
   hasOwnProperty, 
   seal, 
-  toString, 
-  valueOf, 
+  // toString, 
+  // valueOf, 
 }
