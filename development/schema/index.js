@@ -83,6 +83,12 @@ class Schema extends EventTarget {
         Object.defineProperty(this, 'target', { value: target })
         return target
       } },
+      'getProperty': { value: function($property) {
+        // if(this.type !== 'object')
+        if(isNaN($property)) { return this.target[$property] }
+        else if(Object.has(this.target, $property)) { return this.target[$property] }
+        else { return this.target[0] }
+      } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments)
         $target = $target || typedObjectLiteral($source)

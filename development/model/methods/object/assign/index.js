@@ -15,14 +15,10 @@ function assign($model, $options, ...$sources) {
   const { path, schema, source, receiver, target, type } = $model
   const options = Options($options)
   const {
-    enableValidation, mutatorEvents, nonenumerable, propertyAssignments, 
-    required, sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
+    enableValidation, mutatorEvents, nonenumerable, propertyAssignments, required, 
+    sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
   } = options
-  // const propertyAssignmentType = propertyAssignments[type]
   propertyAssignments[type] = 'assign'
-  propertyAssignments.array
-  propertyAssignments.map
-  propertyAssignments.object
   const assignedSources = []
   const getters = new Tensors(tensors.getters, tensors.typeValidators)
   const setters = new Tensors(tensors.setters, tensors.typeValidators)
@@ -39,32 +35,38 @@ function assign($model, $options, ...$sources) {
     const assignedSource = typedObjectLiteral($source)
     if(!Variables.ObjectKeys.includes(typeOf($source))) continue iterateSources
     const sourceEntries = recourseEntities($source, 'entries', { recurse: false })
-    // const sourceEntries = Object.entries($source)
     iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of sourceEntries) {
-      // Try Objects
+      let receiverPropertyValue, sourcePropertyValue, typeOfReceiverPropertyValue
       try {
-        const targetPropertyValue = getters.cess($model.target, $sourcePropertyKey)
-        const typeOfModelPropertyValue = typeOf(targetPropertyValue)
-        const typeOfSourcePropertyValue = typeOf($sourcePropertyValue)
-        if(ObjectKeys.includes(typeOfSourcePropertyValue)) {
-          const subschema = (schema) ? schema.target[$sourcePropertyKey] : null
-          // let subtarget = (targetTypedObjectLiteral)
-          //   ? typedObjectLiteral(targetPropertyValue)
-          //   : targetPropertyValue
-          const subtarget = new $model.constructor(targetPropertyValue, subschema, options)
-          if(sourceTree) {
-            subtarget[propertyAssignments[subtarget.type]]($sourcePropertyValue)
-            continue iterateSourceEntries
-          }
+        // Try Objects
+        const typeOfSourcePropertyValue = typeOf(sourcePropertyValue)
+        // const typeOfReceiverPropertyValue = receiverPropertyValue
+        if(!ObjectKeys.includes(typeOfSourcePropertyValue)) {
+          sourcePropertyValue = $sourcePropertyValue
+          throw new Error(null)
         }
-        throw new Error(null)
+        try {
+          receiverPropertyValue = getters.cess($model.receiver, $sourcePropertyKey)
+          sourcePropertyValue = $sourcePropertyValue
+        }
+        catch($err) {
+          sourcePropertyValue = new $model.constructor(
+            $sourcePropertyValue, schema || schema.getProperty($sourcePropertyKey), options
+          )
+          receiverPropertyValue = setters.cess($model.receiver, $sourcePropertyKey, sourcePropertyValue)
+          typeOfReceiverPropertyValue = receiverPropertyValue.type
+        }
+        if(sourceTree) {
+          receiverPropertyValue[propertyAssignments[receiverPropertyValue.type]](sourcePropertyValue)
+        }
+        else { throw new Error(null) }
       }
       // Catch Primitives
       catch($err) {
-        setters.cess($model.target, $sourcePropertyKey, $sourcePropertyValue)
+        setters.cess($model.target, $sourcePropertyKey, sourcePropertyValue)
       }
     }
   }

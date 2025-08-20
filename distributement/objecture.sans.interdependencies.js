@@ -1,5 +1,5 @@
 import Core from 'core-plex';
-import { typedObjectLiteral as typedObjectLiteral$2, assign as assign$3, variables as variables$1, typeOf as typeOf$2, tensors as tensors$1, entities, impand, splitPath, freeze as freeze$1 } from 'recourse';
+import { typedObjectLiteral as typedObjectLiteral$2, assign as assign$3, variables as variables$1, typeOf as typeOf$2, tensors as tensors$1, entities, impand, splitPath } from 'recourse';
 
 const Primitives = {
   'string': String, 
@@ -599,6 +599,12 @@ let Schema$1 = class Schema extends EventTarget {
         Object.defineProperty(this, 'target', { value: target });
         return target
       } },
+      'getProperty': { value: function($property) {
+        // if(this.type !== 'object')
+        if(isNaN($property)) { return this.target[$property] }
+        else if(Object.has(this.target, $property)) { return this.target[$property] }
+        else { return this.target[0] }
+      } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments);
         $target = $target || typedObjectLiteral$2($source);
@@ -875,6 +881,25 @@ class ModelEvent extends CustomEvent {
   }
 }
 
+// const ValidArrayAssigmentMethods = Object.freeze(
+//   ['push', 'unshift']
+// )
+// const ValidObjectAssigmentMethods = Object.freeze(
+//   ['assign', 'defineProperties', 'set']
+// )
+
+function Assign($model, $properties, $options) {
+  const { type } = $model;
+  const { propertyAssignments } = $options;
+  if(type === 'array'/* && ValidArrayAssigmentMethods.includes(assignArray)*/) {
+    $model[propertyAssignments[type]](...$properties);
+  }
+  else {
+    $model[propertyAssignments[type]]($properties);
+  }
+  return $model
+}
+
 let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   constructor($type, $settings, $model) {
     super($type);
@@ -913,14 +938,10 @@ function assign$1($model, $options, ...$sources) {
   const { path, schema, source, receiver, target, type } = $model;
   const options = Options$1($options);
   const {
-    enableValidation, mutatorEvents, nonenumerable, propertyAssignments, 
-    required, sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
+    enableValidation, mutatorEvents, nonenumerable, propertyAssignments, required, 
+    sourceTree, targetTypedObjectLiteral, tensors, validationEvents, 
   } = options;
-  // const propertyAssignmentType = propertyAssignments[type]
   propertyAssignments[type] = 'assign';
-  propertyAssignments.array;
-  propertyAssignments.map;
-  propertyAssignments.object;
   const getters = new Tensors(tensors.getters, tensors.typeValidators);
   const setters = new Tensors(tensors.setters, tensors.typeValidators);
   let validObject;
@@ -936,32 +957,37 @@ function assign$1($model, $options, ...$sources) {
     typedObjectLiteral$2($source);
     if(!variables$1.ObjectKeys.includes(typeOf$2($source))) continue iterateSources
     const sourceEntries = entities($source, 'entries', { recurse: false });
-    // const sourceEntries = Object.entries($source)
-    iterateSourceEntries: 
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of sourceEntries) {
-      // Try Objects
+      let receiverPropertyValue, sourcePropertyValue, typeOfReceiverPropertyValue;
       try {
-        const targetPropertyValue = getters.cess($model.target, $sourcePropertyKey);
-        const typeOfModelPropertyValue = typeOf$2(targetPropertyValue);
-        const typeOfSourcePropertyValue = typeOf$2($sourcePropertyValue);
-        if(ObjectKeys.includes(typeOfSourcePropertyValue)) {
-          const subschema = (schema) ? schema.target[$sourcePropertyKey] : null;
-          // let subtarget = (targetTypedObjectLiteral)
-          //   ? typedObjectLiteral(targetPropertyValue)
-          //   : targetPropertyValue
-          const subtarget = new $model.constructor(targetPropertyValue, subschema, options);
-          if(sourceTree) {
-            subtarget[propertyAssignments[subtarget.type]]($sourcePropertyValue);
-            continue iterateSourceEntries
-          }
+        // Try Objects
+        const typeOfSourcePropertyValue = typeOf$2(sourcePropertyValue);
+        // const typeOfReceiverPropertyValue = receiverPropertyValue
+        if(!ObjectKeys.includes(typeOfSourcePropertyValue)) {
+          sourcePropertyValue = $sourcePropertyValue;
+          throw new Error(null)
         }
-        throw new Error(null)
+        try {
+          receiverPropertyValue = getters.cess($model.receiver, $sourcePropertyKey);
+          sourcePropertyValue = $sourcePropertyValue;
+        }
+        catch($err) {
+          sourcePropertyValue = new $model.constructor(
+            $sourcePropertyValue, schema || schema.getProperty($sourcePropertyKey), options
+          );
+          receiverPropertyValue = setters.cess($model.receiver, $sourcePropertyKey, sourcePropertyValue);
+          typeOfReceiverPropertyValue = receiverPropertyValue.type;
+        }
+        if(sourceTree) {
+          receiverPropertyValue[propertyAssignments[receiverPropertyValue.type]](sourcePropertyValue);
+        }
+        else { throw new Error(null) }
       }
       // Catch Primitives
       catch($err) {
-        setters.cess($model.target, $sourcePropertyKey, $sourcePropertyValue);
+        setters.cess($model.target, $sourcePropertyKey, sourcePropertyValue);
       }
     }
   }
@@ -1195,6 +1221,10 @@ function freeze($model, $options) {
   return $model
 }
 
+function hasOwn$1($model, $options, $property) {
+  return Object.hasOwn($model.target, $property)
+}
+
 function seal($model, $options) {
   const { recursive, mutatorEvents } = $options;
   const { receiver } = $model;
@@ -1231,22 +1261,26 @@ function seal($model, $options) {
 
 const Options = { space: 0, replacer: null, returnValue: 'target', nonenumerable: true };
 function toString($model, $options) {
-  const options = Object.assign({}, Options, $options);
-  return JSON.stringify(
-    $model.valueOf($model, options), options.replacer, options.space
-  )
+  Object.assign({}, Options, $options);
+  // REQUIREMENT: 
+  // Must be able to generate string representations of Map instances
+
+  // return JSON.stringify(
+  //   $model.valueOf($model, options), options.replacer, options.space
+  // )
 }
 
 function valueOf($model) { return $model.target }
 
 var ObjectMethods = {
-  assign: assign$1,
-  defineProperties,
-  defineProperty,
-  freeze,
-  seal,
-  toString,
-  valueOf,
+  assign: assign$1, 
+  defineProperties, 
+  defineProperty, 
+  freeze, 
+  hasOwn: hasOwn$1, 
+  seal, 
+  toString, 
+  valueOf, 
 };
 
 function concat($model, $options) {
@@ -2077,6 +2111,10 @@ function getProperty($model, $options, ...$arguments) {
   return getProperty
 }
 
+function hasOwn($model, $options, $property) {
+  return $model.target.has($property)
+}
+
 function setContent($model, $options, $properties) {
   const { path, schema } = $model;
   let { enableValidation, mutatorEvents, required, validationEvents  } = $options;
@@ -2488,156 +2526,11 @@ function deleteProperty($model, $options, ...$arguments) {
 // import clearProperties from './clear-properties/index.js'
 var MapMethods = {
   // clear: clearProperties,
+  has: hasOwn,
   get: getProperty,
   set: setProperty,
   delete: deleteProperty,
 };
-
-freeze$1({
-  // -----
-  // Array
-  // -----
-  array: [
-    // {
-    //   type: 'mutators', 
-    //   methodNames: Object.keys(ArrayMethods), 
-    //   /* methodNames: ['concat', 'copyWithin', 'fill', 'pop', 'push',
-    //   'reverse', 'shift', 'sort', 'splice', 'unshift',] */
-    //   methodDescriptor: function($methodName, $model, $options) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty(
-    //         $model, $methodName, ArrayMethods[$methodName].bind(null, $model, $options)
-    //       )[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'accessors', 
-    //   methodNames: [
-    //     'at', 'includes', 'indexOf', 'join', 'lastIndexOf', 
-    //     'slice', 'toReversed', 'toSorted', 'toSpliced', 'with', 
-    //   ],
-    //   methodDescriptor: function($methodName, $model) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty(
-    //         $model, $methodName, Array.prototype[$methodName].bind(null, $model)
-    //       )[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'iterators', 
-    //   methodNames: [
-    //     'every', 'filter', 'find', 'findIndex', 'findLast',
-    //     'findLastIndex', 'flat', 'flatMap', 'forEach', 'map', 
-    //     'reduce', 'reduceRight', 'some', 'sort',   
-    //   ], 
-    //   methodDescriptor: function($methodName, $model) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty(
-    //         $model, $methodName, Array.prototype[$methodName].bind(null, $model)
-    //       )[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'static', 
-    //   methodNames: ['from', 'fromAsync', 'isArray', 'of'], 
-    //   methodDescriptor: function($methodName, $model) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty(
-    //         $model, $methodName, Array[$methodName]
-    //       )[$methodName]
-    //     } }
-    //   }, 
-    // },
-    // {
-    //   type: 'properties', 
-    //   methodNames: ['length'], 
-    //   methodDescriptor: function($propertyName, $model, $options) {
-    //     return {
-    //       get() { return $model.receiver.length },
-    //       set($propertyValue) { $model.receiver.length = $propertyValue },
-    //     }
-    //   },
-    // },
-  ],
-  // ------
-  // Object
-  // ------
-  object: [
-    // {
-    //   type: 'mutators',
-    //   /* methodNames: [
-    //     'assign', 'defineProperties', 'defineProperty', 'freeze', 'seal',
-    //     'toString', 'valueOf',
-    //   ], */
-    //   methodNames: Object.keys(ObjectMethods), 
-    //   methodDescriptor: function($methodName, $model, $options) {
-    //     return { configurable: true, get() {
-          
-    //       return Object.defineProperty($model, $methodName, {
-    //         value: ObjectMethods[$methodName].bind(null, $model, $options)
-    //       })[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'mutators',
-    //   methodNames: ['preventExtensions', 'setPrototypeOf'],
-    //   methodDescriptor: function($methodName, $model) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty($model, $methodName, {
-    //         value: Object[$methodName].bind(null, $model.valueOf())
-    //       })[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'creators',
-    //   methodNames: ['create', 'fromEntries', 'groupBy'],
-    //   methodDescriptor: function($methodName, $model, $options) {
-    //     return { configurable: true, get() {
-    //       return Object.defineProperty($model, $methodName, {
-    //         value: Object[$methodName].bind(null, $model, $options)
-    //       })[$methodName]
-    //     } }
-    //   },
-    // },
-    // {
-    //   type: 'accessors', 
-    //   methodNames: ['toString', 'valueOf'],
-    //   methodDescriptor: function($methodName, $model, $options) {
-    //     return { value: ObjectMethods[$methodName].bind(null, $model, $options) }
-    //   },
-    // },
-    // {
-    //   type: 'accessors',
-    //   methodNames: [
-    //     'entries', 'getOwnPropertyDescriptors', 'getOwnPropertyDescriptor', 
-    //     'getOwnPropertyNames', 'getPrototypeOf', 
-    //     'hasOwn', 'is', 'isExtensible', 'isFrozen', 'isSealed', 
-    //     'keys', 'toLocaleString', 'values',
-    //   ],
-    //   methodDescriptor: function($methodName, $model) {
-    //     return 
-    //   },
-    // },
-  ],
-  // ---
-  // Map
-  // ---
-  // map: [
-  //   {
-  //     type: 'mutators',
-  //     /* methodNames: ['delete', 'get', 'set', 'clear'], */
-  //     methodNames: Object.keys(MapMethods),
-  //     methodDescriptor: function($methodName, $model, $options) {
-  //       return { value: MapMethods[$methodName].bind(null, $model, $options) }
-  //     },
-  //   }, 
-  // ]
-});
 
 function modelOptions($model, $methodDefinitionGroup, $methodName) {
   const methodOptions = Object.assign({}, $model.options, $model.options.methods[$methodDefinitionGroup][$methodName]);
@@ -2729,13 +2622,12 @@ class Model extends Core {
         } },
       });
     }
-    // DefineMethods(this)
-    // if(this.options.autoload) {
-    //   Assign(this, this.load() || $properties, this.options)
-    // }
-    // else {
-    //   Assign(this, $properties, this.options)
-    // }
+    if(this.options.autoload) {
+      Assign(this, this.load() || $properties, this.options);
+    }
+    else {
+      Assign(this, $properties, this.options);
+    }
   }
   retroReenableEvents() {
     let model = this;
@@ -2894,6 +2786,10 @@ class Model extends Core {
   get setPrototypeOf() { return Object.defineProperty(this, 'setPrototypeOf', {
     value: Object['setPrototypeOf'].bind(null, this.valueOf())
   })['setPrototypeOf'] }
+  // OBJECT | ACCESSORS
+  get hasOwn() { return Object.defineProperty(this, 'hasOwn', {
+    value: ObjectMethods['hasOwn'].bind(null, this, modelOptions(this, 'object', 'hasOwn'))
+  })['hasOwn'] }
   // OBJECT | CREATORS
   get create() { return Object.defineProperty(this, 'create', {
     value: Object['create'].bind(null, this, modelOptions(this, 'object', 'create'))
@@ -2920,9 +2816,6 @@ class Model extends Core {
   get getPrototypeOf() { return Object.defineProperty(this, 'getPrototypeOf', {
     value: Object['getPrototypeOf'].bind(null, this.valueOf()) } 
   )['getPrototypeOf'] }
-  get hasOwn() { return Object.defineProperty(this, 'hasOwn', {
-    value: Object['hasOwn'].bind(null, this.valueOf()) } 
-  )['hasOwn'] }
   get is() { return Object.defineProperty(this, 'is', {
     value: Object['is'].bind(null, this.valueOf()) } 
   )['is'] }
@@ -2951,6 +2844,9 @@ class Model extends Core {
   get get() { return Object.defineProperty(this, 'get', {
     value: MapMethods['get'].bind(null, this, modelOptions(this, 'map', 'get'))
   })['get'] }
+  get has() { return Object.defineProperty(this, 'has', {
+    value: MapMethods['has'].bind(null, this, modelOptions(this, 'map', 'has'))
+  })['has'] }
   get set() { return Object.defineProperty(this, 'set', {
     value: MapMethods['set'].bind(null, this, modelOptions(this, 'map', 'set'))
   })['set'] }

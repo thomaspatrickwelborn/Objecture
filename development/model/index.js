@@ -4,7 +4,6 @@ import { Route as LocalStorage } from 'atilax'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ModelEvent from './events/model/index.js'
-import DefineMethods from './methods/index.js'
 import Assign from './assign/index.js'
 import ObjectMethods from './methods/object/index.js'
 import ArrayMethods from './methods/array/index.js'
@@ -100,13 +99,12 @@ export default class Model extends Core {
         } },
       })
     }
-    // DefineMethods(this)
-    // if(this.options.autoload) {
-    //   Assign(this, this.load() || $properties, this.options)
-    // }
-    // else {
-    //   Assign(this, $properties, this.options)
-    // }
+    if(this.options.autoload) {
+      Assign(this, this.load() || $properties, this.options)
+    }
+    else {
+      Assign(this, $properties, this.options)
+    }
   }
   retroReenableEvents() {
     let model = this
@@ -265,6 +263,10 @@ export default class Model extends Core {
   get setPrototypeOf() { return Object.defineProperty(this, 'setPrototypeOf', {
     value: Object['setPrototypeOf'].bind(null, this.valueOf())
   })['setPrototypeOf'] }
+  // OBJECT | ACCESSORS
+  get hasOwn() { return Object.defineProperty(this, 'hasOwn', {
+    value: ObjectMethods['hasOwn'].bind(null, this, modelOptions(this, 'object', 'hasOwn'))
+  })['hasOwn'] }
   // OBJECT | CREATORS
   get create() { return Object.defineProperty(this, 'create', {
     value: Object['create'].bind(null, this, modelOptions(this, 'object', 'create'))
@@ -291,9 +293,6 @@ export default class Model extends Core {
   get getPrototypeOf() { return Object.defineProperty(this, 'getPrototypeOf', {
     value: Object['getPrototypeOf'].bind(null, this.valueOf()) } 
   )['getPrototypeOf'] }
-  get hasOwn() { return Object.defineProperty(this, 'hasOwn', {
-    value: Object['hasOwn'].bind(null, this.valueOf()) } 
-  )['hasOwn'] }
   get is() { return Object.defineProperty(this, 'is', {
     value: Object['is'].bind(null, this.valueOf()) } 
   )['is'] }
@@ -322,6 +321,9 @@ export default class Model extends Core {
   get get() { return Object.defineProperty(this, 'get', {
     value: MapMethods['get'].bind(null, this, modelOptions(this, 'map', 'get'))
   })['get'] }
+  get has() { return Object.defineProperty(this, 'has', {
+    value: MapMethods['has'].bind(null, this, modelOptions(this, 'map', 'has'))
+  })['has'] }
   get set() { return Object.defineProperty(this, 'set', {
     value: MapMethods['set'].bind(null, this, modelOptions(this, 'map', 'set'))
   })['set'] }
